@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>脸跟随鼠标移动</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        body {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            color: black;
+        }
+        .face-container {
+            position: relative;
+            transition: transform 0.1s ease;
+        }
+        .face {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: white;
+            border: 4px solid #333;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .eye {
+            position: absolute;
+            width: 18px;
+            height: 30px;
+            background-color: #333;
+            border-radius: 20px;
+            top: 30px;
+            transition: transform 0.1s ease;
+        }
+        .eye:nth-child(1) {
+            left: 25px;
+        }
+        .eye:nth-child(2) {
+            right: 25px;
+        }
+        .speech-bubble {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 10px;
+            white-space: nowrap;
+            visibility: hidden; /* 默认不显示 */
+            transition: visibility 0.3s ease;
+        }
+        .blink {
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 100% {
+                transform: scaleY(1);
+            }
+            50% {
+                transform: scaleY(0.1);
+            }
+        }
+        input {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #333;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            background-color: #333;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="face-container">
+        <div class="face">
+            <div class="eye"></div>
+            <div class="eye"></div>
+        </div>
+        <div class="speech-bubble" id="speechBubble"></div>
+    </div>
+    <input type="text" id="userInput" placeholder="输入文本...">
+    <button onclick="sendText()">发送</button>
+    <script>
+        var faceContainer = document.querySelector(".face-container");
+        var eyes = document.querySelectorAll(".eye");
+        var speechBubble = document.getElementById("speechBubble");
+
+        window.addEventListener('mousemove', function(event) {
+            var rect = faceContainer.getBoundingClientRect();
+            var centerX = rect.left + rect.width / 2;
+            var centerY = rect.top + rect.height / 2;
+
+            var deltaX = (event.clientX - centerX) * 0.01; // 控制移动范围
+            var deltaY = (event.clientY - centerY) * 0.01; // 控制移动范围
+
+            faceContainer.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+
+            eyes.forEach(function(eye) {
+                let eyeRect = eye.getBoundingClientRect();
+                let eyeCenterX = eyeRect.left + eyeRect.width / 2;
+                let eyeCenterY = eyeRect.top + eyeRect.height / 2;
+
+                let eyeDeltaX = (event.clientX - eyeCenterX) * 0.04; // 控制眼睛的移动范围
+                let eyeDeltaY = (event.clientY - eyeCenterY) * 0.04; // 控制眼睛的移动范围
+
+                let angle = Math.atan2(eyeDeltaY, eyeDeltaX) * (180 / Math.PI);
+                eye.style.transform = `translate(${eyeDeltaX}px, ${eyeDeltaY}px) rotate(${angle}deg)`;
+            });
+        });
+
+        // 眨眼动画
+        setInterval(function() {
+            eyes.forEach(function(eye) {
+                eye.classList.add('blink');
+                setTimeout(function() {
+                    eye.classList.remove('blink');
+                }, 500);
+            });
+        }, 3000);
+
+        // 发送文本到后端
+        async function sendText() {
+            var userInput = document.getElementById("userInput").value;
+
+            try {
+                // 发送 POST 请求
+                const response = await fetch("http://10.130.87.194:5000/api/model", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ input: userInput })
+                });
+
+                // 检查响应状态
+                if (response.status === 200) {
+                    const data = await response.json();
+                    var content = data.choices[0].message.content;
+                    displayResponse(content);
+                    speakResponse(content); // 调用语音输出函数
+                } else {
+                    console.error("Error:", response.status, await response.text());
+                }
+            } catch (error) {
+                console.error("Network error:", error);
+            }
+        }
+
+        // 逐字显示响应内容
+        function displayResponse(responseText) {
+            var speechBubble = document.getElementById("speechBubble");
+            speechBubble.style.visibility = 'visible';
+            speechBubble.textContent = ''; // 清空之前的文本
+            var i = 0;
+            var interval = setInterval(function () {
+                if (i < responseText.length) {
+                    speechBubble.textContent += responseText.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 100); // 每100毫秒显示一个字符
+        }
+
+        // 语音输出响应内容
+        function speakResponse(responseText) {
+            if ('speechSynthesis' in window) {
+                var utterance = new SpeechSynthesisUtterance(responseText);
+                utterance.lang = 'zh-CN'; // 设置语言为中文
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("您的浏览器不支持语音合成功能！");
+            }
+        }
+    </script>
+</body>
+</html>
