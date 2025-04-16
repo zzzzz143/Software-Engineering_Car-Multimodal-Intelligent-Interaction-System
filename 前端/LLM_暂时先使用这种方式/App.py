@@ -8,7 +8,7 @@ MODEL_API_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completi
 # 替换为您的实际API Key
 API_KEY = "sk-d312c095790e4674998b1975c2ed5940"
 
-@app.route('/api/model', methods=['POST', 'OPTIONS'])
+@app.route('/', methods=['POST', 'OPTIONS'])
 def model_api():
     if request.method == 'OPTIONS':
         # 处理 OPTIONS 请求，返回 CORS 头信息
@@ -45,7 +45,7 @@ def model_api():
 
             # 打印响应状态码和数据
             # print("Response status code:", response.status_code)
-            # print("Response text:", response.text)  # 打印原始响应内容
+            print("Response text:", response.text)  # 打印原始响应内容
 
             if response.status_code == 200:
                 try:
@@ -78,4 +78,4 @@ def model_api():
     }
 
 if __name__ == '__main__':
-    app.run(debug=True, host='10.130.87.194', port=5000)
+    app.run(debug=True, host='127.0.0.1', port=5000)
