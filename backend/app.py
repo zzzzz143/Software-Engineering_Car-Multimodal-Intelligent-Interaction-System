@@ -1,22 +1,23 @@
 from flask import Flask, request, jsonify
 import requests
+import os
+from dotenv import load_dotenv
+from flask_cors import CORS
 
+# 初始化Flask应用
 app = Flask(__name__)
-
-# 替换为实际的大模型API URL
-MODEL_API_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
-# 替换为您的实际API Key
-API_KEY = "sk-d312c095790e4674998b1975c2ed5940"
+# 启用CORS
+CORS(app)
+# 从.env加载配置
+load_dotenv()  
+MODEL_API_URL = os.getenv("MODEL_API_URL")
+API_KEY = os.getenv("DASHSCOPE_API_KEY")
 
 @app.route('/', methods=['POST', 'OPTIONS'])
 def model_api():
     if request.method == 'OPTIONS':
-        # 处理 OPTIONS 请求，返回 CORS 头信息
-        return jsonify({}), 200, {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-        }
+        # 处理 OPTIONS 请求
+        return jsonify({}), 200
 
     # 处理 POST 请求
     if request.method == 'POST':
@@ -51,14 +52,10 @@ def model_api():
                 try:
                     response_data = response.json()
                     # print("Response data:", response_data)
-                    return jsonify(response_data), 200, {
-                        'Access-Control-Allow-Origin': '*'
-                    }
+                    return jsonify(response_data), 200
                 except ValueError as e:
                     print("Error parsing JSON:", e)
-                    return jsonify({'error': 'Invalid JSON response from model API'}), 500, {
-                        'Access-Control-Allow-Origin': '*'
-                    }
+                    return jsonify({'error': 'Invalid JSON response from model API'}), 500
             else:
                 # 如果大模型API调用失败，返回错误信息
                 error_message = f"Model API returned status code {response.status_code}: {response.text}"
@@ -68,14 +65,10 @@ def model_api():
                 }
         except requests.RequestException as e:
             print("Request error:", e)
-            return jsonify({'error': 'Network error when calling model API'}), 500, {
-                'Access-Control-Allow-Origin': '*'
-            }
+            return jsonify({'error': 'Network error when calling model API'}), 500
 
     # 如果是 GET 请求，返回提示信息
-    return jsonify({'message': 'This endpoint supports POST requests only.'}), 200, {
-        'Access-Control-Allow-Origin': '*'
-    }
+    return jsonify({'message': 'This endpoint supports POST requests only.'}), 200
 
 if __name__ == '__main__':
     app.run(debug=True, host='127.0.0.1', port=5000)
