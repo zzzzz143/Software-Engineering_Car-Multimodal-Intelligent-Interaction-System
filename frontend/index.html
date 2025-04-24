@@ -43,8 +43,24 @@
             <input type="text" id="userInput" placeholder="输入文本...">
             <button id="sendBtn">发送</button>
         </div>
-    </div>
+        
+        <!-- 摄像头组件 -->
+        <div class="gesture-section">
+            <video id="gestureView" width="320" height="240" autoplay></video>
+            <canvas id="gestureCanvas" style="display:none;"></canvas>
+        </div>
 
+        <!-- 音乐播放器组件 -->
+        <div class="music-controls">
+            <div id="nowPlaying" class="now-playing">正在加载音乐...</div>
+            <div class="control-buttons">
+                <button id="prevBtn" class="music-btn">⏮</button>
+                <button id="playPauseBtn" class="music-btn">▶</button>
+                <button id="nextBtn" class="music-btn">⏭</button>
+            </div>
+        </div>
+        </div>    
+    </div>
     <script type="module" src="./src/js/main.js"></script>
 </body>
 </html>

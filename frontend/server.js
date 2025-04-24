@@ -18,6 +18,7 @@ app.use(
 // 静态文件托管
 app.use(express.static(__dirname));
 app.use('/src', express.static(path.join(__dirname, 'src')));
+app.use('/assets', express.static(path.join(__dirname, 'src', 'assets')));
 
 app.listen(port, () => {
   console.log(`Frontend server running at http://localhost:${port}`);

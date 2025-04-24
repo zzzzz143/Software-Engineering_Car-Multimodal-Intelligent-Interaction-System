@@ -1,17 +1,24 @@
-name: software  # 与你创建的conda环境名称一致
+name: software
 channels:
   - conda-forge
   - defaults
 dependencies:
   - python=3.9
-  - pip
+  # 基础依赖
+  - flask=2.3.*
+  - flask-sqlalchemy=3.1.*
+  - flask-cors=4.0.*
+  - psycopg2=2.9.*
+  - requests=2.31.*
+  - python-dotenv==1.0.0
+
+  # 手势识别依赖
+  - opencv=4.9.*
+  - numpy=1.23.5
+  - pip=24.0
   - pip:
-    - flask-sqlalchemy==3.1.1
-    - psycopg2-binary==2.9.9
-    - pyjwt==2.8.0
-    - werkzeug==3.0.1
-    - flask==2.3.3
-    - requests==2.31.0
-    - python-dotenv==1.0.0
-    - gunicorn==21.2.0
-    - flask-cors==5.0.1
+    - mediapipe==0.10.9
+    - protobuf==3.20.3
+    - pyautogui==0.9.54
+    - tensorflow==2.12.0
+    - tensorflow-hub==0.16.1

@@ -1,4 +1,5 @@
 **/.idea/*
 **/__pycache__/
-.env
-datasets/.cache/
+backend/.env
+multimodal/gesture/model/
+multimodal/Audio/SenseVoiceSmall/model.pt

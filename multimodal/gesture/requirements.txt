@@ -1,0 +1,5 @@
+mediapipe==0.10.10
+numpy==1.26.4
+OneEuroFilter==0.2.0
+opencv-contrib-python==4.9.0.80
+PyAutoGUI==0.9.54

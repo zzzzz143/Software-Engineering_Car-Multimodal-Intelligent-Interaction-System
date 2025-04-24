@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
 import requests
+import sys
 import os
 from dotenv import load_dotenv
 from flask_cors import CORS
+from datetime import datetime, timedelta, timezone
 
 # 初始化Flask应用
 app = Flask(__name__)
@@ -19,13 +21,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from datetime import datetime, timedelta
 from functools import wraps
+import yaml
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:your_password@localhost/software_db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_secret_key_here')
 
-# 新增JWT验证装饰器
+# JWT验证装饰器
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -34,7 +37,7 @@ def token_required(f):
             return jsonify({'error': 'Token is missing'}), 401
         try:
             data = jwt.decode(token.split()[1], app.config['SECRET_KEY'], algorithms=["HS256"])
-            current_user = User.query.get(data['user_id'])
+            current_user = db.session.get(User, data['user_id'])
         except Exception as e:
             return jsonify({'error': 'Token is invalid'}), 401
         return f(current_user, *args, **kwargs)
@@ -50,6 +53,7 @@ def model_api(current_user):
 
     # 处理 POST 请求
     if request.method == 'POST':
+        print(f"用户 {current_user.username} (ID:{current_user.id}) 发起请求")
         print("Received request:", request.get_json())  # 打印接收到的请求数据
         data = request.get_json()
         user_input = data.get('input', '')
@@ -115,7 +119,7 @@ class User(db.Model):
     def generate_token(self):
         return jwt.encode({
             'user_id': self.id,
-            'exp': datetime.utcnow() + timedelta(hours=24)
+            'exp': datetime.now(timezone.utc) + timedelta(hours=24)
         }, app.config['SECRET_KEY'], algorithm='HS256')
 
 # 注册路由
@@ -148,6 +152,32 @@ def login():
         
     token = user.generate_token()
     return jsonify({'token': token}), 200
+
+
+# 手势识别模块路径
+multimodal_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../multimodal'))
+if multimodal_path not in sys.path:
+    sys.path.insert(0, multimodal_path)
+
+from gesture.gesture_recognition import GestureRecognition
+gesture_recognizer = GestureRecognition()  # 手势识别器
+
+# 手势识别路由
+@app.route('/api/gesture', methods=['POST'])
+@token_required
+def handle_gesture(current_user):
+    try:
+        # 验证图像数据存在
+        if 'image' not in request.json:
+            return jsonify({'error': 'Missing image data'}), 400
+        
+
+    except Exception as e:
+        app.logger.error(f"Gesture recognition failed: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
 
 if __name__ == '__main__':
     with app.app_context():

@@ -128,3 +128,19 @@ button {
     padding: 0.5rem 1rem;
     border-radius: 4px;
 }
+
+
+/* 摄像头显示样式 */
+#gestureView {
+    background: #000;
+    border-radius: 8px;
+    transform: scaleX(-1); /* 镜像翻转 */
+    object-fit: cover;
+}
+
+.gesture-section {
+    margin-top: 20px;
+    padding: 10px;
+    background: rgba(0,0,0,0.8);
+    border-radius: 8px;
+}
