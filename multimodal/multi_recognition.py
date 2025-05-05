@@ -19,9 +19,9 @@ import wave
 
 
 DEVICE_ID = 0
-FPS = 30
 FRAME_WIDTH = 1280
 FRAME_HEIGHT = 720
+DESIRED_FPS = 90
 GESTURE_WINDOW = 0.5  # 动态手势时间窗口（秒）
 STATIC_GESTURE_DURATION_THRESHOLD = 1.0
 DYNAMIC_GESTURE_WINDOW = 1.0
@@ -444,7 +444,7 @@ class VisualRecognition:
 if __name__ == '__main__':
     try:
         capture = cv2.VideoCapture(DEVICE_ID)
-        capture.set(cv2.CAP_PROP_FPS, FPS)
+        capture.set(cv2.CAP_PROP_FPS, DESIRED_FPS)
         capture.set(cv2.CAP_PROP_FRAME_WIDTH, FRAME_WIDTH)
         capture.set(cv2.CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT)
 
