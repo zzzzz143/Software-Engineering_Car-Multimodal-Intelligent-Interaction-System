@@ -20,8 +20,8 @@ import wave
 
 DEVICE_ID = 0
 FPS = 30
-FRAME_WIDTH = 640
-FRAME_HEIGHT = 480
+FRAME_WIDTH = 1280
+FRAME_HEIGHT = 720
 GESTURE_WINDOW = 0.5  # 动态手势时间窗口（秒）
 STATIC_GESTURE_DURATION_THRESHOLD = 1.0
 DYNAMIC_GESTURE_WINDOW = 1.0
@@ -42,10 +42,9 @@ SILENCE_LIMIT = 1.0  # 无声时间阈值
 stop_event = threading.Event()  # 用于停止线程的事件
 
 
-class GestureRecognition(threading.Thread):
-    def __init__(self):
-        super().__init__()
-        self.init_video()
+class GestureRecognition:
+    def __init__(self, capture):
+        self.capture = capture
         self.init_mediapipe_hands_detector()
         self.prev_time = time.time()
         self.gesture_history = []  # 存储静态手势和时间戳
@@ -80,12 +79,6 @@ class GestureRecognition(threading.Thread):
 
         self.shake_history = []  # 记录最近手腕的x位置和时间
 
-    def init_video(self):
-        self.capture = cv2.VideoCapture(DEVICE_ID)
-        self.capture.set(cv2.CAP_PROP_FPS, FPS)
-        self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, FRAME_WIDTH)
-        self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT)
-
     def init_mediapipe_hands_detector(self):
         current_dir = os.path.dirname(os.path.abspath(__file__))
         model_path = os.path.join(current_dir, './gesture/model', 'gesture_recognizer.task')
@@ -93,192 +86,179 @@ class GestureRecognition(threading.Thread):
         options = vision.GestureRecognizerOptions(base_options=base_options)
         self.gesture_recognizer = vision.GestureRecognizer.create_from_options(options)
 
-    def run(self):
-        try:
-            while True:
-                ret, frame = self.capture.read()
-                current_time = time.time()
-                if ret:
-                    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame_rgb)
-                    result = self.gesture_recognizer.recognize(mp_image)
+    def process_frame(self, frame):
+        current_time = time.time()
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame_rgb)
+        result = self.gesture_recognizer.recognize(mp_image)
 
-                    current_raw_gesture = None
-                    current_raw_score = 0.0
-                    if result.gestures and result.gestures[0]:
-                        current_raw_gesture = result.gestures[0][0].category_name
-                        current_raw_score = result.gestures[0][0].score
-                    self.confirmed_static_gesture = None
-                    dynamic_gesture = None
+        current_raw_gesture = None
+        current_raw_score = 0.0
+        if result.gestures and result.gestures[0]:
+            current_raw_gesture = result.gestures[0][0].category_name
+            current_raw_score = result.gestures[0][0].score
+        self.confirmed_static_gesture = None
+        dynamic_gesture = None
 
-                    # --- 2. Update Stability Check for Static Gesture ---
-                    if current_raw_gesture:
-                        if self.potential_static_gesture == current_raw_gesture:
-                            if current_time - self.potential_static_gesture_start_time >= STATIC_GESTURE_DURATION_THRESHOLD:
-                                self.confirmed_static_gesture = self.potential_static_gesture
-                                self.confirmed_static_gesture_score = current_raw_score  # Update score
-                        else:
-                            # Gesture changed or started, reset the timer
-                            self.potential_static_gesture = current_raw_gesture
-                            self.potential_static_gesture_start_time = current_time
-                    else:
-                        # No gesture detected, reset potential static gesture
-                        self.potential_static_gesture = None
-                        self.potential_static_gesture_start_time = None
+        # --- 2. Update Stability Check for Static Gesture ---
+        if current_raw_gesture:
+            if self.potential_static_gesture == current_raw_gesture:
+                if current_time - self.potential_static_gesture_start_time >= STATIC_GESTURE_DURATION_THRESHOLD:
+                    self.confirmed_static_gesture = self.potential_static_gesture
+                    self.confirmed_static_gesture_score = current_raw_score  # Update score
+            else:
+                # Gesture changed or started, reset the timer
+                self.potential_static_gesture = current_raw_gesture
+                self.potential_static_gesture_start_time = current_time
+        else:
+            # No gesture detected, reset potential static gesture
+            self.potential_static_gesture = None
+            self.potential_static_gesture_start_time = None
 
-                    # 更新手势历史
-                    if current_raw_gesture:  # Only add actual gestures to history
-                        self.gesture_history.append((current_raw_gesture, current_time))
+        # 更新手势历史
+        if current_raw_gesture:  # Only add actual gestures to history
+            self.gesture_history.append((current_raw_gesture, current_time))
 
-                    # 清除过期的手势
-                    self.gesture_history = [
-                        (g, t) for g, t in self.gesture_history
-                        if current_time - t <= self.gesture_history_duration  # Keep a bit longer history
-                    ]
+        # 清除过期的手势
+        self.gesture_history = [
+            (g, t) for g, t in self.gesture_history
+            if current_time - t <= self.gesture_history_duration  # Keep a bit longer history
+        ]
 
-                    # 检测动态手势转换
-                    if self.confirmed_static_gesture is None:
-                        # --- 4a. Check for Transitions using History ---
-                        if len(self.gesture_history) >= 2:
-                            # Look for transitions within the DYNAMIC_GESTURE_WINDOW ending now
-                            latest_gesture, latest_time = self.gesture_history[-1]
-                            for i in range(len(self.gesture_history) - 2, -1, -1):  # Iterate backwards from second-to-last
-                                prev_gesture, prev_time = self.gesture_history[i]
-                                time_diff = latest_time - prev_time
+        # 检测动态手势转换
+        if self.confirmed_static_gesture is None:
+            # --- 4a. Check for Transitions using History ---
+            if len(self.gesture_history) >= 2:
+                # Look for transitions within the DYNAMIC_GESTURE_WINDOW ending now
+                latest_gesture, latest_time = self.gesture_history[-1]
+                for i in range(len(self.gesture_history) - 2, -1, -1):  # Iterate backwards from second-to-last
+                    prev_gesture, prev_time = self.gesture_history[i]
+                    time_diff = latest_time - prev_time
 
-                                # Check if the transition happened within the window
-                                if 0 < time_diff <= DYNAMIC_GESTURE_WINDOW:  # Ensure positive time diff
-                                    # Check for specific, predefined transitions
-                                    transition_found = False
-                                    if prev_gesture == "Closed_Fist" and latest_gesture == "Victory":
-                                        dynamic_gesture = "Closed_Fist_To_Victory"
-                                        transition_found = True
-                                    elif prev_gesture == "Victory" and latest_gesture == "Closed_Fist":
-                                        dynamic_gesture = "Victory_To_Closed_Fist"
-                                        transition_found = True
-                                    elif prev_gesture == "Closed_Fist" and latest_gesture == "Open_Palm":
-                                        dynamic_gesture = "Closed_Fist_To_Open_Palm"
-                                        transition_found = True
-                                    elif prev_gesture == "Open_Palm" and latest_gesture == "Closed_Fist":
-                                        dynamic_gesture = "Open_Palm_To_Closed_Fist"
-                                        transition_found = True
-                                    # Add more elif conditions for other transitions
+                    # Check if the transition happened within the window
+                    if 0 < time_diff <= DYNAMIC_GESTURE_WINDOW:  # Ensure positive time diff
+                        # Check for specific, predefined transitions
+                        transition_found = False
+                        if prev_gesture == "Closed_Fist" and latest_gesture == "Victory":
+                            dynamic_gesture = "Closed_Fist_To_Victory"
+                            transition_found = True
+                        elif prev_gesture == "Victory" and latest_gesture == "Closed_Fist":
+                            dynamic_gesture = "Victory_To_Closed_Fist"
+                            transition_found = True
+                        elif prev_gesture == "Closed_Fist" and latest_gesture == "Open_Palm":
+                            dynamic_gesture = "Closed_Fist_To_Open_Palm"
+                            transition_found = True
+                        elif prev_gesture == "Open_Palm" and latest_gesture == "Closed_Fist":
+                            dynamic_gesture = "Open_Palm_To_Closed_Fist"
+                            transition_found = True
+                        # Add more elif conditions for other transitions
 
-                                    if transition_found:
-                                        # print(f"Detected Dynamic Transition: {dynamic_gesture}")
-                                        # Crucial: Reset history and static tracking after detecting dynamic gesture
-                                        self.gesture_history.clear()
-                                        self.potential_static_gesture = None
-                                        self.potential_static_gesture_start_time = None
-                                        break  # Stop checking history once a transition is found
-                                elif time_diff > DYNAMIC_GESTURE_WINDOW:
-                                    # Optimization: If we go back too far in time, stop checking this history
-                                    break
-
-                    # # 仅在无动态转换时检查关键点手势（如拇指、旋转）
-                    if not dynamic_gesture and result.hand_landmarks:
-                        hand_landmarks = result.hand_landmarks[0]  # 获取第一个检测到的手的关键点
-                        points = [(lm.x, lm.y) for lm in hand_landmarks]  # 转换关键点数据结构
-                        landmark_gesture = self.classify_gesture(points, current_time)
-                        # 绘制关键点
-                        frame = self.draw_landmarks_on_image(frame, hand_landmarks)
-
-                        # 处理需要稳定时间的关键点静态手势
-                        if landmark_gesture in ["Thumb_Left", "Thumb_Right"]:
-                            if self.potential_landmark_gesture == landmark_gesture:
-                                if current_time - self.potential_landmark_gesture_start_time >= STATIC_GESTURE_DURATION_THRESHOLD:
-                                    self.confirmed_static_gesture = self.potential_landmark_gesture
-                            else:
-                                self.potential_landmark_gesture = landmark_gesture
-                                self.potential_landmark_gesture_start_time = current_time
-                        else:
-                            # 非需要稳定判断的 landmark 手势（如旋转等），直接赋值
-                            # ---- 检查是否为“摇手”手势 ----
-                            # 检查是否为张开的手掌（基于关键点判断）
-                            index_tip = points[8]
-                            middle_tip = points[12]
-                            ring_tip = points[16]
-                            pinky_tip = points[20]
-                            wrist = points[0]
-
-                            # 简单判定：所有指尖y坐标都比 MCP 点（关节）高（即手指竖直张开）
-                            index_mcp = points[5]
-                            middle_mcp = points[9]
-                            ring_mcp = points[13]
-                            pinky_mcp = points[17]
-
-                            # 判断是否张开手掌
-                            fingers_open = (
-                                    index_tip[1] < index_mcp[1] and
-                                    middle_tip[1] < middle_mcp[1] and
-                                    ring_tip[1] < ring_mcp[1] and
-                                    pinky_tip[1] < pinky_mcp[1]
-                            )
-
-                            thumb_tip = points[4]
-                            thumb_open = abs(thumb_tip[0] - wrist[0]) > 0.15  # 水平方向展开
-
-                            if fingers_open and thumb_open:
-                                wrist_x = wrist[0]
-                                self.shake_history.append((wrist_x, current_time))
-
-                                # 保留时间窗口内的数据
-                                self.shake_history = [
-                                    (x, t) for x, t in self.shake_history
-                                    if current_time - t <= SHAKE_WINDOW
-                                ]
-
-                                if len(self.shake_history) >= 3:
-                                    x_positions = [x for x, _ in self.shake_history]
-                                    movement_range = max(x_positions) - min(x_positions)
-
-                                    if movement_range >= SHAKE_THRESHOLD * 2:  # 两倍阈值表示至少来回过一次
-                                        dynamic_gesture = "Shake"
-                                        self.shake_history.clear()
-
-                    # 转换为PIL格式
-                    pil_img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-                    draw = ImageDraw.Draw(pil_img)
-
-                    # 优先显示动态手势
-                    if dynamic_gesture:
-                        display_gesture = dynamic_gesture
-                    elif self.confirmed_static_gesture:
-                        display_gesture = self.confirmed_static_gesture
-                    else:
-                        display_gesture = None
-                    # 使用gesture_map映射最终显示名称
-                    gesture_name = "无手势"
-                    if display_gesture:
-                        gesture_name = self.gesture_map.get(display_gesture, "无手势")
-                    score_text = f" ({current_raw_score:.2f})" if current_raw_score and not dynamic_gesture else ""
-
-                    if gesture_name != "无手势":
-                        if gesture_name != self.last_displayed_gesture:
-                            # print(f"检测到手势: {gesture_name}{score_text}")
-                            print(f"检测到手势: {gesture_name}")
-                            self.last_displayed_gesture = gesture_name
-                    else:
-                        self.last_displayed_gesture = None
-
-                    draw.text((10, 30),
-                              f"手势: {gesture_name}{score_text}",
-                              font=self.font,
-                              fill=(0, 255, 0, 255))
-
-                    # 转换回OpenCV格式
-                    frame = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
-
-                    cv2.imshow('Hand Gesture Recognition', frame)
-
-                    key = cv2.waitKey(1)
-                    if key in (27, ord('q')):
+                        if transition_found:
+                            # print(f"Detected Dynamic Transition: {dynamic_gesture}")
+                            # Crucial: Reset history and static tracking after detecting dynamic gesture
+                            self.gesture_history.clear()
+                            self.potential_static_gesture = None
+                            self.potential_static_gesture_start_time = None
+                            break  # Stop checking history once a transition is found
+                    elif time_diff > DYNAMIC_GESTURE_WINDOW:
+                        # Optimization: If we go back too far in time, stop checking this history
                         break
 
-        except KeyboardInterrupt:
-            print("关闭...")
-        finally:
-            self.exit()
+        # # 仅在无动态转换时检查关键点手势（如拇指、旋转）
+        if not dynamic_gesture and result.hand_landmarks:
+            hand_landmarks = result.hand_landmarks[0]  # 获取第一个检测到的手的关键点
+            points = [(lm.x, lm.y) for lm in hand_landmarks]  # 转换关键点数据结构
+            landmark_gesture = self.classify_gesture(points, current_time)
+            # 绘制关键点
+            frame = self.draw_landmarks_on_image(frame, hand_landmarks)
+
+            # 处理需要稳定时间的关键点静态手势
+            if landmark_gesture in ["Thumb_Left", "Thumb_Right"]:
+                if self.potential_landmark_gesture == landmark_gesture:
+                    if current_time - self.potential_landmark_gesture_start_time >= STATIC_GESTURE_DURATION_THRESHOLD:
+                        self.confirmed_static_gesture = self.potential_landmark_gesture
+                else:
+                    self.potential_landmark_gesture = landmark_gesture
+                    self.potential_landmark_gesture_start_time = current_time
+            else:
+                # 非需要稳定判断的 landmark 手势（如旋转等），直接赋值
+                # ---- 检查是否为“摇手”手势 ----
+                # 检查是否为张开的手掌（基于关键点判断）
+                index_tip = points[8]
+                middle_tip = points[12]
+                ring_tip = points[16]
+                pinky_tip = points[20]
+                wrist = points[0]
+
+                # 简单判定：所有指尖y坐标都比 MCP 点（关节）高（即手指竖直张开）
+                index_mcp = points[5]
+                middle_mcp = points[9]
+                ring_mcp = points[13]
+                pinky_mcp = points[17]
+
+                # 判断是否张开手掌
+                fingers_open = (
+                        index_tip[1] < index_mcp[1] and
+                        middle_tip[1] < middle_mcp[1] and
+                        ring_tip[1] < ring_mcp[1] and
+                        pinky_tip[1] < pinky_mcp[1]
+                )
+
+                thumb_tip = points[4]
+                thumb_open = abs(thumb_tip[0] - wrist[0]) > 0.15  # 水平方向展开
+
+                if fingers_open and thumb_open:
+                    wrist_x = wrist[0]
+                    self.shake_history.append((wrist_x, current_time))
+
+                    # 保留时间窗口内的数据
+                    self.shake_history = [
+                        (x, t) for x, t in self.shake_history
+                        if current_time - t <= SHAKE_WINDOW
+                    ]
+
+                    if len(self.shake_history) >= 3:
+                        x_positions = [x for x, _ in self.shake_history]
+                        movement_range = max(x_positions) - min(x_positions)
+
+                        if movement_range >= SHAKE_THRESHOLD * 2:  # 两倍阈值表示至少来回过一次
+                            dynamic_gesture = "Shake"
+                            self.shake_history.clear()
+
+        # 转换为PIL格式
+        pil_img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        draw = ImageDraw.Draw(pil_img)
+
+        # 优先显示动态手势
+        if dynamic_gesture:
+            display_gesture = dynamic_gesture
+        elif self.confirmed_static_gesture:
+            display_gesture = self.confirmed_static_gesture
+        else:
+            display_gesture = None
+        # 使用gesture_map映射最终显示名称
+        gesture_name = "无手势"
+        if display_gesture:
+            gesture_name = self.gesture_map.get(display_gesture, "无手势")
+        score_text = f" ({current_raw_score:.2f})" if current_raw_score and not dynamic_gesture else ""
+
+        if gesture_name != "无手势":
+            if gesture_name != self.last_displayed_gesture:
+                # print(f"检测到手势: {gesture_name}{score_text}")
+                print(f"检测到手势: {gesture_name}")
+                self.last_displayed_gesture = gesture_name
+        else:
+            self.last_displayed_gesture = None
+
+        draw.text((10, 30),
+                  f"手势: {gesture_name}{score_text}",
+                  font=self.font,
+                  fill=(0, 255, 0, 255))
+
+        # 转换回OpenCV格式
+        frame = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
+
+        return frame
 
     def classify_gesture(self, points, current_time):
         # 调整输入参数处理
@@ -340,10 +320,6 @@ class GestureRecognition(threading.Thread):
             mp.solutions.drawing_styles.get_default_hand_connections_style())
         return image
 
-    def exit(self):
-        self.capture.release()
-        cv2.destroyAllWindows()
-
 
 class AudioRecognition(threading.Thread):
     def __init__(self):
@@ -361,15 +337,20 @@ class AudioRecognition(threading.Thread):
 
     def load_model(self):
         model_dir = "./Audio/SenseVoiceSmall"
-        model = AutoModel(
-            model=model_dir,
-            trust_remote_code=True,
-            remote_code="./Audio/SenseVoiceSmall/model.py",
-            vad_model="fsmn-vad",
-            vad_kwargs={"max_single_segment_time": 30000},
-            device="cuda:0",
-        )
-        return model
+        try:
+            model = AutoModel(
+                model=model_dir,
+                trust_remote_code=True,
+                remote_code="./Audio/SenseVoiceSmall/model.py",
+                vad_model="fsmn-vad",
+                vad_kwargs={"max_single_segment_time": 30000},
+                device="cuda:0",
+                disable_update=True  # 禁用更新检查
+            )
+            return model
+        except Exception as e:
+            print(f"加载模型失败: {str(e)}")
+            return None
 
     def save_audio_to_wav(self, audio_data, filename, sample_rate=16000, channels=1, sample_width=2):
         with wave.open(filename, 'wb') as wf:
@@ -387,23 +368,25 @@ class AudioRecognition(threading.Thread):
         self.save_audio_to_wav(audio_data, temp_file, sample_rate=sample_rate)
 
         # 使用 SenseVoice 模型进行识别
-        res = self.model.generate(
-            input=temp_file,
-            cache={},
-            language="auto",  # "zh", "en", "yue", "ja", "ko", "nospeech"
-            use_itn=True,
-            batch_size_s=60,
-            merge_vad=True,  #
-            merge_length_s=15,
-        )
+        if self.model:
+            res = self.model.generate(
+                input=temp_file,
+                cache={},
+                language="auto",  # "zh", "en", "yue", "ja", "ko", "nospeech"
+                use_itn=True,
+                batch_size_s=60,
+                merge_vad=True,  #
+                merge_length_s=15,
+            )
 
-        # 后处理
-        text = rich_transcription_postprocess(res[0]["text"])
-        return text
+            # 后处理
+            text = rich_transcription_postprocess(res[0]["text"])
+            return text
+        return "模型加载失败，无法识别"
 
     def run(self):
         try:
-            while True:
+            while not stop_event.is_set():
                 # 读取音频数据
                 data = self.stream.read(CHUNK)
                 # 将字节数据转换为 numpy 数组
@@ -449,46 +432,52 @@ class AudioRecognition(threading.Thread):
             self.p.terminate()
 
 
-class VisualRecognition(threading.Thread):
+class VisualRecognition:
     def __init__(self):
-        super().__init__()
         from Video.video_model import FaceDetector
         self.detector = FaceDetector()
-        self.cap = cv2.VideoCapture(0)
-        self.cap.set(3, 1920)  # width=1920
-        self.cap.set(4, 1080)  # height=1080
 
-    def run(self):
-        try:
-            while True:
-                success, image = self.cap.read()
-                if not success:
-                    print("读取摄像头帧失败")
-                    continue
-                processed_image = self.detector.process_face(image)
-                cv2.imshow('Visual Recognition', processed_image)
-                if cv2.waitKey(1) == 27:
-                    break
-        except KeyboardInterrupt:
-            print("关闭视觉识别...")
-        finally:
-            self.cap.release()
-            cv2.destroyAllWindows()
+    def process_frame(self, frame):
+        return self.detector.process_face(frame)
 
 
 if __name__ == '__main__':
     try:
-        gesture_thread = GestureRecognition()
-        gesture_thread.start()
-        gesture_thread.join()
+        capture = cv2.VideoCapture(DEVICE_ID)
+        capture.set(cv2.CAP_PROP_FPS, FPS)
+        capture.set(cv2.CAP_PROP_FRAME_WIDTH, FRAME_WIDTH)
+        capture.set(cv2.CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT)
+
+        gesture_recognition = GestureRecognition(capture)
+        visual_recognition = VisualRecognition()
 
         audio_thread = AudioRecognition()
         audio_thread.start()
+
+        try:
+            while True:
+                ret, frame = capture.read()
+                if ret:
+                    # 处理手势识别
+                    frame = gesture_recognition.process_frame(frame)
+                    # 处理视觉识别
+                    frame = visual_recognition.process_frame(frame)
+
+                    cv2.imshow('Combined Recognition', frame)
+
+                    key = cv2.waitKey(1)
+                    if key in (27, ord('q')):
+                        stop_event.set()  # 设置停止事件
+                        break
+        except KeyboardInterrupt:
+            stop_event.set()  # 设置停止事件
+            print("关闭...")
+        finally:
+            capture.release()
+            cv2.destroyAllWindows()
+
         audio_thread.join()
 
-        visual_thread = VisualRecognition()
-        visual_thread.start()
-        visual_thread.join()
     except Exception as e:
         print(f"程序运行失败: {str(e)}")
     finally:
