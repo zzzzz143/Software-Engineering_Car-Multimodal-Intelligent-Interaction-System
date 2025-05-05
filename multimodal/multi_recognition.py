@@ -1,4 +1,3 @@
-# 手势部分
 import time
 import mediapipe as mp
 from mediapipe.tasks import python
@@ -9,7 +8,6 @@ import cv2
 import os
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
-# 语音部分
 import threading
 import pyaudio
 from funasr import AutoModel
@@ -30,7 +28,7 @@ DYNAMIC_GESTURE_WINDOW = 1.0
 
 SHAKE_WINDOW = 0.6  # 摇手时间窗口（秒）
 SHAKE_THRESHOLD = 0.08  # 每次左右位移的最小x轴差值（归一化）
-SHAKE_COUNT_REQUIRED = 2 
+SHAKE_COUNT_REQUIRED = 2
 
 # 音频参数
 CHUNK = 8012  # 每个缓冲区的帧数
@@ -42,6 +40,7 @@ SILENCE_LIMIT = 1.0  # 无声时间阈值
 
 # 全局变量
 stop_event = threading.Event()  # 用于停止线程的事件
+
 
 class GestureRecognition(threading.Thread):
     def __init__(self):
@@ -64,11 +63,11 @@ class GestureRecognition(threading.Thread):
             "Shake": "拒绝",
         }
         self.font = ImageFont.truetype("simhei.ttf", 24)  # 加载中文字体
-        
-        self.potential_static_gesture = None # The gesture currently being tracked for stability
-        self.potential_static_gesture_start_time = None # Timestamp when tracking started
-        self.confirmed_static_gesture = None # The gesture confirmed as stable
-        self.confirmed_static_gesture_score = 0.0 # Score of the confirmed gesture
+
+        self.potential_static_gesture = None  # The gesture currently being tracked for stability
+        self.potential_static_gesture_start_time = None  # Timestamp when tracking started
+        self.confirmed_static_gesture = None  # The gesture confirmed as stable
+        self.confirmed_static_gesture_score = 0.0  # Score of the confirmed gesture
 
         # --- Gesture History for Dynamic Transitions ---
         # Keep history slightly longer than the window to catch transitions spanning the boundary
@@ -117,7 +116,7 @@ class GestureRecognition(threading.Thread):
                         if self.potential_static_gesture == current_raw_gesture:
                             if current_time - self.potential_static_gesture_start_time >= STATIC_GESTURE_DURATION_THRESHOLD:
                                 self.confirmed_static_gesture = self.potential_static_gesture
-                                self.confirmed_static_gesture_score = current_raw_score # Update score
+                                self.confirmed_static_gesture_score = current_raw_score  # Update score
                         else:
                             # Gesture changed or started, reset the timer
                             self.potential_static_gesture = current_raw_gesture
@@ -128,27 +127,27 @@ class GestureRecognition(threading.Thread):
                         self.potential_static_gesture_start_time = None
 
                     # 更新手势历史
-                    if current_raw_gesture: # Only add actual gestures to history
+                    if current_raw_gesture:  # Only add actual gestures to history
                         self.gesture_history.append((current_raw_gesture, current_time))
-                    
+
                     # 清除过期的手势
                     self.gesture_history = [
                         (g, t) for g, t in self.gesture_history
-                        if current_time - t <= self.gesture_history_duration # Keep a bit longer history
+                        if current_time - t <= self.gesture_history_duration  # Keep a bit longer history
                     ]
-                    
+
                     # 检测动态手势转换
                     if self.confirmed_static_gesture is None:
-                    # --- 4a. Check for Transitions using History ---
+                        # --- 4a. Check for Transitions using History ---
                         if len(self.gesture_history) >= 2:
                             # Look for transitions within the DYNAMIC_GESTURE_WINDOW ending now
                             latest_gesture, latest_time = self.gesture_history[-1]
-                            for i in range(len(self.gesture_history) - 2, -1, -1): # Iterate backwards from second-to-last
+                            for i in range(len(self.gesture_history) - 2, -1, -1):  # Iterate backwards from second-to-last
                                 prev_gesture, prev_time = self.gesture_history[i]
                                 time_diff = latest_time - prev_time
 
                                 # Check if the transition happened within the window
-                                if 0 < time_diff <= DYNAMIC_GESTURE_WINDOW: # Ensure positive time diff
+                                if 0 < time_diff <= DYNAMIC_GESTURE_WINDOW:  # Ensure positive time diff
                                     # Check for specific, predefined transitions
                                     transition_found = False
                                     if prev_gesture == "Closed_Fist" and latest_gesture == "Victory":
@@ -171,11 +170,10 @@ class GestureRecognition(threading.Thread):
                                         self.gesture_history.clear()
                                         self.potential_static_gesture = None
                                         self.potential_static_gesture_start_time = None
-                                        break # Stop checking history once a transition is found
+                                        break  # Stop checking history once a transition is found
                                 elif time_diff > DYNAMIC_GESTURE_WINDOW:
                                     # Optimization: If we go back too far in time, stop checking this history
                                     break
-                                
 
                     # # 仅在无动态转换时检查关键点手势（如拇指、旋转）
                     if not dynamic_gesture and result.hand_landmarks:
@@ -211,10 +209,10 @@ class GestureRecognition(threading.Thread):
 
                             # 判断是否张开手掌
                             fingers_open = (
-                                index_tip[1] < index_mcp[1] and
-                                middle_tip[1] < middle_mcp[1] and
-                                ring_tip[1] < ring_mcp[1] and
-                                pinky_tip[1] < pinky_mcp[1]
+                                    index_tip[1] < index_mcp[1] and
+                                    middle_tip[1] < middle_mcp[1] and
+                                    ring_tip[1] < ring_mcp[1] and
+                                    pinky_tip[1] < pinky_mcp[1]
                             )
 
                             thumb_tip = points[4]
@@ -252,22 +250,21 @@ class GestureRecognition(threading.Thread):
                     # 使用gesture_map映射最终显示名称
                     gesture_name = "无手势"
                     if display_gesture:
-                        gesture_name = self.gesture_map.get(display_gesture,"无手势")
+                        gesture_name = self.gesture_map.get(display_gesture, "无手势")
                     score_text = f" ({current_raw_score:.2f})" if current_raw_score and not dynamic_gesture else ""
-                    
+
                     if gesture_name != "无手势":
                         if gesture_name != self.last_displayed_gesture:
-                            #print(f"检测到手势: {gesture_name}{score_text}")
+                            # print(f"检测到手势: {gesture_name}{score_text}")
                             print(f"检测到手势: {gesture_name}")
                             self.last_displayed_gesture = gesture_name
                     else:
                         self.last_displayed_gesture = None
 
-
                     draw.text((10, 30),
-                            f"手势: {gesture_name}{score_text}",
-                            font=self.font,
-                            fill=(0, 255, 0, 255))
+                              f"手势: {gesture_name}{score_text}",
+                              font=self.font,
+                              fill=(0, 255, 0, 255))
 
                     # 转换回OpenCV格式
                     frame = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
@@ -282,7 +279,6 @@ class GestureRecognition(threading.Thread):
             print("关闭...")
         finally:
             self.exit()
-        
 
     def classify_gesture(self, points, current_time):
         # 调整输入参数处理
@@ -304,25 +300,25 @@ class GestureRecognition(threading.Thread):
 
             # 计算相邻向量间的角度（余弦相似度）
             angle1 = np.dot(vec_mcp_pip, vec_pip_dip) / (
-                np.linalg.norm(vec_mcp_pip) * np.linalg.norm(vec_pip_dip) + 1e-6)
+                    np.linalg.norm(vec_mcp_pip) * np.linalg.norm(vec_pip_dip) + 1e-6)
             angle2 = np.dot(vec_pip_dip, vec_dip_tip) / (
-                np.linalg.norm(vec_pip_dip) * np.linalg.norm(vec_dip_tip) + 1e-6)
+                    np.linalg.norm(vec_pip_dip) * np.linalg.norm(vec_dip_tip) + 1e-6)
 
             # 判断手指是否伸直（角度接近180度）
             is_extended = (angle1 > 0.9) and (angle2 > 0.9)  # 余弦值>0.9对应约25度偏差
             fingers_extended.append(is_extended)
-            
-        fingers_curled = [ # 手指合拢
+
+        fingers_curled = [  # 手指合拢
             finger_tips[i][1] >= finger_pips[i][1] - palm_width * 0.1
             for i in range(5)
         ]
 
         # 拇指伸直，其他手指合拢
         if fingers_extended[0] and all(fingers_curled[1:]):
-            thumb_tip_vector = finger_tips[0] - wrist 
+            thumb_tip_vector = finger_tips[0] - wrist
             thumb_angle = np.arctan2(thumb_tip_vector[1], thumb_tip_vector[0]) * 180 / np.pi
             # print(f"拇指角度: {thumb_angle:.2f}, 手指合拢: {fingers_curled[1:]}")
-            
+
             # 判断拇指朝向
             if -60 <= thumb_angle <= 0:  # 拇指朝左
                 return "Thumb_Left"
@@ -362,7 +358,7 @@ class AudioRecognition(threading.Thread):
         self.audio_buffer = []
         self.silence_start_time = None
         self.model = self.load_model()
-    
+
     def load_model(self):
         model_dir = "./Audio/SenseVoiceSmall"
         model = AutoModel(
@@ -389,7 +385,7 @@ class AudioRecognition(threading.Thread):
         # 将音频数据保存为临时 WAV 文件
         temp_file = "./Audio/SenseVoiceSmall/example/test.wav"
         self.save_audio_to_wav(audio_data, temp_file, sample_rate=sample_rate)
-        
+
         # 使用 SenseVoice 模型进行识别
         res = self.model.generate(
             input=temp_file,
@@ -400,7 +396,7 @@ class AudioRecognition(threading.Thread):
             merge_vad=True,  #
             merge_length_s=15,
         )
-        
+
         # 后处理
         text = rich_transcription_postprocess(res[0]["text"])
         return text
@@ -412,10 +408,10 @@ class AudioRecognition(threading.Thread):
                 data = self.stream.read(CHUNK)
                 # 将字节数据转换为 numpy 数组
                 audio_data = np.frombuffer(data, dtype=np.int16)
-                
+
                 # 计算音频能量
                 energy = np.abs(audio_data).mean()
-                
+
                 # 检测语音活动
                 if energy > THRESHOLD:
                     if self.silence_start_time is not None:
@@ -433,14 +429,14 @@ class AudioRecognition(threading.Thread):
                         if time.time() - self.silence_start_time > SILENCE_LIMIT:
                             # 语音活动结束，处理音频缓冲区中的数据
                             print("语音活动结束，开始处理音频...")
-                            
+
                             # 将缓冲区中的音频数据合并为一个完整的音频片段
                             audio_segment = b''.join(self.audio_buffer)
-                            
+
                             # 调用语音识别模型进行处理
                             recognized_text = self.recognize_speech(audio_segment, RATE)
                             print(f"识别结果: {recognized_text}")
-                            
+
                             # 清空缓冲区
                             self.audio_buffer = []
                             self.silence_start_time = None
@@ -453,18 +449,49 @@ class AudioRecognition(threading.Thread):
             self.p.terminate()
 
 
+class VisualRecognition(threading.Thread):
+    def __init__(self):
+        super().__init__()
+        from Video.video_model import FaceDetector
+        self.detector = FaceDetector()
+        self.cap = cv2.VideoCapture(0)
+        self.cap.set(3, 1920)  # width=1920
+        self.cap.set(4, 1080)  # height=1080
+
+    def run(self):
+        try:
+            while True:
+                success, image = self.cap.read()
+                if not success:
+                    print("读取摄像头帧失败")
+                    continue
+                processed_image = self.detector.process_face(image)
+                cv2.imshow('Visual Recognition', processed_image)
+                if cv2.waitKey(1) == 27:
+                    break
+        except KeyboardInterrupt:
+            print("关闭视觉识别...")
+        finally:
+            self.cap.release()
+            cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
     try:
         gesture_thread = GestureRecognition()
-        # audio_thread = AudioRecognition()
         gesture_thread.start()
-        # audio_thread.start()
         gesture_thread.join()
-        # audio_thread.join()
+
+        audio_thread = AudioRecognition()
+        audio_thread.start()
+        audio_thread.join()
+
+        visual_thread = VisualRecognition()
+        visual_thread.start()
+        visual_thread.join()
     except Exception as e:
         print(f"程序运行失败: {str(e)}")
     finally:
         stop_event.set()
         print('程序运行结束')
+    
