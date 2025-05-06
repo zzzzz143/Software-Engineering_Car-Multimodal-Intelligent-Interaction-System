@@ -365,7 +365,8 @@ class FaceDetector:
                 pitch_zc = self.check_zero_cross(smooth_pitch, 'pitch')
                 if len(self.pitch_history) >= self.WINDOW_SIZE and abs(smooth_pitch) < 20 and \
                         self.analyze_motion_pattern(list(self.pitch_history), dyn_nod_thresh) and \
-                        pitch_zc >= self.ZC_COUNT_THRESH and time_since_last > self.MOTION_INTERVAL:
+                        pitch_zc >= self.ZC_COUNT_THRESH and time_since_last > self.MOTION_INTERVAL and \
+                        np.ptp(self.yaw_history) < 20:
                     self.detected_action = "NOD"
                     self.last_action_time = current_time
                     self.zero_cross['pitch']['count'] = 0
@@ -374,7 +375,8 @@ class FaceDetector:
                 yaw_zc = self.check_zero_cross(smooth_yaw, 'yaw')
                 if len(self.yaw_history) >= self.WINDOW_SIZE and \
                         self.analyze_motion_pattern(list(self.yaw_history), dyn_shake_thresh) and \
-                        yaw_zc >= self.ZC_COUNT_THRESH and time_since_last > self.MOTION_INTERVAL:
+                        yaw_zc >= self.ZC_COUNT_THRESH and time_since_last > self.MOTION_INTERVAL and \
+                        np.ptp(self.pitch_history) < 15:
                     self.detected_action = "SHAKE"
                     self.last_action_time = current_time
                     self.zero_cross['yaw']['count'] = 0
@@ -446,10 +448,10 @@ class FaceDetector:
 
                 # 显示角度信息
                 y_pos = 30
-                for angle_name, angle_value in zip(['Pitch', 'Yaw', 'Roll'], [smooth_pitch, smooth_yaw, roll]):
-                    cv2.putText(image, f"{angle_name}: {angle_value:+.1f}°", (10, y_pos),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 0, 200), 2)
-                    y_pos += 30
+                # for angle_name, angle_value in zip(['Pitch', 'Yaw', 'Roll'], [smooth_pitch, smooth_yaw, roll]):
+                #     cv2.putText(image, f"{angle_name}: {angle_value:+.1f}°", (10, y_pos),
+                #                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 0, 200), 2)
+                #     y_pos += 30
 
                 if time_since_last < self.MOTION_INTERVAL:
                     # 显示检测到的动作
@@ -476,15 +478,15 @@ class FaceDetector:
                     cv2.circle(image, focus_point, 5, (0, 0, 255), -1)
 
                 # 显示额外信息
-                info = [
-                    f"dyn_nod_thresh {dyn_nod_thresh:.1f}° / dyn_shake_thresh {dyn_shake_thresh:.1f}°",
-                    f"zc: P{pitch_zc} Y{yaw_zc}",
-                    f"last_detected_action {self.detected_action} ({max(0, self.MOTION_INTERVAL - time_since_last):.1f}s)"
-                ]
-                y_pos = 380
-                for line in info:
-                    cv2.putText(image, line, (10, y_pos),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (100, 255, 100), 1)
-                    y_pos += 30
+                # info = [
+                #     f"dyn_nod_thresh {dyn_nod_thresh:.1f}° / dyn_shake_thresh {dyn_shake_thresh:.1f}°",
+                #     f"zc: P{pitch_zc} Y{yaw_zc}",
+                #     f"last_detected_action {self.detected_action} ({max(0, self.MOTION_INTERVAL - time_since_last):.1f}s)"
+                # ]
+                # y_pos = 380
+                # for line in info:
+                #     cv2.putText(image, line, (10, y_pos),
+                #                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (100, 255, 100), 1)
+                #     y_pos += 30
 
         return image
