@@ -43,6 +43,7 @@ class FaceDetector:
         self.angle_history = deque(maxlen=self.WINDOW_SIZE)
         self.pitch_history = deque(maxlen=self.WINDOW_SIZE)
         self.yaw_history = deque(maxlen=self.WINDOW_SIZE)
+        self.roll_history = deque(maxlen=self.WINDOW_SIZE)
         self.left_pupil_center_history = deque(maxlen=self.GAZE_SMOOTHING_WINDOW)
         self.right_pupil_center_history = deque(maxlen=self.GAZE_SMOOTHING_WINDOW)
         self.left_gaze_direction_history = deque(maxlen=self.GAZE_SMOOTHING_WINDOW)
@@ -350,6 +351,7 @@ class FaceDetector:
                 pitch, yaw, roll = euler_angles
                 self.pitch_history.append(pitch)
                 self.yaw_history.append(yaw)
+                self.roll_history.append(roll)
                 self.angle_history.append({'pitch': pitch, 'yaw': yaw, 'time': time.time()})
 
                 # 计算平滑角度
@@ -366,7 +368,8 @@ class FaceDetector:
                 if len(self.pitch_history) >= self.WINDOW_SIZE and abs(smooth_pitch) < 20 and \
                         self.analyze_motion_pattern(list(self.pitch_history), dyn_nod_thresh) and \
                         pitch_zc >= self.ZC_COUNT_THRESH and time_since_last > self.MOTION_INTERVAL and \
-                        np.ptp(self.yaw_history) < 20:
+                        np.ptp(self.yaw_history) < 20 and \
+                        np.ptp(self.roll_history) < 8:
                     self.detected_action = "NOD"
                     self.last_action_time = current_time
                     self.zero_cross['pitch']['count'] = 0
@@ -376,7 +379,9 @@ class FaceDetector:
                 if len(self.yaw_history) >= self.WINDOW_SIZE and \
                         self.analyze_motion_pattern(list(self.yaw_history), dyn_shake_thresh) and \
                         yaw_zc >= self.ZC_COUNT_THRESH and time_since_last > self.MOTION_INTERVAL and \
-                        np.ptp(self.pitch_history) < 15:
+                        np.ptp(self.pitch_history) < 15 and \
+                        np.ptp(self.roll_history) < 20 and \
+                        np.ptp(self.roll_history) > 8:
                     self.detected_action = "SHAKE"
                     self.last_action_time = current_time
                     self.zero_cross['yaw']['count'] = 0
