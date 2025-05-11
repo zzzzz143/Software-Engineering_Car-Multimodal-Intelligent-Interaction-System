@@ -5,7 +5,6 @@ import mediapipe as mp
 import numpy as np
 from collections import deque
 
-
 class FaceDetector:
     def __init__(self):
         # 初始化面部网格检测器
@@ -21,7 +20,7 @@ class FaceDetector:
         self.WINDOW_SIZE = 30
         self.DYNAMIC_THRESHOLD_RATIO = 1.5
         self.VERTICAL_SENSITIVITY = 2.0
-        self.BASE_NOD_THRESH = 8
+        self.BASE_NOD_THRESH = 10
         self.BASE_SHAKE_THRESH = 10
         self.ZC_COUNT_THRESH = 2
         self.MOTION_INTERVAL = 1.5
@@ -49,8 +48,8 @@ class FaceDetector:
         self.left_gaze_direction_history = deque(maxlen=self.GAZE_SMOOTHING_WINDOW)
         self.right_gaze_direction_history = deque(maxlen=self.GAZE_SMOOTHING_WINDOW)
         self.zero_cross = {
-            'pitch': {'count': 0, 'prev_sign': 1, 'timestamps': deque(maxlen=10)},
-            'yaw': {'count': 0, 'prev_sign': 1, 'timestamps': deque(maxlen=10)}
+            'pitch': {'count': 0, 'prev_sign': 1, 'timestamps': deque(maxlen=20)},
+            'yaw': {'count': 0, 'prev_sign': 1, 'timestamps': deque(maxlen=20)}
         }
         self.last_action_time = 0
         self.detected_action = ""
@@ -89,26 +88,38 @@ class FaceDetector:
 
     def check_zero_cross(self, current_value, axis):
         """
-        检测信号过零次数（符号变化）
+        检测信号过零次数（符号变化），严格统计最近0.3秒内的有效过零点
         参数:
             current_value: 当前信号值
             axis: 检测轴（'pitch'/'yaw'）
         返回:
-            当前过零次数
+            当前0.3秒内过零次数
         """
+        # 获取当前信号符号
         current_sign = 1 if current_value >= 0 else -1
         state = self.zero_cross[axis]
+        
+        # 检查是否发生过零
         if state['prev_sign'] != current_sign:
-            state['count'] += 1
-            state['timestamps'].append(time.time())
-            while state['timestamps']:
-                if time.time() - state['timestamps'][0] > self.MOTION_INTERVAL:
-                    state['timestamps'].popleft()
-                    state['count'] = max(0, state['count'] - 1)
-                else:
-                    break
+            current_time = time.time()
+            
+            # 移除超过0.3秒的时间戳
+            cutoff_time = current_time - 0.3
+            while state['timestamps'] and state['timestamps'][0] < cutoff_time:
+                state['timestamps'].popleft()
+            
+            # 添加新的过零时间戳
+            state['timestamps'].append(current_time)
+        
+        # 更新前一个符号状态
         state['prev_sign'] = current_sign
-        return state['count']
+        
+        # 只计算0.3秒内的过零次数
+        current_time = time.time()
+        cutoff_time = current_time - 0.3
+        # 过滤掉超过0.3秒的时间戳
+        recent_timestamps = [t for t in state['timestamps'] if t >= cutoff_time]
+        return len(recent_timestamps)
 
     def analyze_motion_pattern(self, values, threshold):
         """
@@ -318,6 +329,15 @@ class FaceDetector:
             y_region = "Bottom"
         return f"{y_region} {x_region}".strip()
 
+    def reset_zero_cross_counts(self):
+        """清空所有过零次数计数器和时间戳"""
+        for axis in ['pitch', 'yaw']:
+            self.zero_cross[axis]['timestamps'].clear()
+            self.zero_cross[axis]['count'] = 0
+            # 重置prev_sign为当前值，避免立即检测到过零
+            current_value = np.mean(list(getattr(self, f"{axis}_history"))[-5:]) if getattr(self, f"{axis}_history") else 0
+            self.zero_cross[axis]['prev_sign'] = 1 if current_value >= 0 else -1
+
     def process_face(self, image):
         """
         主处理函数：处理单帧图像，检测面部姿态、眼球运动和动作
@@ -360,31 +380,37 @@ class FaceDetector:
                 # 计算动态阈值
                 dyn_nod_thresh = self.calculate_dynamic_threshold(self.pitch_history, self.BASE_NOD_THRESH, is_vertical=True)
                 dyn_shake_thresh = self.calculate_dynamic_threshold(self.yaw_history, self.BASE_SHAKE_THRESH)
+                dyn_roll_thresh = self.calculate_dynamic_threshold(self.roll_history, 2)
                 current_time = time.time()
                 time_since_last = current_time - self.last_action_time
 
                 # 检测点头动作
                 pitch_zc = self.check_zero_cross(smooth_pitch, 'pitch')
                 if len(self.pitch_history) >= self.WINDOW_SIZE and abs(smooth_pitch) < 20 and \
-                        self.analyze_motion_pattern(list(self.pitch_history), dyn_nod_thresh) and \
+                        dyn_nod_thresh > self.BASE_NOD_THRESH * 1.5 and \
+                        dyn_nod_thresh < self.BASE_NOD_THRESH * 2.5 and \
                         pitch_zc >= self.ZC_COUNT_THRESH and time_since_last > self.MOTION_INTERVAL and \
-                        np.ptp(self.yaw_history) < 20 and \
-                        np.ptp(self.roll_history) < 8:
+                        dyn_shake_thresh < self.BASE_SHAKE_THRESH * 1.05 and \
+                        dyn_roll_thresh < 6 and \
+                        dyn_roll_thresh > 3:
                     self.detected_action = "NOD"
                     self.last_action_time = current_time
-                    self.zero_cross['pitch']['count'] = 0
+                    # 清空所有过零次数
+                    self.reset_zero_cross_counts()
 
                 # 检测摇头动作
                 yaw_zc = self.check_zero_cross(smooth_yaw, 'yaw')
                 if len(self.yaw_history) >= self.WINDOW_SIZE and \
-                        self.analyze_motion_pattern(list(self.yaw_history), dyn_shake_thresh) and \
+                        dyn_shake_thresh > self.BASE_SHAKE_THRESH * 1.5 and \
+                        dyn_shake_thresh < self.BASE_SHAKE_THRESH * 4 and \
                         yaw_zc >= self.ZC_COUNT_THRESH and time_since_last > self.MOTION_INTERVAL and \
-                        np.ptp(self.pitch_history) < 15 and \
-                        np.ptp(self.roll_history) < 20 and \
-                        np.ptp(self.roll_history) > 8:
+                        dyn_nod_thresh < self.BASE_NOD_THRESH * 1.05 and \
+                        dyn_roll_thresh < 12 and \
+                        dyn_roll_thresh > 6:
                     self.detected_action = "SHAKE"
                     self.last_action_time = current_time
-                    self.zero_cross['yaw']['count'] = 0
+                    # 清空所有过零次数
+                    self.reset_zero_cross_counts()
 
                 # 获取左右眼关键点
                 left_eye_landmarks = [face_landmarks.landmark[idx] for idx in self.left_eye_indices]
@@ -451,8 +477,8 @@ class FaceDetector:
                     cv2.putText(image, f"focus region: {focus_region}", (10, 120),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 0, 200), 2)
 
-                # 显示角度信息
-                y_pos = 30
+                # # 显示角度信息
+                # y_pos = 30
                 # for angle_name, angle_value in zip(['Pitch', 'Yaw', 'Roll'], [smooth_pitch, smooth_yaw, roll]):
                 #     cv2.putText(image, f"{angle_name}: {angle_value:+.1f}°", (10, y_pos),
                 #                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 0, 200), 2)
@@ -482,9 +508,11 @@ class FaceDetector:
                     # 绘制焦点
                     cv2.circle(image, focus_point, 5, (0, 0, 255), -1)
 
-                # 显示额外信息
+                # # 显示额外信息
                 # info = [
-                #     f"dyn_nod_thresh {dyn_nod_thresh:.1f}° / dyn_shake_thresh {dyn_shake_thresh:.1f}°",
+                #     f"dyn_nod_thresh {dyn_nod_thresh:.1f}",
+                #     f"dyn_shake_thresh {dyn_shake_thresh:.1f}",
+                #     f"dyn_roll_thresh {dyn_roll_thresh:.1f}",
                 #     f"zc: P{pitch_zc} Y{yaw_zc}",
                 #     f"last_detected_action {self.detected_action} ({max(0, self.MOTION_INTERVAL - time_since_last):.1f}s)"
                 # ]
