@@ -1,3 +1,4 @@
+```plaintext
 # 项目结构
 ├── backend/                           # Flask后端服务
 │   ├── .env                           # 环境变量配置
@@ -28,6 +29,7 @@
 │   │   └── multi_recognition.py
 ├── conda-environment.yml              # 环境配置文件
 └── README.md                          # 项目文档
+```
 
 # 技术栈
 | 模块    | 技术选型                     |
