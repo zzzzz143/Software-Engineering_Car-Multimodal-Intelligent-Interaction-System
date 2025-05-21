@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initAuth();
     initFace();
     initChat();
-    initGesture();
+    //initGesture();
 
     // 添加页面点击激活播放
     document.body.addEventListener('click', () => {
