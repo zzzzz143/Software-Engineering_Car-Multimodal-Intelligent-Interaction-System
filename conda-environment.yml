@@ -24,3 +24,5 @@ dependencies:
     - tensorflow-hub==0.16.1
     - pyjwt
     - PyYAML
+    - pyaudio
+    - funasr

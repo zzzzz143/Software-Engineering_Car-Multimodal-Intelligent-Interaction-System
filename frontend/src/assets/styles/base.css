@@ -105,6 +105,7 @@ button {
 
 .form-group {
     margin: 1rem 0;
+    width: 95%;
 }
 
 .form-group input {
@@ -114,9 +115,11 @@ button {
 }
 
 .button-group {
+    margin-top: 20px;
     display: flex;
     gap: 1rem;
     margin-top: 1rem;
+    justify-content: center;
 }
 
 /* 登录状态样式 */
