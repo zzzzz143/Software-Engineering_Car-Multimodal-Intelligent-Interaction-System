@@ -1,47 +1,79 @@
 export class MusicPlayer {
     constructor() {
         this.playlist = [
-            './src/assets/music/1.mp3',
-            // './src/assets/music/2.mp3',
-            // './src/assets/music/3.mp3'
+            './src/assets/music/普通朋友.mp3',
+            './src/assets/music/阴天快乐.mp3',
+            './src/assets/music/执迷不悟.mp3'
         ];
-        this.currentTrackIndex = 0;
-        this.volume = 0.5;
-        this.isMuted = false;
-        this.audioElement = new Audio();
-        
-        // 事件监听方法
-        this._initEventListeners();
-        
-        // 添加延迟加载
-        setTimeout(() => {
-            this.audioElement.src = this.playlist[this.currentTrackIndex];
-            this.audioElement.load();
-        }, 1000);
-    }
+        this.currentTrackIndex = 0; // 当前播放的索引
+        this.volume = 0.5; // 默认音量
 
-    // 事件监听方法
-    _initEventListeners() {
+        this.audioElement = new Audio();
+        this.isPlaying = false; // 播放状态标识
+        this.audioElement.addEventListener('timeupdate', () => this.updateProgressBar());
         this.audioElement.addEventListener('ended', () => this.playNext());
     }
 
-    // 更新播放状态显示
-    updateNowPlaying() {
-        const nowPlayingElement = document.getElementById('nowPlaying');
-        if (nowPlayingElement) {
-            nowPlayingElement.textContent = `正在播放：${this.getCurrentTrackName()}`;
-        }
+    updateProgressBar() {
+        const progressBar = document.getElementById('progressBar');
+        progressBar.value = (this.audioElement.currentTime / this.audioElement.duration) * 100 || 0;
     }
 
-    // 播放控制
-    play() {
-        // 添加播放状态验证
-        if (this.audioElement.readyState < 2) {
-            this.audioElement.load();
+    togglePlay() {
+        if (this.isPlaying) {
+            this.pause();
+        } else {
+            this.play();
         }
-        
-        return this.audioElement.play()
-            .then(() => this.updateNowPlaying())
-            .catch(e => console.error('播放失败:', e));
+        this.audioElement.play();this.isPlaying; // 切换状态
+    }
+
+    play() {
+        if (!this.audioElement.src) {
+            this.audioElement.src = this.playlist[this.currentTrackIndex];
+
+        }
+        this.audioElement.play();
+        document.getElementById('nowPlaying').textContent = `正在播放：${
+            this.playlist[this.currentTrackIndex]
+              .split(/[\\/]/) // 兼容Windows路径分隔符
+              .pop()           // 获取文件名
+              .split('.')[0]   // 去除后缀
+          }`;
+        document.getElementById('playPauseBtn').textContent = '⏸';
+    }
+
+    pause() {
+        this.audioElement.pause();
+        document.getElementById('playPauseBtn').textContent = '▶';
+    }
+
+    playPrev() {
+        this.currentTrackIndex = (this.currentTrackIndex - 1 + this.playlist.length) % this.playlist.length; // 循环播放
+        this.audioElement.src = this.playlist[this.currentTrackIndex];
+        this.play();
+        document.getElementById('nowPlaying').textContent = `正在播放：${
+            this.playlist[this.currentTrackIndex]
+              .split(/[\\/]/) // 兼容Windows路径分隔符
+              .pop()           // 获取文件名
+              .split('.')[0]   // 去除后缀
+          }`;
+    }
+
+    playNext() {
+        this.currentTrackIndex = (this.currentTrackIndex + 1) % this.playlist.length; // 循环播放
+        this.audioElement.src = this.playlist[this.currentTrackIndex];
+        this.play();
+        document.getElementById('nowPlaying').textContent = `正在播放：${
+            this.playlist[this.currentTrackIndex]
+              .split(/[\\/]/) // 兼容Windows路径分隔符
+              .pop()           // 获取文件名
+              .split('.')[0]   // 去除后缀
+          }`;
+    }
+
+    updateProgressBar() {
+        const progressBar = document.getElementById('progressBar');
+        progressBar.value = (this.audioElement.currentTime / this.audioElement.duration) * 100 || 0;
     }
 }
