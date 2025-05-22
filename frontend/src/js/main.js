@@ -21,15 +21,26 @@ document.addEventListener('DOMContentLoaded', () => {
     initChat();
     //initGesture();
 
-    // 添加页面点击激活播放
-    document.body.addEventListener('click', () => {
-        musicPlayer.audioElement.play()
-            .then(() => {
-                console.log('音频播放已激活');
-                musicPlayer.updateNowPlaying();
-            })
-            .catch(e => console.error('播放失败:', e));
+    // 音乐播放/暂停
+    document.getElementById('playPauseBtn').addEventListener('click', () => {
+        musicPlayer.togglePlay();
     });
-}); 
+    
+    // 切换上一首
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      musicPlayer.playPrev();
+    });
+    
+    // 切换下一首
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      musicPlayer.playNext();
+    });
+
+    // 进度条控制
+    document.getElementById('progressBar').addEventListener('input', (e) => {
+      const seekTime = (e.target.value / 100) * musicPlayer.audioElement.duration;
+      musicPlayer.audioElement.currentTime = seekTime;
+  });
+});
 
 

@@ -1,21 +1,16 @@
 from flask import Flask, request, jsonify
 import requests
-import sys
 import os
-from dotenv import load_dotenv
 from flask_cors import CORS
 from datetime import datetime, timedelta, timezone
+from config import Config
 
 # 初始化Flask应用
 app = Flask(__name__)
-# 配置CORS支持所有域名的跨域请求
-CORS(app, resources={r"/*": {"origins": "*"}})
-# 从.env加载配置
-load_dotenv()  
-MODEL_API_URL = os.getenv('MODEL_API_URL')
-# "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
-API_KEY = os.getenv('DASHSCOPE_API_KEY')
-# "sk-d312c095790e4674998b1975c2ed5940"
+app.config.from_object(Config)
+MODEL_API_URL = Config.MODEL_API_URL
+DASHSCOPE_API_KEY = Config.DASHSCOPE_API_KEY
+CORS(app, resources={r"/*": {"origins": "*"}}) # 配置CORS支持所有域名的跨域请求
 
 # 数据库配置
 from flask_sqlalchemy import SQLAlchemy
@@ -23,12 +18,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from datetime import datetime, timedelta
 from functools import wraps
-import yaml
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:123456@localhost/software_db')
+app.config['SQLALCHEMY_DATABASE_URI'] = Config.DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_secret_key_here')
+app.config['SECRET_KEY'] = Config.SECRET_KEY
 
 @app.cli.command("init-db")
 def init_db_command():
@@ -36,7 +30,43 @@ def init_db_command():
     db.create_all()
     print("数据库初始化完成")
 
+# 添加角色权限装饰器
+def role_required(required_role):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            token = request.headers.get('Authorization')
+            if not token:
+                return jsonify({"status": "error", "message": "需要认证"}), 401
 
+            try:
+                data = jwt.decode(token.split()[1], app.config['SECRET_KEY'], algorithms=["HS256"])
+                current_user = User.query.get(data['user_id'])
+                if current_user.role != required_role:
+                    return jsonify({"status": "error", "message": "权限不足"}), 403
+            except Exception as e:
+                return jsonify({"status": "error", "message": str(e)}), 401
+
+            return f(current_user, *args, **kwargs)
+        return decorated_function
+    return decorator
+
+@app.route('/admin')
+@role_required('admin')
+def admin_panel():
+    return jsonify({
+        "status": "success",
+        "message": "管理员控制面板"
+    })
+
+@app.route('/maintenance')
+@role_required('maintenance')
+def maintenance_tool():
+    return jsonify({
+        "status": "success",
+        "message": "维护人员工具界面"
+    })
+    
 # JWT验证装饰器
 def token_required(f):
     @wraps(f)
@@ -51,7 +81,6 @@ def token_required(f):
             return jsonify({'error': 'Token is invalid'}), 401
         return f(current_user, *args, **kwargs)
     return decorated
-
 
 @app.route('/api/chat', methods=['POST', 'OPTIONS'])
 @token_required
@@ -72,13 +101,13 @@ def model_api(current_user):
             "model": "qwen-plus",
             "messages": [
                 {
-                    "role": "user",
+                    "role": "passenger",
                     "content": user_input
                 }
             ]
         }
         headers = {
-            'Authorization': f'Bearer {API_KEY}',
+            'Authorization': f'Bearer {DASHSCOPE_API_KEY}',
             'Content-Type': 'application/json'
         }
 
@@ -119,35 +148,50 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.Text)
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password, method='pbkdf2:sha256')
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+    role = db.Column(db.String(20), nullable=False, default='driver')  # 用户类型(driver/passenger/admin/maintenance)
+    type = db.Column(db.String(10), default='normal')  # 用户权限(normal/privileged)
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))  # 注册时间
 
     def generate_token(self):
         return jwt.encode({
             'user_id': self.id,
+            'role': self.role,
             'exp': datetime.now(timezone.utc) + timedelta(hours=24)
         }, app.config['SECRET_KEY'], algorithm='HS256')
+    
 
 # 注册路由
 @app.route('/api/register', methods=['POST'])
 def register():
-    data = request.get_json()
-    try:
-        data = request.get_json()  # 添加调试日志
-        print("Received registration data:", data)
-    except Exception as e:
-        print("JSON parse error:", e)
-        return jsonify({'error': 'Invalid JSON format'}), 400
+    data = request.get_json()    
+    # 获取权限码并验证
+    input_code = data.get('Permissioncode')
+    valid_code = generate_password_hash(Config.PERMISSION_CODE)
     
-    if User.query.filter_by(username=data['username']).first():
-        return jsonify({'error': '用户名已存在'}), 409
-        
-    user = User(username=data['username'])
-    user.set_password(data['password'])
+    # 初始化可选角色
+    allowed_roles = ['passenger', 'driver']
+    
+    # 权限码验证通过后扩展可选角色
+    if input_code and check_password_hash(valid_code, input_code):
+        allowed_roles += ['admin', 'maintenance']
+    
+    # 校验角色合法性
+    selected_role = data.get('role')
+    if selected_role not in allowed_roles:
+        return jsonify({
+            "status": "error",
+            "message": "该角色需要有效权限码",
+            "allowed_roles": allowed_roles
+        }), 403
+    
+    # 如果是特权用户
+    if selected_role in ['admin', 'maintenance']:
+        user_type = 'privileged'
+    else:
+        user_type = 'normal'
+
+    user = User(username=data['username'], role=selected_role, type=user_type)
+    user.password_hash=generate_password_hash(data['password'])
     db.session.add(user)
     db.session.commit()
     return jsonify({'message': '注册成功'}), 201
@@ -157,12 +201,18 @@ def register():
 def login():
     data = request.get_json()
     user = User.query.filter_by(username=data['username']).first()
-    if not user or not user.check_password(data['password']):
+    if not user or not check_password_hash(user.password_hash, data['password']):
         return jsonify({'error': '用户名或密码错误'}), 401
         
     token = user.generate_token()
-    return jsonify({'token': token}), 200
-
+    return jsonify({
+        'token': token,
+        'user_info': {
+            'username': user.username,
+            'role': user.role,
+            'created_at': user.created_at.isoformat()
+        }
+    }), 200
 
 # # 手势识别模块路径
 # multimodal_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../multimodal'))

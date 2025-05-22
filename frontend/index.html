@@ -18,7 +18,20 @@
             <div class="form-group">
                 <input type="password" id="password" placeholder="密码">
             </div>
-            <div class="button-group">
+            <div class="form-group">
+                <label for="role">选择身份：</label>
+                <select id="role" class="form-select" aria-label="身份选择">
+                    <option value="driver" data-icon="🚗">驾驶员</option>
+                    <option value="passenger" data-icon="👤">乘客</option>
+                    <option value="admin" data-icon="🔑">系统管理员</option>
+                    <option value="maintenance" data-icon="🛠️">车辆维护人员</option>
+                </select>
+            </div>
+            <!-- 添加权限码输入 -->
+            <div class="form-group" id="PermissioncodeField" >
+                <input type="password" id="Permissioncode" placeholder="权限码">
+            </div>
+            <div class="button-group" style="display: flex;">
                 <button id="loginBtn">登录</button>
                 <button id="registerBtn">注册</button>
             </div>
@@ -53,6 +66,7 @@
         <!-- 音乐播放器组件 -->
         <div class="music-controls">
             <div id="nowPlaying" class="now-playing">正在加载音乐...</div>
+            <input type="range" id="progressBar" class="progress-bar" value="0">
             <div class="control-buttons">
                 <button id="prevBtn" class="music-btn">⏮</button>
                 <button id="playPauseBtn" class="music-btn">▶</button>
@@ -61,6 +75,6 @@
         </div>
         </div>    
     </div>
-    <script type="module" src="./src/js/main.js"></script>
+    <script type="module" src="./src/js/main.js" type="module"></script>
 </body>
 </html>
