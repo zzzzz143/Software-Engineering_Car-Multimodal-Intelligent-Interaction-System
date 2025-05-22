@@ -44,6 +44,9 @@
 | 第三方对接 | 阿里云大模型API                |
 
 # 使用说明
+## !!! 注意：首先你要安装数据库PostgreSQL!!!；其次，注意当进入conda环境后，在VsCode上编辑的内容并不会更新到conda环境中的文件上;再然后，app.py第26行记得换成你的数据库密码，并且记得创建一个名为software_db的数据库；最后，大模型API_KEY的部分，当前设置为从环境变量中获取，你也可以直接在代码中修改，直接将其修改为给定的字符串(建议直接改为字符串，至少使用环境变量的方式我没有成功)！！！
+
+## !!! conda环境配置时间较长，请耐心等待
 1. 克隆项目到本地
 2. 安装Miniconda（推荐）或conda
 ```bash
@@ -91,7 +94,7 @@ npm run dev
 3. PostgreSQL 10+
 
 # 多模态大模型
-手势识别
+## 手势识别
 
 |                          | 手势描述                 | 功能           | 类型   |
 | ------------------------ | -------------------- | ------------ | ---- |
@@ -123,3 +126,8 @@ npm run dev
       - 下载链接: https://drive.google.com/file/d/11MJWXmFnx9shbVtsaP1V8ak_kADg0r7D
    - Pretrained models模型(371MB)
       - 下载链接: https://drive.google.com/file/d/1V23zvjAKZr7FUOBLpgPZkpHGv8_D-cOs
+
+## 语音识别
+基于阿里开源的SenseVoiceSmall模型:https://github.com/FunAudioLLM/SenseVoice
+
+模型可以被应用于中文、粤语、英语、日语、韩语音频识别，并输出带有情感和事件的富文本转写结果。
