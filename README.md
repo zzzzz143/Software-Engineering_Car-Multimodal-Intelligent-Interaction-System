@@ -21,6 +21,12 @@
 ├── multimodal
 │   ├── Audio/                         # 语音识别
 │   │   ├── SenseVoiceSmall/
+│   │   │   ├── utils
+│   │   │   ├── chn_jpn_yue_eng_ko_spectok.bpe.model
+│   │   │   ├── config.yaml
+│   │   │   ├── configuration.json
+│   │   │   ├── model.pt
+│   │   │   └── model.py
 │   ├── gesture/                       # 手势识别
 │   │   ├── model/                     # 模型文件
 │   │   │   ├── gesture_recognizer.task
@@ -44,34 +50,47 @@
 | 第三方对接 | 阿里云大模型API                |
 
 # 使用说明
-## !!! 注意：首先你要安装数据库PostgreSQL!!!；其次，注意当进入conda环境后，在VsCode上编辑的内容并不会更新到conda环境中的文件上;再然后，app.py第26行记得换成你的数据库密码，并且记得创建一个名为software_db的数据库；最后，大模型API_KEY的部分，当前设置为从环境变量中获取，你也可以直接在代码中修改，直接将其修改为给定的字符串(建议直接改为字符串，至少使用环境变量的方式我没有成功)！！！
-
-## !!! conda环境配置时间较长，请耐心等待
 1. 克隆项目到本地
 2. 安装Miniconda（推荐）或conda
 ```bash
 https://docs.conda.io/en/latest/miniconda.html
 ```
 3. 创建环境并安装依赖库
-```
+```bash
 conda env create -f conda-environment.yml
 ```
+conda环境配置时间较长，请耐心等待
+
 4. 激活虚拟环境
-```
+```bash
 conda activate software
 ```
-5. 启动后端服务
+5. 安装PostgreSQL，创建一个名为software_db的数据库
+
+6. 在backend文件夹下创建.env文件，内容如下：
+```plaintext
+MODEL_API_URL=your_model_api_url # 模型API地址
+DASHSCOPE_API_KEY=your_dashscope_api_key # 大模型API_KEY
+DATABASE_URL=postgresql://username:password@localhost/software_db # 数据库连接字符串
+SECRET_KEY=your_secret_key # 安全密钥(32位随机字符串)
 ```
+- app.py第15行的MODEL_API_URL会优先使用.env文件中的MODEL_API_URL，如果不存在则使用默认值
+- app.py第16行的API_KEY会优先使用.env文件中的DASHSCOPE_API_KEY，如果不存在则使用默认值
+- app.py第25行会优先使用.env文件中的DATABASE_URL，如果不存在则使用默认值
+- app.py第28行会优先使用.env文件中的SECRET_KEY，如果不存在则使用默认值
+7. 启动后端服务
+```bash
 cd backend
-flask --app app.py init-db  # 初始化数据库（只需运行一次）
+flask --app app.py init-db  # 初始化数据库（只需要运行一次）
 python app.py
 ```
-6. 启动前端服务
-```
+8. 启动前端服务
+```bash
 cd frontend
-npm install express # 安装Express框架
+npm install express # 安装Express框架（只需要运行一次）
 npm run dev
 ```
+9. 访问前端界面http://localhost:3000
 
 # 核心功能流
 1. 用户认证系统
@@ -121,13 +140,30 @@ npm run dev
    - 👋 OPen_Palm
    - 👎 Thumb_Down
 
-动态手势: 目前是在静态手势的基础上使用规则进行判断，后续考虑使用 Real-time-GesRec 的预训练模型
-   - shared_models_v1模型(1.08GB)
-      - 下载链接: https://drive.google.com/file/d/11MJWXmFnx9shbVtsaP1V8ak_kADg0r7D
-   - Pretrained models模型(371MB)
-      - 下载链接: https://drive.google.com/file/d/1V23zvjAKZr7FUOBLpgPZkpHGv8_D-cOs
+动态手势: 在静态手势的基础上使用规则进行判断
 
 ## 语音识别
 基于阿里开源的SenseVoiceSmall模型:https://github.com/FunAudioLLM/SenseVoice
 
 模型可以被应用于中文、粤语、英语、日语、韩语音频识别，并输出带有情感和事件的富文本转写结果。
+
+# 注册登录
+## 普通账户(用户、驾驶员)
+1. 访问注册页面：http://localhost:3000
+2. 输入用户名、密码和确认密码
+3. 点击注册按钮，完成注册
+
+## 特权账户(管理员、维护人员)
+1. 进入frontend目录下
+2. 创建初始管理员（首次部署时运行）
+```bash
+python -m create_admin admin1 20250523
+```
+3. 管理员登录后生成授权令牌
+```bash
+curl -X POST http://localhost:5000/login -H "Content-Type: application/json" -d '{"username":"admin1","password":"20250523"}'
+```
+4. 使用权限码创建维护人员
+```bash
+curl -X POST http://localhost:5000/register -H "Authorization: Bearer <ADMIN_TOKEN>" -H "Content-Type: application/json" -d '{"username":"maintainer1","password":"20250524","role":"maintenance"}'
+```
