@@ -12,8 +12,10 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 # 从.env加载配置
 load_dotenv()  
-MODEL_API_URL = os.getenv("MODEL_API_URL")
-API_KEY = os.getenv("DASHSCOPE_API_KEY")
+MODEL_API_URL = os.getenv('MODEL_API_URL')
+# "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+API_KEY = os.getenv('DASHSCOPE_API_KEY')
+# "sk-d312c095790e4674998b1975c2ed5940"
 
 # 数据库配置
 from flask_sqlalchemy import SQLAlchemy
@@ -23,10 +25,17 @@ from datetime import datetime, timedelta
 from functools import wraps
 import yaml
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:your_password@localhost/software_db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:123456@localhost/software_db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_secret_key_here')
+
+@app.cli.command("init-db")
+def init_db_command():
+    """初始化数据库表结构"""
+    db.create_all()
+    print("数据库初始化完成")
+
 
 # JWT验证装饰器
 def token_required(f):
@@ -74,6 +83,7 @@ def model_api(current_user):
         }
 
         try:
+            print(MODEL_API_URL)
             # 发送请求到大模型API
             response = requests.post(MODEL_API_URL, headers=headers, json=payload)
 
@@ -154,30 +164,30 @@ def login():
     return jsonify({'token': token}), 200
 
 
-# 手势识别模块路径
-multimodal_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../multimodal'))
-if multimodal_path not in sys.path:
-    sys.path.insert(0, multimodal_path)
+# # 手势识别模块路径
+# multimodal_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../multimodal'))
+# if multimodal_path not in sys.path:
+#     sys.path.insert(0, multimodal_path)
 
-from gesture.gesture_recognition import GestureRecognition
-gesture_recognizer = GestureRecognition()  # 手势识别器
+# from multi_recognition import GestureRecognition
+# gesture_recognizer = GestureRecognition()  # 手势识别器
 
-# 手势识别路由
-@app.route('/api/gesture', methods=['POST'])
-@token_required
-def handle_gesture(current_user):
-    try:
-        # 验证图像数据存在
-        if 'image' not in request.json:
-            return jsonify({'error': 'Missing image data'}), 400
+# # 手势识别路由
+# @app.route('/api/gesture', methods=['POST'])
+# @token_required
+# def handle_gesture(current_user):
+#     try:
+#         # 验证图像数据存在
+#         if 'image' not in request.json:
+#             return jsonify({'error': 'Missing image data'}), 400
         
 
-    except Exception as e:
-        app.logger.error(f"Gesture recognition failed: {str(e)}")
-        return jsonify({
-            'status': 'error',
-            'message': str(e)
-        }), 500
+#     except Exception as e:
+#         app.logger.error(f"Gesture recognition failed: {str(e)}")
+#         return jsonify({
+#             'status': 'error',
+#             'message': str(e)
+#         }), 500
 
 if __name__ == '__main__':
     with app.app_context():

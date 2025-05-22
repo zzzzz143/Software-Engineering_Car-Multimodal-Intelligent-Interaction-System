@@ -36,7 +36,7 @@ FORMAT = pyaudio.paInt16  # 音频格式
 CHANNELS = 1  # 单声道
 RATE = 6500  # 采样率
 THRESHOLD = 300  # 能量阈值
-SILENCE_LIMIT = 1.0  # 无声时间阈值
+SILENCE_LIMIT = 2.5  # 无声时间阈值
 
 # 全局变量
 stop_event = threading.Event()  # 用于停止线程的事件
@@ -72,6 +72,7 @@ class GestureRecognition:
         # Keep history slightly longer than the window to catch transitions spanning the boundary
         self.gesture_history_duration = DYNAMIC_GESTURE_WINDOW + 0.5
         self.gesture_history = []
+        self.gesture_start_time = None
         self.last_displayed_gesture = None
 
         self.potential_landmark_gesture = None
@@ -241,14 +242,26 @@ class GestureRecognition:
         if display_gesture:
             gesture_name = self.gesture_map.get(display_gesture, "无手势")
         score_text = f" ({current_raw_score:.2f})" if current_raw_score and not dynamic_gesture else ""
-
+        # 检查手势是否连续出现2秒
         if gesture_name != "无手势":
-            if gesture_name != self.last_displayed_gesture:
-                # print(f"检测到手势: {gesture_name}{score_text}")
-                print(f"检测到手势: {gesture_name}")
-                self.last_displayed_gesture = gesture_name
+            # 动态手势不要求出现2秒
+            if gesture_name =="音量增加" or gesture_name =="音量减少" or gesture_name =="放大地图" or gesture_name =="缩小地图" or gesture_name =="拒绝":
+                if gesture_name != self.last_displayed_gesture:
+                    print(f"检测到手势: {gesture_name}")
+                    self.last_displayed_gesture = None
+            else:
+                if gesture_name != self.last_displayed_gesture:
+                    # 重置计时器
+                    self.gesture_start_time = time.time()
+                    self.last_displayed_gesture = gesture_name
+                else:
+                    # 检查持续时间
+                    if time.time() - self.gesture_start_time >= 2.0:
+                        print(f"检测到手势: {gesture_name}{score_text}")
+                        self.last_displayed_gesture = None
         else:
             self.last_displayed_gesture = None
+            self.gesture_start_time = None
 
         draw.text((10, 30),
                   f"手势: {gesture_name}{score_text}",
@@ -441,6 +454,10 @@ class VisualRecognition:
         self.face_detector = FaceDetector()
         self.head_detector = HeadPoseDetector()
         self.gaze_tracker = GazeTracker()
+        self.last_action = None
+        self.last_gaze_status = "center"
+        self.gaze_away_start_time = None
+        self.DISTRACTION_THRESHOLD = 2.0
 
     def process_frame(self, frame):
         image = frame.copy()
@@ -455,7 +472,29 @@ class VisualRecognition:
             # 视线检测
             gaze_result = self.gaze_tracker.track_gaze(landmarks, image)
 
-            # 绘制头部姿态角度
+            # 终端输出点头/摇头
+            if head_result['action'] in ("NOD", "SHAKE") and head_result['action'] != self.last_action:
+                print(f"检测到动作：{head_result['action']}")
+                self.last_action = head_result['action']
+            elif head_result['action'] not in ("NOD", "SHAKE"):
+                self.last_action = None
+
+            # 改进分心/疲劳判定
+            gaze_dir = gaze_result['direction']
+            now = time.time()
+            # 只对主方向做判定
+            if gaze_dir in ("left", "right", "up", "down"):
+                if self.gaze_away_start_time is None:
+                    self.gaze_away_start_time = now
+                elif now - self.gaze_away_start_time > self.DISTRACTION_THRESHOLD:
+                    if self.last_gaze_status != "distracted":
+                        print("警告：检测到驾驶员持续分心或疲劳！")
+                        self.last_gaze_status = "distracted"
+            else:
+                self.gaze_away_start_time = None
+                self.last_gaze_status = "center"
+
+            # 可视化部分同前
             cv2.putText(image, f"Pitch: {head_result['angles']['pitch']:+.1f}°", (10, 230),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 0, 200), 2)
             cv2.putText(image, f"Yaw: {head_result['angles']['yaw']:+.1f}°", (10, 260),
@@ -470,30 +509,25 @@ class VisualRecognition:
             cv2.putText(image, f"R_threshold: {head_result['thresholds']['roll']:+.1f}°", (10, 430),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 0, 200), 2)
 
-            # 显示检测到的动作
             if head_result['time_since_last'] < self.head_detector.MOTION_INTERVAL:
                 text = f"{head_result['action']}"
                 text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 1.2, 3)[0]
                 cv2.putText(image, text, (image.shape[1] // 2 - text_size[0] // 2, image.shape[0] // 2),
                             cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
 
-            # 绘制视线方向
             cv2.putText(image, f"Gaze: {gaze_result['direction']}", (30, 140),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 0, 200), 2)
 
-            # 绘制左右眼关键点和虹膜点
             for pt in gaze_result["left_eye"]["iris_landmarks"]:
                 cv2.circle(image, pt, 1, (0, 0, 255), -1)
             for pt in gaze_result["right_eye"]["iris_landmarks"]:
                 cv2.circle(image, pt, 1, (0, 0, 255), -1)
 
-            # 绘制瞳孔中心
             if gaze_result["left_eye"]["pupil_center"]:
                 cv2.circle(image, (int(gaze_result["left_eye"]["pupil_center"][0]), int(gaze_result["left_eye"]["pupil_center"][1])), 3, (255, 0, 255), -1)
             if gaze_result["right_eye"]["pupil_center"]:
                 cv2.circle(image, (int(gaze_result["right_eye"]["pupil_center"][0]), int(gaze_result["right_eye"]["pupil_center"][1])), 3, (255, 0, 255), -1)
 
-            # 绘制视线箭头
             for eye in ["left_eye", "right_eye"]:
                 pupil = gaze_result[eye]["pupil_center"]
                 gaze_vec = gaze_result[eye]["gaze_3d"]
