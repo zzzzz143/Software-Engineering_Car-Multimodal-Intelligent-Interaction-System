@@ -1,5 +1,5 @@
-```plaintext
 # 项目结构
+```plaintext
 ├── backend/                           # Flask后端服务
 │   ├── .env                           # 环境变量配置
 │   └── app.py                         # 主入口(路由/数据库/API整合)
@@ -69,15 +69,15 @@ conda activate software
 
 6. 在backend文件夹下创建.env文件，内容如下：
 ```plaintext
-MODEL_API_URL=your_model_api_url # 模型API地址
-DASHSCOPE_API_KEY=your_dashscope_api_key # 大模型API_KEY
-DATABASE_URL=postgresql://username:password@localhost/software_db # 数据库连接字符串
-SECRET_KEY=your_secret_key # 安全密钥(32位随机字符串)
+MODEL_API_URL = your_model_api_url # 大模型API地址
+DASHSCOPE_API_KEY = your_dashscope_api_key # 大模型API密钥
+DATABASE_URL = postgresql://username:password@localhost/software_db # 数据库连接字符串
+SECRET_KEY = your_secret_key # 安全密钥(32位随机字符串)
+PERMISSION_CODE = your_permission_code # 权限码
+AMAP_API_KEY = your_amap_web_key # 高德地图API KEY
+AMAP_SECURITY_CODE = your_amap_security_code # 高德地图安全密钥
 ```
-- app.py第15行的MODEL_API_URL会优先使用.env文件中的MODEL_API_URL，如果不存在则使用默认值
-- app.py第16行的API_KEY会优先使用.env文件中的DASHSCOPE_API_KEY，如果不存在则使用默认值
-- app.py第25行会优先使用.env文件中的DATABASE_URL，如果不存在则使用默认值
-- app.py第28行会优先使用.env文件中的SECRET_KEY，如果不存在则使用默认值
+config.py 会优先使用.env文件中的配置，如果不存在则使用默认值
 7. 启动后端服务
 ```bash
 cd backend
@@ -148,22 +148,8 @@ npm run dev
 模型可以被应用于中文、粤语、英语、日语、韩语音频识别，并输出带有情感和事件的富文本转写结果。
 
 # 注册登录
-## 普通账户(用户、驾驶员)
 1. 访问注册页面：http://localhost:3000
-2. 输入用户名、密码和确认密码
-3. 点击注册按钮，完成注册
-
-## 特权账户(管理员、维护人员)
-1. 进入frontend目录下
-2. 创建初始管理员（首次部署时运行）
-```bash
-python -m create_admin admin1 20250523
-```
-3. 管理员登录后生成授权令牌
-```bash
-curl -X POST http://localhost:5000/login -H "Content-Type: application/json" -d '{"username":"admin1","password":"20250523"}'
-```
-4. 使用权限码创建维护人员
-```bash
-curl -X POST http://localhost:5000/register -H "Authorization: Bearer <ADMIN_TOKEN>" -H "Content-Type: application/json" -d '{"username":"maintainer1","password":"20250524","role":"maintenance"}'
-```
+2. 输入用户名、密码
+3. 注册特权账户(管理员、维护人员)需要输入特权码
+4. 点击注册按钮，完成注册
+5. 注册成功后，点击登录按钮，完成登录

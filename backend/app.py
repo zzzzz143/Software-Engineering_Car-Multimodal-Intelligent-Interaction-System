@@ -24,49 +24,16 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 app.config['SECRET_KEY'] = Config.SECRET_KEY
 
+@app.route('/')
+def home():
+    return 
+
 @app.cli.command("init-db")
 def init_db_command():
     """初始化数据库表结构"""
     db.create_all()
     print("数据库初始化完成")
 
-# 添加角色权限装饰器
-def role_required(required_role):
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            token = request.headers.get('Authorization')
-            if not token:
-                return jsonify({"status": "error", "message": "需要认证"}), 401
-
-            try:
-                data = jwt.decode(token.split()[1], app.config['SECRET_KEY'], algorithms=["HS256"])
-                current_user = User.query.get(data['user_id'])
-                if current_user.role != required_role:
-                    return jsonify({"status": "error", "message": "权限不足"}), 403
-            except Exception as e:
-                return jsonify({"status": "error", "message": str(e)}), 401
-
-            return f(current_user, *args, **kwargs)
-        return decorated_function
-    return decorator
-
-@app.route('/admin')
-@role_required('admin')
-def admin_panel():
-    return jsonify({
-        "status": "success",
-        "message": "管理员控制面板"
-    })
-
-@app.route('/maintenance')
-@role_required('maintenance')
-def maintenance_tool():
-    return jsonify({
-        "status": "success",
-        "message": "维护人员工具界面"
-    })
-    
 # JWT验证装饰器
 def token_required(f):
     @wraps(f)
@@ -214,6 +181,13 @@ def login():
         }
     }), 200
 
+
+@app.route('/api/amap/config', methods=['GET'])
+def get_amap_config():
+    return jsonify({
+        'api_key': Config.AMAP_API_KEY,
+        'security_code': Config.AMAP_SECURITY_CODE
+    })
 # # 手势识别模块路径
 # multimodal_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../multimodal'))
 # if multimodal_path not in sys.path:

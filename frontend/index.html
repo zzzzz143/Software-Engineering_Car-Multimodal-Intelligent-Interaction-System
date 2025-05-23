@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>车载系统</title>
     <link rel="stylesheet" href="./src/assets/styles/base.css">
+    <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css" />
 </head>
 <body>
     <!-- 登录注册弹窗 -->
@@ -14,11 +15,7 @@
             <h2>用户认证</h2>
             <div class="form-group">
                 <input type="text" id="username" placeholder="用户名">
-            </div>
-            <div class="form-group">
                 <input type="password" id="password" placeholder="密码">
-            </div>
-            <div class="form-group">
                 <label for="role">选择身份：</label>
                 <select id="role" class="form-select" aria-label="身份选择">
                     <option value="driver" data-icon="🚗">驾驶员</option>
@@ -65,15 +62,43 @@
 
         <!-- 音乐播放器组件 -->
         <div class="music-controls">
-            <div id="nowPlaying" class="now-playing">正在加载音乐...</div>
-            <input type="range" id="progressBar" class="progress-bar" value="0">
+            <div id="nowPlaying" class="now-playing"></div>
             <div class="control-buttons">
+                <button id="modeBtn" class="music-btn">🔁</button>
                 <button id="prevBtn" class="music-btn">⏮</button>
                 <button id="playPauseBtn" class="music-btn">▶</button>
                 <button id="nextBtn" class="music-btn">⏭</button>
+                <button id="volumeBtn" class="music-btn">🔊</button>
+                <button id="playQueueBtn" class="music-btn">📋</button>
+
+                <!-- 音量控制滑块 (默认隐藏) -->
+                <div id="volumeSliderContainer" class="volume-slider-container" style="display:none;">
+                    <input type="range" id="volumeSlider" class="volume-slider" 
+                           min="0" max="1" step="0.1" value="0.5" 
+                           orient="vertical">
+                </div>
+                
+                <!-- 播放队列弹窗 (默认隐藏) -->
+                <div id="playQueueModal" class="modal" style="display:none;">
+                    <div class="modal-overlay" id="playQueueOverlay"></div>
+                    <div class="modal-content">
+                        <h3>播放队列</h3>
+                        <ul id="playQueueList"></ul>
+                    </div>
+                </div>
             </div>
+            <!-- 进度条 -->
+            <input type="range" id="progressBar" class="progress-bar" value="0">
         </div>
-        </div>    
+        
+        <!-- 导航组件 -->
+        <div class="navigation-container">
+            <input type="text" id="startPoint" placeholder="出发地">
+            <input type="text" id="endPoint" placeholder="目的地">
+            <button id="planRoute">路线</button>
+            <div id="mapContainer" style="width:100%;height:400px"></div>
+            <div id="routeInfo"></div>
+        </div>  
     </div>
     <script type="module" src="./src/js/main.js" type="module"></script>
 </body>
