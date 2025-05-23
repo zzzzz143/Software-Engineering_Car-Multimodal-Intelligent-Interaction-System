@@ -1,5 +1,3 @@
-import { MusicPlayer } from './music_player.js';
-
 export function initGesture() {
     const musicPlayer = window.sharedMusicPlayer;
     const video = document.getElementById('gestureView');
