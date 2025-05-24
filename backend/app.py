@@ -214,31 +214,6 @@ def login():
         }
     }), 200
 
-# # 手势识别模块路径
-# multimodal_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../multimodal'))
-# if multimodal_path not in sys.path:
-#     sys.path.insert(0, multimodal_path)
-
-# from multi_recognition import GestureRecognition
-# gesture_recognizer = GestureRecognition()  # 手势识别器
-
-# # 手势识别路由
-# @app.route('/api/gesture', methods=['POST'])
-# @token_required
-# def handle_gesture(current_user):
-#     try:
-#         # 验证图像数据存在
-#         if 'image' not in request.json:
-#             return jsonify({'error': 'Missing image data'}), 400
-        
-
-#     except Exception as e:
-#         app.logger.error(f"Gesture recognition failed: {str(e)}")
-#         return jsonify({
-#             'status': 'error',
-#             'message': str(e)
-#         }), 500
-
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # 自动检测并创建不存在的表

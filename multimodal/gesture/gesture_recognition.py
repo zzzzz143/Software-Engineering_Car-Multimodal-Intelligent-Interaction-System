@@ -9,10 +9,6 @@ from mediapipe.framework.formats import landmark_pb2
 from PIL import Image, ImageDraw, ImageFont
 
 # 手势识别参数
-DEVICE_ID = 0
-FRAME_WIDTH = 1280
-FRAME_HEIGHT = 720
-DESIRED_FPS = 90
 GESTURE_WINDOW = 0.5  # 动态手势时间窗口（秒）
 STATIC_GESTURE_DURATION_THRESHOLD = 1.0  # 静态手势持续时间阈值（秒）
 DYNAMIC_GESTURE_WINDOW = 1.0  # 动态手势时间窗口（秒）
@@ -20,9 +16,9 @@ SHAKE_WINDOW = 0.6  # 摇手时间窗口（秒）
 SHAKE_THRESHOLD = 0.08  # 每次左右位移的最小x轴差值（归一化）
 SHAKE_COUNT_REQUIRED = 2  # 至少需要多少次左右位移才算作一次有效的摇手
 
-class GestureRecognition():
-    def __init__(self):
-        self.init_video()
+class GestureRecognition:
+    def __init__(self, capture):
+        self.capture = capture
         self.init_mediapipe_hands_detector()
         self.prev_time = time.time()
         self.gesture_history = []  # 存储静态手势和时间戳
@@ -54,12 +50,6 @@ class GestureRecognition():
         self.potential_landmark_gesture = None  # 当前正在跟踪的手势
         self.potential_landmark_gesture_start_time = None  # 跟踪开始时间戳
         self.shake_history = []  # 记录最近手腕的x位置和时间
-
-    def init_video(self):
-        self.capture = cv2.VideoCapture(DEVICE_ID)
-        self.capture.set(cv2.CAP_PROP_FPS, DESIRED_FPS)
-        self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, FRAME_WIDTH)
-        self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT)
 
     def init_mediapipe_hands_detector(self):
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -312,33 +302,3 @@ class GestureRecognition():
             mp.solutions.drawing_styles.get_default_hand_landmarks_style(),
             mp.solutions.drawing_styles.get_default_hand_connections_style())
         return image
-
-    def run(self):
-        try:
-            while True:
-                ret, frame = self.capture.read()
-                if ret:
-                    # 处理手势识别
-                    frame = self.process_frame(frame)
-                    cv2.imshow('Gesture Recognition', frame)
-                    key = cv2.waitKey(1)
-                    if key in (27, ord('q')):
-                        break
-
-        except Exception as e:
-            print("关闭...")
-        finally:
-            self.exit()
-
-    def exit(self):
-        self.capture.release()
-        cv2.destroyAllWindows()
-
-if __name__ == '__main__':
-    try:
-        recognizer = GestureRecognition()
-        recognizer.run()
-    except Exception as e:
-        print(f"程序运行失败: {str(e)}")
-    finally:
-        print('程序运行结束')
