@@ -12,18 +12,18 @@ import pyaudio
 from funasr import AutoModel
 from funasr.utils.postprocess_utils import rich_transcription_postprocess
 import wave
-from command_process import process_system_info
+from command_process import process_system_info,get_tts_with_default_refer,extract_feedback
 
-user_id = "user123"  # 后面改成从配置文件中读取
 user_history_file_path = "../user_history.json"
 system_history_file_path = "../system_history.json"
 
 class VisualRecognition:
-    def __init__(self):
+    def __init__(self,user_id):
         from Video.face_detection import FaceDetector
         from Video.head_pose_detector import HeadPoseDetector
         from Video.gaze_tracking import GazeTracker
 
+        self.user_id = user_id
         self.face_detector = FaceDetector()
         self.head_detector = HeadPoseDetector()
         self.gaze_tracker = GazeTracker()
@@ -62,8 +62,13 @@ class VisualRecognition:
                 elif now - self.gaze_away_start_time > self.DISTRACTION_THRESHOLD:
                     if self.last_gaze_status != "distracted":
                         print("警告：检测到驾驶员持续分心或疲劳！")
-                        result = process_system_info("警告：检测到驾驶员持续分心或疲劳！", , user_id, system_history_file_path)
+                        result = process_system_info("警告：检测到驾驶员持续分心或疲劳！", self.user_id, system_history_file_path)
                         print(result)
+                        # 提取反馈
+                        feedback = extract_feedback(result)
+                        print(feedback)
+                        # 语音合成
+                        get_tts_with_default_refer(feedback)
                         self.last_gaze_status = "distracted"
             else:
                 self.gaze_away_start_time = None

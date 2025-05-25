@@ -1,6 +1,7 @@
 import requests
 import json
 import datetime
+import re
 
 MODEL_API_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
 API_KEY = "sk-d312c095790e4674998b1975c2ed5940"
@@ -77,7 +78,7 @@ def process_command(command, user_id="", user_history_file_path="user_history.js
     else:
         return "无法处理命令"
 
-def process_system_info(system_info, user_config="",system_history_file_path="system_history.json"):
+def process_system_info(system_info, user_id="",system_history_file_path="system_history.json"):
     system_history_info = read_history_info(system_history_file_path)
     user_config = load_user_config(user_id)
     input_str = (
@@ -130,6 +131,39 @@ def add_to_history(command, system_info, output, history_file_path, source, time
     history_info.append(new_dialogue)
     write_history_info(history_file_path, history_info)
 
+def extract_feedback(response_text):
+    # 使用正则表达式提取feedback字段
+    match = re.search(r'【feedback】(.*)', response_text)
+    if match:
+        return match.group(1).strip()  # 使用strip()去除可能的前后空白字符
+    return "无法提取feedback"
+
+
+## 语音合成部分
+import requests
+from pydub import AudioSegment
+from pydub.playback import play
+from io import BytesIO
+
+# 服务的地址
+base_url = "http://127.0.0.1:9880"
+
+def get_tts_with_default_refer(text, text_language="zh"):
+    params = {
+        "text": text,
+        "text_language": text_language
+    }
+    try:
+        response = requests.get(f"{base_url}/", params=params, stream=True)
+        response.raise_for_status()  # 检查请求是否成功
+        
+        # 直接从响应中读取音频数据并播放
+        audio_segment = AudioSegment.from_file(BytesIO(response.content), format="wav")
+        play(audio_segment)
+        
+        print("音频正在播放")
+    except requests.exceptions.RequestException as e:
+        print(f"请求失败：{e}")
 
 # command = "理想同学"
 # user_id = "user123"
