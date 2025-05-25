@@ -13,7 +13,7 @@ from funasr import AutoModel
 from funasr.utils.postprocess_utils import rich_transcription_postprocess
 import wave
 
-from command_process import process_command
+from command_process import process_command,get_tts_with_default_refer,extract_feedback
 
 # 音频参数
 CHUNK = 8012  # 每个缓冲区的帧数
@@ -23,14 +23,14 @@ RATE = 6500  # 采样率
 THRESHOLD = 300  # 能量阈值
 SILENCE_LIMIT = 2.5  # 无声时间阈值
 
-user_id = "user123"  # 后面改成从配置文件中读取
 user_history_file_path = "../user_history.json"
 system_history_file_path = "../system_history.json"
 
 
 class AudioRecognition(threading.Thread):
-    def __init__(self,stop_event):
+    def __init__(self,stop_event,user_id):
         super().__init__()
+        self.user_id = user_id
         self.p = pyaudio.PyAudio()
         self.stop_event = stop_event
         self.stream = self.p.open(format=FORMAT,
@@ -123,8 +123,14 @@ class AudioRecognition(threading.Thread):
                             # 调用语音识别模型进行处理
                             recognized_text = self.recognize_speech(audio_segment, RATE)
                             print(f"识别结果: {recognized_text}")
-                            result = process_command(recognized_text, user_id, user_history_file_path)
-                            print(result)
+                            if not recognized_text=="音频数据为空":
+                                result = process_command(recognized_text, self.user_id, user_history_file_path)
+                                print(result)
+                                # 提取反馈
+                                feedback = extract_feedback(result)
+                                print(feedback)
+                                # 语音合成
+                                get_tts_with_default_refer(feedback)
 
                             # 清空缓冲区
                             self.audio_buffer = []

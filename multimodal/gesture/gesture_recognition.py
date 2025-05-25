@@ -7,7 +7,7 @@ from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from mediapipe.framework.formats import landmark_pb2
 from PIL import Image, ImageDraw, ImageFont
-from command_process import process_system_info
+from command_process import process_system_info,get_tts_with_default_refer,extract_feedback
 
 # 手势识别参数
 GESTURE_WINDOW = 0.5  # 动态手势时间窗口（秒）
@@ -17,12 +17,12 @@ SHAKE_WINDOW = 0.6  # 摇手时间窗口（秒）
 SHAKE_THRESHOLD = 0.08  # 每次左右位移的最小x轴差值（归一化）
 SHAKE_COUNT_REQUIRED = 2  # 至少需要多少次左右位移才算作一次有效的摇手
 
-user_id = "user123"  # 后面改成从配置文件中读取
 user_history_file_path = "../user_history.json"
 system_history_file_path = "../system_history.json"
 
 class GestureRecognition:
-    def __init__(self, capture):
+    def __init__(self, capture,user_id):
+        self.user_id = user_id
         self.capture = capture
         self.init_mediapipe_hands_detector()
         self.prev_time = time.time()
@@ -223,8 +223,13 @@ class GestureRecognition:
             if gesture_name =="音量增加" or gesture_name =="音量减少" or gesture_name =="放大地图" or gesture_name =="缩小地图" or gesture_name =="拒绝":
                 if gesture_name != self.last_displayed_gesture:
                     print(f"检测到手势: {gesture_name}")
-                    result = process_system_info(gesture_name, user_id, system_history_file_path)
+                    result = process_system_info(gesture_name, self.user_id, system_history_file_path)
                     print(result)
+                    # 提取反馈
+                    feedback = extract_feedback(result)
+                    print(feedback)
+                    # 语音合成
+                    get_tts_with_default_refer(feedback)
                     self.last_displayed_gesture = None
             else:
                 if gesture_name != self.last_displayed_gesture:
@@ -235,8 +240,13 @@ class GestureRecognition:
                     # 检查持续时间
                     if time.time() - self.gesture_start_time >= 2.0:
                         print(f"检测到手势: {gesture_name}{score_text}")
-                        result = process_system_info(gesture_name, user_id, system_history_file_path)
+                        result = process_system_info(gesture_name, self.user_id, system_history_file_path)
                         print(result)
+                        # 提取反馈
+                        feedback = extract_feedback(result)
+                        print(feedback)
+                        # 语音合成
+                        get_tts_with_default_refer(feedback)
                         self.last_displayed_gesture = None
         else:
             self.last_displayed_gesture = None

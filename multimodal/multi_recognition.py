@@ -25,6 +25,7 @@ FRAME_HEIGHT = 720
 DESIRED_FPS = 90
 # 全局变量
 stop_event = threading.Event()  # 用于停止线程的事件
+user_id = "user123"   # 后面改成从配置文件中读取
 
 
 if __name__ == '__main__':
@@ -34,10 +35,10 @@ if __name__ == '__main__':
         capture.set(cv2.CAP_PROP_FRAME_WIDTH, FRAME_WIDTH)
         capture.set(cv2.CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT)
 
-        gesture_recognition = GestureRecognition(capture)
-        visual_recognition = VisualRecognition()
+        gesture_recognition = GestureRecognition(capture,user_id)
+        visual_recognition = VisualRecognition(user_id)
 
-        audio_thread = AudioRecognition(stop_event)
+        audio_thread = AudioRecognition(stop_event,user_id)
         audio_thread.start()
 
         try:
@@ -46,6 +47,7 @@ if __name__ == '__main__':
                 if ret:
                     # 处理手势识别
                     frame = gesture_recognition.process_frame(frame)
+                    
                     # 处理视觉识别
                     frame = visual_recognition.process_frame(frame)
 
@@ -68,6 +70,7 @@ if __name__ == '__main__':
 
     except Exception as e:
         print(f"程序运行失败: {str(e)}")
+        print(e)
     finally:
         stop_event.set()
         print('程序运行结束')
