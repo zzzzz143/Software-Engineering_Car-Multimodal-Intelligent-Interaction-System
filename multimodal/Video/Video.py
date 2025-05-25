@@ -12,6 +12,11 @@ import pyaudio
 from funasr import AutoModel
 from funasr.utils.postprocess_utils import rich_transcription_postprocess
 import wave
+from command_process import process_system_info
+
+user_id = "user123"  # 后面改成从配置文件中读取
+user_history_file_path = "../user_history.json"
+system_history_file_path = "../system_history.json"
 
 class VisualRecognition:
     def __init__(self):
@@ -25,7 +30,7 @@ class VisualRecognition:
         self.last_action = None
         self.last_gaze_status = "center"
         self.gaze_away_start_time = None
-        self.DISTRACTION_THRESHOLD = 2.0
+        self.DISTRACTION_THRESHOLD = 1.5
 
     def process_frame(self, frame):
         image = frame.copy()
@@ -57,6 +62,8 @@ class VisualRecognition:
                 elif now - self.gaze_away_start_time > self.DISTRACTION_THRESHOLD:
                     if self.last_gaze_status != "distracted":
                         print("警告：检测到驾驶员持续分心或疲劳！")
+                        result = process_system_info("警告：检测到驾驶员持续分心或疲劳！", , user_id, system_history_file_path)
+                        print(result)
                         self.last_gaze_status = "distracted"
             else:
                 self.gaze_away_start_time = None
