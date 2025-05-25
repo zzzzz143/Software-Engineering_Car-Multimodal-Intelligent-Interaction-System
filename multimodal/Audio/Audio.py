@@ -13,7 +13,7 @@ from funasr import AutoModel
 from funasr.utils.postprocess_utils import rich_transcription_postprocess
 import wave
 
-from multimodal.command_process import process_command
+from command_process import process_command
 
 # 音频参数
 CHUNK = 8012  # 每个缓冲区的帧数
@@ -22,6 +22,11 @@ CHANNELS = 1  # 单声道
 RATE = 6500  # 采样率
 THRESHOLD = 300  # 能量阈值
 SILENCE_LIMIT = 2.5  # 无声时间阈值
+
+user_id = "user123"  # 后面改成从配置文件中读取
+user_history_file_path = "../user_history.json"
+system_history_file_path = "../system_history.json"
+
 
 class AudioRecognition(threading.Thread):
     def __init__(self,stop_event):
@@ -118,6 +123,8 @@ class AudioRecognition(threading.Thread):
                             # 调用语音识别模型进行处理
                             recognized_text = self.recognize_speech(audio_segment, RATE)
                             print(f"识别结果: {recognized_text}")
+                            result = process_command(recognized_text, user_id, user_history_file_path)
+                            print(result)
 
                             # 清空缓冲区
                             self.audio_buffer = []
