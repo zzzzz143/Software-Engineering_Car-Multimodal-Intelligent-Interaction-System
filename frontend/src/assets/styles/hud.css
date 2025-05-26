@@ -1,0 +1,8 @@
+.hud-area {
+    flex: 0 0 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #000046 60%, #000066 100%); /* 深蓝色渐变 */
+    border-bottom: 2px solid #ff6699; /* 粉色边框 */
+}

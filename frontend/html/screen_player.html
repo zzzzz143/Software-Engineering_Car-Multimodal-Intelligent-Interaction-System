@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>车载系统 - 音乐播放器</title>
+    <link rel="stylesheet" href="../src/assets/styles/screenstyle.css">
+    <link rel="stylesheet" href="../src/assets/styles/screenplayer.css">
+</head>
+<body>
+    <div class="car-system">
+        <!-- 左侧导航栏 -->
+        <div class="sidebar">
+            <div class="time-display">
+                <span class="hour">09</span>
+                <span class="separator">:</span>
+                <span class="minute">35</span>
+            </div>
+            <div class="nav-buttons">
+                <a href="screen_main.html" class="nav-btn">🏠</a>
+                <a href="screen_navigation.html" class="nav-btn">📍</a>
+                <a href="screen_setting.html" class="nav-btn">⚙️</a>
+                <a href="screen_player.html" class="nav-btn active">🎵</a>
+                <a href="screen_phone.html" class="nav-btn">📞</a>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <!-- 音乐播放器界面 -->
+            <div class="music-player-content">
+                <!-- 上半部分：专辑封面、歌词 -->
+                <div class="player-upper-section">
+                    <!-- 专辑封面区域 -->
+                    <div class="album-section">
+                        <div class="album-cover-container">
+                            <div class="album-cover">
+                                <img src="../src/assets/images/cd.png" alt="专辑封面" id="albumCover">
+                                <div class="vinyl-effect"></div>
+                                <div class="play-indicator">
+                                    <div class="pulse-ring"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="album-info">
+                                <h2 class="song-title" id="songTitle">夜空中最亮的星</h2>
+                                <p class="artist-name" id="artistName">逃跑计划</p>
+                                <p class="album-name" id="albumName">世界</p>
+                            </div>
+
+                            <!-- 播放控制器 -->
+                            <div class="player-controls">
+                                <div class="progress-section">
+                                    <span class="time-current" id="currentTime">02:15</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-track">
+                                            <div class="progress-fill" id="progressFill"></div>
+                                            <div class="progress-thumb" id="progressThumb"></div>
+                                        </div>
+                                    </div>
+                                    <span class="time-total" id="totalTime">04:32</span>
+                                </div>
+                                
+                                <div class="control-buts">
+                                    <button class="control-btn shuffle" id="shuffleBtn">🔀</button>
+                                    <button class="control-btn prev" id="prevBtn">⏮</button>
+                                    <button class="control-btn play-pause" id="playPauseBtn">▶</button>
+                                    <button class="control-btn next" id="nextBtn">⏭</button>
+                                    <button class="control-btn repeat" id="repeatBtn">🔁</button>
+                                </div>
+
+                                <div class="volume-section">
+                                    <span class="volume-icon">🔊</span>
+                                    <div class="volume-bar">
+                                        <div class="volume-track">
+                                            <div class="volume-fill" id="volumeFill"></div>
+                                            <div class="volume-thumb" id="volumeThumb"></div>
+                                        </div>
+                                    </div>
+                                    <span class="volume-value" id="volumeValue">75%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 歌词区域 -->
+                    <div class="lyrics-section">
+                        <div class="lyrics-header">
+                            <h3>歌词</h3>
+                        </div>
+                        <div class="lyrics-container" id="lyricsContainer">
+                            <div class="lyrics-scroll">
+                                <div class="lyric-line active" data-time="0">夜空中最亮的星</div>
+                                <div class="lyric-line" data-time="5">能否听清</div>
+                                <div class="lyric-line" data-time="8">那仰望的人</div>
+                                <div class="lyric-line" data-time="12">心底的孤独和叹息</div>
+                                <div class="lyric-line" data-time="18">夜空中最亮的星</div>
+                                <div class="lyric-line" data-time="23">能否记起</div>
+                                <div class="lyric-line" data-time="26">曾与我同行</div>
+                                <div class="lyric-line" data-time="30">消失在风里的身影</div>
+                                <div class="lyric-line" data-time="36">我祈祷拥有一颗透明的心灵</div>
+                                <div class="lyric-line" data-time="42">和会流泪的眼睛</div>
+                                <div class="lyric-line" data-time="48">给我再去相信的勇气</div>
+                                <div class="lyric-line" data-time="54">越过谎言去拥抱你</div>
+                                <div class="lyric-line" data-time="60">每当我找不到存在的意义</div>
+                                <div class="lyric-line" data-time="66">每当我迷失在黑夜里</div>
+                                <div class="lyric-line" data-time="72">夜空中最亮的星</div>
+                                <div class="lyric-line" data-time="78">请指引我靠近你</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 下半部分：应用程序坞 -->
+                <div class="app-dock">
+                    <div class="dock-container">
+                        <!-- 音乐应用 -->
+                        <div class="dock-app active" data-app="music">
+                            <div class="app-icon music-icon">🎵</div>
+                            <span class="app-name">音乐</span>
+                        </div>
+
+                        <!-- 第三方音乐应用 -->
+                        <div class="dock-app" data-app="spotify">
+                            <div class="app-icon spotify-icon">🎧</div>
+                            <span class="app-name">Spotify</span>
+                        </div>
+
+                        <div class="dock-app" data-app="netease">
+                            <div class="app-icon netease-icon">🎶</div>
+                            <span class="app-name">网易云</span>
+                        </div>
+
+                        <div class="dock-app" data-app="qq-music">
+                            <div class="app-icon qq-music-icon">🎼</div>
+                            <span class="app-name">QQ音乐</span>
+                        </div>
+
+                        <div class="dock-app" data-app="apple-music">
+                            <div class="app-icon apple-music-icon">🍎</div>
+                            <span class="app-name">Apple Music</span>
+                        </div>
+
+                        <!-- 分隔线 -->
+                        <div class="dock-separator"></div>
+
+                        <!-- 其他应用 -->
+                        <div class="dock-app" data-app="radio">
+                            <div class="app-icon radio-icon">📻</div>
+                            <span class="app-name">收音机</span>
+                        </div>
+
+                        <div class="dock-app" data-app="podcast">
+                            <div class="app-icon podcast-icon">🎙️</div>
+                            <span class="app-name">播客</span>
+                        </div>
+
+                        <div class="dock-app" data-app="audiobook">
+                            <div class="app-icon audiobook-icon">📚</div>
+                            <span class="app-name">有声书</span>
+                        </div>
+
+                        <!-- 应用商城 -->
+                        <div class="dock-app" data-app="app-store">
+                            <div class="app-icon app-store-icon">🏪</div>
+                            <span class="app-name">应用商城</span>
+                        </div>
+
+                        <!-- 文件夹：更多音乐应用 -->
+                        <div class="dock-app folder" data-app="music-folder">
+                            <div class="app-icon folder-icon">
+                                <div class="folder-bg"></div>
+                                <div class="folder-apps">
+                                    <span class="mini-app">🎵</span>
+                                    <span class="mini-app">🎧</span>
+                                    <span class="mini-app">🎶</span>
+                                    <span class="mini-app">🎼</span>
+                                </div>
+                            </div>
+                            <span class="app-name">音乐工具</span>
+                        </div>
+                    </div>
+
+                    <!-- 应用详情面板 -->
+                    <div class="app-details-panel" id="appDetailsPanel">
+                        <div class="panel-content">
+                            <h3 id="panelTitle">应用详情</h3>
+                            <p id="panelDescription">选择一个应用查看详情</p>
+                            <div class="panel-actions">
+                                <button class="panel-btn open-btn" id="openAppBtn">打开应用</button>
+                                <button class="panel-btn info-btn" id="appInfoBtn">应用信息</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../src/js/screen.js"></script>
+    <script src="../src/js/screen/playerscreen.js"></script>
+</body>
+</html>
