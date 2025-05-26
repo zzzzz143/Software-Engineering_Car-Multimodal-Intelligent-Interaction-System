@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>车载系统 - 设置</title>
+    <link rel="stylesheet" href="../src/assets/styles/screenstyle.css">
+    <link rel="stylesheet" href="../src/assets/styles/screensetting.css">
+</head>
+<body>
+    <div class="car-system">
+        <!-- 左侧导航栏 -->
+        <div class="sidebar">
+            <div class="time-display">
+                <span class="hour">09</span>
+                <span class="separator">:</span>
+                <span class="minute">35</span>
+            </div>
+            <div class="nav-buttons">
+                <a href="screen_main.html" class="nav-btn">🏠</a>
+                <a href="screen_navigation.html" class="nav-btn">📍</a>
+                <a href="screen_setting.html" class="nav-btn active">⚙️</a>
+                <a href="screen_player.html" class="nav-btn">🎵</a>
+                <a href="screen_phone.html" class="nav-btn">📞</a>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <!-- 滑动容器 -->
+            <div class="swiper-container">
+                <div class="swiper-wrapper">
+                    
+                    <!-- 车辆详细信息板块 -->
+                    <div class="swiper-slide">
+                        <div class="settings-panel vehicle-info-panel">
+                            <div class="panel-header">
+                                <div class="panel-icon">
+                                    <div class="icon-bg">🚗</div>
+                                </div>
+                                <div class="panel-title">车辆信息</div>
+                                <div class="panel-badge">error</div>
+                            </div>
+                            
+                            <div class="vehicle-overview">
+                                <div class="vehicle-image">
+                                    <div class="car-icon">🚙</div>
+                                    <div class="vehicle-status">
+                                        <div class="status-dot active"></div>
+                                    </div>
+                                </div>
+                                <div class="vehicle-basic-info">
+                                    <div class="vehicle-name">error</div>
+                                    <div class="vehicle-plate">error</div>
+                                    <div class="vehicle-vin">error</div>
+                                    <div class="vehicle-location">error</div>
+                                </div>
+                            </div>
+
+                            <!-- 快速状态栏 -->
+                            <div class="quick-status">
+                                <div class="status-item">
+                                    <div class="status-icon">🔐</div>
+                                    <div class="status-text">error</div>
+                                </div>
+                                <div class="status-item">
+                                    <div class="status-icon">❄️</div>
+                                    <div class="status-text">error</div>
+                                </div>
+                                <div class="status-item">
+                                    <div class="status-icon">🅿️</div>
+                                    <div class="status-text">error</div>
+                                </div>
+                                <div class="status-item">
+                                    <div class="status-icon">🛡️</div>
+                                    <div class="status-text">error</div>
+                                </div>
+                            </div>
+
+                            <div class="info-grid">
+                                <!-- 第一行 - 电池和充电信息 -->
+                                <div class="info-card large-card" data-status="success">
+                                    <div class="info-header">
+                                        <div class="info-icon">🔋</div>
+                                        <div class="info-label">电池状态</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-bar">
+                                        <div class="bar-fill" style="width: 85%"></div>
+                                    </div>
+                                    <div class="info-desc">error</div>
+                                    <div class="battery-details">
+                                        <div class="battery-item">
+                                            <span>充电功率</span>
+                                            <span>error</span>
+                                        </div>
+                                        <div class="battery-item">
+                                            <span>电池温度</span>
+                                            <span>error</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-card" data-status="success">
+                                    <div class="info-header">
+                                        <div class="info-icon">🛣️</div>
+                                        <div class="info-label">续航里程</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-desc">预估剩余</div>
+                                </div>
+                                
+                                <!-- 第二行 - 里程和使用情况 -->
+                                <div class="info-card">
+                                    <div class="info-header">
+                                        <div class="info-icon">📊</div>
+                                        <div class="info-label">总里程</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-desc">累计行驶</div>
+                                </div>
+                                
+                                <div class="info-card">
+                                    <div class="info-header">
+                                        <div class="info-icon">📈</div>
+                                        <div class="info-label">本月里程</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-desc">error</div>
+                                </div>
+                                
+                                <!-- 第三行 - 能耗和效率 -->
+                                <div class="info-card" data-status="success">
+                                    <div class="info-header">
+                                        <div class="info-icon">⚡</div>
+                                        <div class="info-label">平均能耗</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-desc">每100公里</div>
+                                </div>
+                                
+                                <div class="info-card">
+                                    <div class="info-header">
+                                        <div class="info-icon">🌱</div>
+                                        <div class="info-label">节能评分</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-desc">error</div>
+                                </div>
+                                
+                                <!-- 第四行 - 系统和软件 -->
+                                <div class="info-card" data-status="success">
+                                    <div class="info-header">
+                                        <div class="info-icon">💾</div>
+                                        <div class="info-label">软件版本</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-desc">error</div>
+                                </div>
+                                
+                                <div class="info-card" data-status="info">
+                                    <div class="info-header">
+                                        <div class="info-icon">🔄</div>
+                                        <div class="info-label">系统更新</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-desc">error</div>
+                                </div>
+                                
+                                <!-- 第五行 - 维护和保养 -->
+                                <div class="info-card" data-status="warning">
+                                    <div class="info-header">
+                                        <div class="info-icon">🔧</div>
+                                        <div class="info-label">上次保养</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-desc">error</div>
+                                </div>
+                                
+                                <div class="info-card" data-status="success">
+                                    <div class="info-header">
+                                        <div class="info-icon">🛞</div>
+                                        <div class="info-label">轮胎压力</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-desc">error</div>
+                                </div>
+                                
+                                <!-- 第六行 - 安全和保险 -->
+                                <div class="info-card" data-status="success">
+                                    <div class="info-header">
+                                        <div class="info-icon">🛡️</div>
+                                        <div class="info-label">保险状态</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-desc">error</div>
+                                </div>
+                                
+                                <div class="info-card" data-status="success">
+                                    <div class="info-header">
+                                        <div class="info-icon">🔒</div>
+                                        <div class="info-label">防盗系统</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-desc">error</div>
+                                </div>
+                                
+                                <!-- 第七行 - 环境和位置 -->
+                                <div class="info-card">
+                                    <div class="info-header">
+                                        <div class="info-icon">🌡️</div>
+                                        <div class="info-label">车内温度</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-desc">error</div>
+                                </div>
+                                
+                                <div class="info-card">
+                                    <div class="info-header">
+                                        <div class="info-icon">🌤️</div>
+                                        <div class="info-label">外部温度</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-desc">error</div>
+                                </div>
+                                
+                                <!-- 第八行 - 连接和服务 -->
+                                <div class="info-card" data-status="success">
+                                    <div class="info-header">
+                                        <div class="info-icon">📶</div>
+                                        <div class="info-label">网络连接</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-desc">error</div>
+                                </div>
+                                
+                                <div class="info-card" data-status="success">
+                                    <div class="info-header">
+                                        <div class="info-icon">🛰️</div>
+                                        <div class="info-label">GPS定位</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-desc">error</div>
+                                </div>
+                                
+                                <!-- 第九行 - 使用统计 -->
+                                <div class="info-card">
+                                    <div class="info-header">
+                                        <div class="info-icon">⏱️</div>
+                                        <div class="info-label">今日使用</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-desc">行驶时间</div>
+                                </div>
+                                
+                                <div class="info-card">
+                                    <div class="info-header">
+                                        <div class="info-icon">🚗</div>
+                                        <div class="info-label">行驶模式</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-desc">当前模式</div>
+                                </div>
+                                
+                                <!-- 第十行 - 充电历史 -->
+                                <div class="info-card large-card">
+                                    <div class="info-header">
+                                        <div class="info-icon">🔌</div>
+                                        <div class="info-label">充电历史</div>
+                                    </div>
+                                    <div class="charging-history">
+                                        <div class="history-item">
+                                            <div class="history-time">error</div>
+                                            <div class="history-location">error</div>
+                                            <div class="history-amount">error</div>
+                                        </div>
+                                        <div class="history-item">
+                                            <div class="history-time">error</div>
+                                            <div class="history-location">error</div>
+                                            <div class="history-amount">error</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 第十一行 - 故障诊断 -->
+                                <div class="info-card" data-status="success">
+                                    <div class="info-header">
+                                        <div class="info-icon">🔍</div>
+                                        <div class="info-label">系统诊断</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-desc">error</div>
+                                </div>
+                                
+                                <div class="info-card">
+                                    <div class="info-header">
+                                        <div class="info-icon">📋</div>
+                                        <div class="info-label">检查项目</div>
+                                    </div>
+                                    <div class="info-value">error</div>
+                                    <div class="info-desc">error</div>
+                                </div>
+                            </div>
+
+                            <!-- 操作按钮区域 -->
+                            <div class="action-buttons">
+                                <button class="action-btn primary">
+                                    <span class="btn-icon">🔄</span>
+                                    <span class="btn-text">刷新数据</span>
+                                </button>
+                                <button class="action-btn secondary">
+                                    <span class="btn-icon">📊</span>
+                                    <span class="btn-text">详细报告</span>
+                                </button>
+                                <button class="action-btn secondary">
+                                    <span class="btn-icon">🔧</span>
+                                    <span class="btn-text">预约保养</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 车内控制板块 -->
+                    <div class="swiper-slide">
+                        <div class="settings-panel vehicle-control-panel">
+                            <div class="panel-header">
+                                <div class="panel-icon">
+                                    <div class="icon-bg">🎛️</div>
+                                </div>
+                                <div class="panel-title">车内控制</div>
+                                <div class="panel-status">6个设备在线</div>
+                            </div>
+
+                            <!-- 温度控制 -->
+                            <div class="control-section climate-section">
+                                <div class="control-title">
+                                    <span class="control-icon">🌡️</span>
+                                    <span>智能空调</span>
+                                    <div class="section-status">自动模式</div>
+                                </div>
+                                <div class="temperature-control">
+                                    <div class="temp-display">
+                                        <div class="current-temp">
+                                            <span class="temp-value">22</span>
+                                            <span class="temp-unit">°C</span>
+                                        </div>
+                                        <div class="temp-label">当前温度</div>
+                                        <div class="temp-status">舒适</div>
+                                    </div>
+                                    <div class="temp-controls">
+                                        <button class="temp-btn decrease" data-action="decrease">
+                                            <span>−</span>
+                                        </button>
+                                        <div class="target-temp">
+                                            <span class="target-value">24</span>
+                                            <span class="target-unit">°C</span>
+                                            <div class="target-label">目标</div>
+                                        </div>
+                                        <button class="temp-btn increase" data-action="increase">
+                                            <span>+</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 空调控制 -->
+                            <div class="control-section">
+                                <div class="control-title">
+                                    <span class="control-icon">❄️</span>
+                                    <span>空调系统</span>
+                                </div>
+                                <div class="ac-controls">
+                                    <div class="control-item" data-control="ac-switch">
+                                        <div class="control-label">
+                                            <div class="label-text">空调开关</div>
+                                            <div class="label-desc">主电源控制</div>
+                                        </div>
+                                        <div class="toggle-switch active" data-control="ac-power">
+                                            <div class="switch-handle"></div>
+                                        </div>
+                                    </div>
+                                    <div class="control-item" data-control="auto-mode">
+                                        <div class="control-label">
+                                            <div class="label-text">自动模式</div>
+                                            <div class="label-desc">智能温度调节</div>
+                                        </div>
+                                        <div class="toggle-switch active" data-control="ac-auto">
+                                            <div class="switch-handle"></div>
+                                        </div>
+                                    </div>
+                                    <div class="control-item" data-control="internal-circulation">
+                                        <div class="control-label">
+                                            <div class="label-text">内循环</div>
+                                            <div class="label-desc">空气循环模式</div>
+                                        </div>
+                                        <div class="toggle-switch" data-control="ac-recirculate">
+                                            <div class="switch-handle"></div>
+                                        </div>
+                                    </div>
+                                    <div class="control-item" data-control="seat-heating">
+                                        <div class="control-label">
+                                            <div class="label-text">座椅加热</div>
+                                            <div class="label-desc">前排座椅加热</div>
+                                        </div>
+                                        <div class="toggle-switch" data-control="seat-heat">
+                                            <div class="switch-handle"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 安全模式 -->
+                            <div class="control-section security-section">
+                                <div class="control-title">
+                                    <span class="control-icon">🛡️</span>
+                                    <span>安全防护</span>
+                                    <div class="security-indicator active">已启用</div>
+                                </div>
+                                <div class="security-controls">
+                                    <div class="control-item featured">
+                                        <div class="control-label">
+                                            <div class="label-text">哨兵模式</div>
+                                            <div class="label-desc">360°智能监控车辆周围环境</div>
+                                        </div>
+                                        <div class="toggle-switch" data-control="sentry-mode">
+                                            <div class="switch-handle"></div>
+                                        </div>
+                                    </div>
+                                    <div class="control-item" data-control="auto-lock">
+                                        <div class="control-label">
+                                            <div class="label-text">自动上锁</div>
+                                            <div class="label-desc">离车自动锁定</div>
+                                        </div>
+                                        <div class="toggle-switch active" data-control="auto-lock">
+                                            <div class="switch-handle"></div>
+                                        </div>
+                                    </div>
+                                    <div class="control-item" data-control="anti-theft">
+                                        <div class="control-label">
+                                            <div class="label-text">防盗报警</div>
+                                            <div class="label-desc">异常震动报警</div>
+                                        </div>
+                                        <div class="toggle-switch active" data-control="alarm">
+                                            <div class="switch-handle"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 网络连接 -->
+                            <div class="control-section network-section">
+                                <div class="control-title">
+                                    <span class="control-icon">📶</span>
+                                    <span>网络连接</span>
+                                    <div class="network-status">5G已连接</div>
+                                </div>
+                                <div class="network-controls">
+                                    <div class="wifi-section">
+                                        <div class="wifi-header">
+                                            <div class="wifi-status">
+                                                <span class="wifi-icon">📶</span>
+                                                <div class="wifi-info">
+                                                    <span class="wifi-name">Tesla_WiFi_5G</span>
+                                                    <span class="wifi-signal">信号强度: 强</span>
+                                                </div>
+                                            </div>
+                                            <button class="wifi-btn">更换</button>
+                                        </div>
+                                        <div class="wifi-list">
+                                            <div class="wifi-item">
+                                                <div class="wifi-details">
+                                                    <span class="wifi-ssid">Home_WiFi</span>
+                                                    <span class="wifi-type">WPA2</span>
+                                                </div>
+                                                <span class="wifi-strength">📶📶📶</span>
+                                            </div>
+                                            <div class="wifi-item">
+                                                <div class="wifi-details">
+                                                    <span class="wifi-ssid">Office_5G</span>
+                                                    <span class="wifi-type">WPA3</span>
+                                                </div>
+                                                <span class="wifi-strength">📶📶</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="control-item" data-control="mobile-hotspot">
+                                        <div class="control-label">
+                                            <div class="label-text">移动热点</div>
+                                            <div class="label-desc">共享网络连接</div>
+                                        </div>
+                                        <div class="toggle-switch" data-control="hotspot">
+                                            <div class="switch-handle"></div>
+                                        </div>
+                                    </div>
+                                    <div class="control-item" data-control="bluetooth">
+                                        <div class="control-label">
+                                            <div class="label-text">蓝牙</div>
+                                            <div class="label-desc">设备配对连接</div>
+                                        </div>
+                                        <div class="toggle-switch active" data-control="bluetooth">
+                                            <div class="switch-handle"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 账号信息板块 -->
+                    <div class="swiper-slide">
+                        <div class="settings-panel account-panel">
+                            <div class="panel-header">
+                                <div class="panel-icon">
+                                    <div class="icon-bg">👤</div>
+                                </div>
+                                <div class="panel-title">账号信息</div>
+                                <div class="panel-badge premium">高级会员</div>
+                            </div>
+
+                            <!-- 用户资料 -->
+                            <div class="account-section profile-section">
+                                <div class="user-profile">
+                                    <div class="user-avatar">
+                                        <div class="avatar-icon">👨‍💼</div>
+                                        <div class="avatar-status">
+                                            <div class="status-dot online"></div>
+                                        </div>
+                                    </div>
+                                    <div class="user-info">
+                                        <div class="user-name">张先生</div>
+                                        <div class="user-email">zhang.sir@email.com</div>
+                                        <div class="user-member">
+                                            <span class="member-badge">高级会员</span>
+                                            <span class="member-duration">2年</span>
+                                        </div>
+                                    </div>
+                                    <button class="edit-profile-btn">
+                                        <span>编辑</span>
+                                        <div class="btn-icon">✏️</div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 账号设置 -->
+                            <div class="account-section">
+                                <div class="section-title">
+                                    <span>账号设置</span>
+                                    <div class="title-line"></div>
+                                </div>
+                                <div class="account-settings">
+                                    <div class="setting-item">
+                                        <div class="setting-icon security">🔐</div>
+                                        <div class="setting-text">
+                                            <div class="setting-name">修改密码</div>
+                                            <div class="setting-desc">更改登录密码</div>
+                                        </div>
+                                        <div class="setting-arrow">›</div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-icon notification">🔔</div>
+                                        <div class="setting-text">
+                                            <div class="setting-name">通知设置</div>
+                                            <div class="setting-desc">管理推送通知</div>
+                                        </div>
+                                        <div class="setting-arrow">›</div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-icon privacy">🛡️</div>
+                                        <div class="setting-text">
+                                            <div class="setting-name">隐私设置</div>
+                                            <div class="setting-desc">数据使用权限</div>
+                                        </div>
+                                        <div class="setting-arrow">›</div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-icon payment">💳</div>
+                                        <div class="setting-text">
+                                            <div class="setting-name">支付方式</div>
+                                            <div class="setting-desc">管理付款信息</div>
+                                        </div>
+                                        <div class="setting-arrow">›</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 服务信息 -->
+                            <div class="account-section">
+                                <div class="section-title">
+                                    <span>服务信息</span>
+                                    <div class="title-line"></div>
+                                </div>
+                                <div class="service-info">
+                                    <div class="service-item">
+                                        <div class="service-icon">👑</div>
+                                        <div class="service-label">会员等级</div>
+                                        <div class="service-value">高级会员</div>
+                                        <div class="service-status premium">有效</div>
+                                    </div>
+                                    
+                                    <div class="service-item">
+                                        <div class="service-icon">📅</div>
+                                        <div class="service-label">服务到期</div>
+                                        <div class="service-value">2025-06-15</div>
+                                        <div class="service-status">356天</div>
+                                    </div>
+                                    
+                                    <div class="service-item">
+                                        <div class="service-icon">📊</div>
+                                        <div class="service-label">流量套餐</div>
+                                        <div class="service-value">无限流量</div>
+                                        <div class="service-status active">使用中</div>
+                                    </div>
+                                    
+                                    <div class="service-item">
+                                        <div class="service-icon">☁️</div>
+                                        <div class="service-label">云存储</div>
+                                        <div class="service-value">500GB</div>
+                                        <div class="service-status">65%</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 操作按钮 -->
+                            <div class="account-actions">
+                                <button class="action-btn secondary">
+                                    <span class="btn-icon">🔄</span>
+                                    <span>同步数据</span>
+                                </button>
+                                <button class="action-btn secondary">
+                                    <span class="btn-icon">💾</span>
+                                    <span>备份设置</span>
+                                </button>
+                                <button class="action-btn danger">
+                                    <span class="btn-icon">🚪</span>
+                                    <span>退出登录</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <!-- 分页指示器 -->
+                <div class="swiper-pagination">
+                    <span class="pagination-bullet active" data-slide="0"></span>
+                    <span class="pagination-bullet" data-slide="1"></span>
+                    <span class="pagination-bullet" data-slide="2"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../src/js/screen.js"></script>
+    <script src="../src/js/screen/settingscreen.js"></script>
+</body>
+</html>

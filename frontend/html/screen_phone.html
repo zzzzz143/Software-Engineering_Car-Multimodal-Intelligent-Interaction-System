@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>车载系统 - 电话</title>
+    <link rel="stylesheet" href="../src/assets/styles/screenstyle.css">
+    <link rel="stylesheet" href="../src/assets/styles/screenphone.css">
+</head>
+<body>
+    <div class="car-system">
+        <!-- 左侧导航栏 -->
+        <div class="sidebar">
+            <div class="time-display">
+                <span class="hour">09</span>
+                <span class="separator">:</span>
+                <span class="minute">35</span>
+            </div>
+            <div class="nav-buttons">
+                <a href="screen_main.html" class="nav-btn">🏠</a>
+                <a href="screen_navigation.html" class="nav-btn">📍</a>
+                <a href="screen_setting.html" class="nav-btn">⚙️</a>
+                <a href="screen_player.html" class="nav-btn">🎵</a>
+                <a href="screen_phone.html" class="nav-btn active">📞</a>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <!-- 左侧：通话记录和联系人 -->
+            <div class="left-section">
+                <!-- 通话记录 -->
+                <div class="widget call-history-widget">
+                    <div class="widget-header">
+                        <span class="widget-icon">📋</span>
+                        <span class="widget-title">通话记录</span>
+                    </div>
+                    <div class="call-list" id="callHistory">
+                        <div class="call-item missed">
+                            <div class="call-info">
+                                <div class="call-name">张三</div>
+                                <div class="call-details">
+                                    <span class="call-time">10:23</span>
+                                    <span class="call-type">未接来电</span>
+                                </div>
+                            </div>
+                            <div class="call-actions">
+                                <button class="action-btn call-btn" data-number="13800138000">📞</button>
+                                <button class="action-btn msg-btn">💬</button>
+                            </div>
+                        </div>
+                        
+                        <div class="call-item outgoing">
+                            <div class="call-info">
+                                <div class="call-name">李四</div>
+                                <div class="call-details">
+                                    <span class="call-time">09:45</span>
+                                    <span class="call-type">已拨电话 · 3分钟</span>
+                                </div>
+                            </div>
+                            <div class="call-actions">
+                                <button class="action-btn call-btn" data-number="13900139000">📞</button>
+                                <button class="action-btn msg-btn">💬</button>
+                            </div>
+                        </div>
+                        
+                        <div class="call-item incoming">
+                            <div class="call-info">
+                                <div class="call-name">王五</div>
+                                <div class="call-details">
+                                    <span class="call-time">昨天</span>
+                                    <span class="call-type">已接来电 · 5分钟</span>
+                                </div>
+                            </div>
+                            <div class="call-actions">
+                                <button class="action-btn call-btn" data-number="13700137000">📞</button>
+                                <button class="action-btn msg-btn">💬</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 常用联系人 -->
+                <div class="widget contacts-widget">
+                    <div class="widget-header">
+                        <span class="widget-icon">👥</span>
+                        <span class="widget-title">常用联系人</span>
+                        <button class="add-btn" id="addContact">➕</button>
+                    </div>
+                    <div class="contacts-list" id="contactsList">
+                        <div class="contact-item">
+                            <div class="contact-avatar">🏠</div>
+                            <div class="contact-info">
+                                <div class="contact-name">家</div>
+                                <div class="contact-number">021-12345678</div>
+                            </div>
+                            <button class="action-btn call-btn" data-number="021-12345678">📞</button>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-avatar">🏢</div>
+                            <div class="contact-info">
+                                <div class="contact-name">公司</div>
+                                <div class="contact-number">021-87654321</div>
+                            </div>
+                            <button class="action-btn call-btn" data-number="021-87654321">📞</button>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-avatar">🚗</div>
+                            <div class="contact-info">
+                                <div class="contact-name">道路救援</div>
+                                <div class="contact-number">400-123-4567</div>
+                            </div>
+                            <button class="action-btn call-btn emergency" data-number="400-123-4567">📞</button>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-avatar">👨‍⚕️</div>
+                            <div class="contact-info">
+                                <div class="contact-name">急救中心</div>
+                                <div class="contact-number">120</div>
+                            </div>
+                            <button class="action-btn call-btn emergency" data-number="120">📞</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：拨号器和通话界面 -->
+            <div class="right-section">
+                <!-- 拨号器 -->
+                <div class="dialer-widget" id="dialerWidget">
+                    <div class="widget-header">
+                        <span class="widget-icon">📞</span>
+                        <span class="widget-title">拨号</span>
+                        <div class="signal-indicator">
+                            <span class="signal-bars">📶</span>
+                            <span class="carrier">中国移动</span>
+                        </div>
+                    </div>
+                    
+                    <div class="number-display">
+                        <input type="text" id="phoneNumber" placeholder="输入电话号码" readonly>
+                        <button class="clear-number" id="clearNumber">⌫</button>
+                    </div>
+                    
+                    <!-- 拨号键盘部分应该这样排列 -->
+                    <div class="keypad">
+                        <button class="key" data-number="1">1<span class="letters"></span></button>
+                        <button class="key" data-number="2">2<span class="letters">ABC</span></button>
+                        <button class="key" data-number="3">3<span class="letters">DEF</span></button>
+                        <button class="key" data-number="4">4<span class="letters">GHI</span></button>
+                        <button class="key" data-number="5">5<span class="letters">JKL</span></button>
+                        <button class="key" data-number="6">6<span class="letters">MNO</span></button>
+                        <button class="key" data-number="7">7<span class="letters">PQRS</span></button>
+                        <button class="key" data-number="8">8<span class="letters">TUV</span></button>
+                        <button class="key" data-number="9">9<span class="letters">WXYZ</span></button>
+                        <button class="key" data-number="*">*</button>
+                        <button class="key" data-number="0">0<span class="letters">+</span></button>
+                        <button class="key" data-number="#">#</button>
+                    </div>
+
+                    
+                    <div class="call-actions">
+                        <button class="call-button" id="makeCall">
+                            <span class="call-icon">📞</span>
+                            <span class="call-text">拨打</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 通话中界面 -->
+                <div class="call-widget hidden" id="callWidget">
+                    <div class="call-status">
+                        <div class="caller-info">
+                            <div class="caller-avatar">👤</div>
+                            <div class="caller-details">
+                                <div class="caller-name" id="callerName">张三</div>
+                                <div class="caller-number" id="callerNumber">13800138000</div>
+                            </div>
+                        </div>
+                        <div class="call-timer" id="callTimer">00:00</div>
+                        <div class="call-state" id="callState">通话中...</div>
+                    </div>
+                    
+                    <div class="call-controls">
+                        <div class="control-row">
+                            <button class="control-btn" id="muteBtn">
+                                <span class="control-icon">🔇</span>
+                                <span class="control-label">静音</span>
+                            </button>
+                            <button class="control-btn" id="speakerBtn">
+                                <span class="control-icon">🔊</span>
+                                <span class="control-label">免提</span>
+                            </button>
+                            <button class="control-btn" id="keypadBtn">
+                                <span class="control-icon">🔢</span>
+                                <span class="control-label">键盘</span>
+                            </button>
+                        </div>
+                        <div class="control-row">
+                            <button class="control-btn" id="holdBtn">
+                                <span class="control-icon">⏸️</span>
+                                <span class="control-label">保持</span>
+                            </button>
+                            <button class="control-btn end-call" id="endCallBtn">
+                                <span class="control-icon">📞</span>
+                                <span class="control-label">挂断</span>
+                            </button>
+                            <button class="control-btn" id="addCallBtn">
+                                <span class="control-icon">➕</span>
+                                <span class="control-label">添加</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../src/js/screen.js"></script>
+    <script src="../src/js/screen/phonescreen.js"></script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>车载系统 - 导航</title>
+    <link rel="stylesheet" href="../src/assets/styles/screennavigation.css">
+    <link rel="stylesheet" href="../src/assets/styles/screenstyle.css">
+
+    <script type="text/javascript">
+        window._AMapSecurityConfig = {
+        securityJsCode:'7a575dad435e5a373447b0d0f5215df5',
+        }
+    </script>
+    <script src="https://webapi.amap.com/maps?v=2.0&key=81b51f57f1fcd667c0b29c24f2cff029"></script>
+</head>
+<body>
+    <div class="car-system">
+        <!-- 左侧导航栏 -->
+        <div class="sidebar">
+            <div class="time-display">
+                <span class="hour">09</span>
+                <span class="separator">:</span>
+                <span class="minute">35</span>
+            </div>
+            <div class="nav-buttons">
+                <a href="screen_main.html" class="nav-btn">🏠</a>
+                <a href="screen_navigation.html" class="nav-btn active">📍</a>
+                <a href="screen_setting.html" class="nav-btn">⚙️</a>
+                <a href="screen_player.html" class="nav-btn">🎵</a>
+                <a href="screen_phone.html" class="nav-btn">📞</a>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <div class="navigation-layout">
+                <!-- 左侧地图区域 -->
+                <div class="left-section">
+                    <!-- 导航距离提示 -->
+                    <div class="distance-indicator hidden">
+                        <div class="distance-value">error</div>
+                        <div class="direction-text">error</div>
+                    </div>
+                    
+                    <!-- 地图显示区域 -->
+                    <div id="map-container" class="map-container" style="width:100%;height:370px;width:420px;"></div>
+                </div>
+
+                <!-- 右侧信息面板 -->
+                <div class="right-section">
+                    <!-- 车辆状态卡片 -->
+                    <div class="info-widget vehicle-status">
+                        <div class="widget-header">
+                            <div class="vehicle-icon">🚗</div>
+                            <div class="vehicle-info">
+                                <div class="vehicle-name">error</div>
+                                <div class="vehicle-plate">error</div>
+                            </div>
+                        </div>
+                        
+                        <div class="status-metrics">
+                            <div class="metric-row">
+                                <div class="metric-label">续航里程</div>
+                                <div class="metric-value">error</div>
+                                <div class="metric-bar">
+                                    <div class="bar-fill" style="width: 72%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="metric-row">
+                                <div class="metric-label">车内温度</div>
+                                <div class="metric-value">error</div>
+                                <div class="metric-bar">
+                                    <div class="bar-fill comfort" style="width: 35%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="metric-row">
+                                <div class="metric-label">总里程</div>
+                                <div class="metric-value">error</div>
+                                <div class="metric-bar">
+                                    <div class="bar-fill warning" style="width: 10%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 导航详情卡片 -->
+                    <div class="info-widget navigation-details">
+                        <div class="widget-title">
+                            <span class="title-icon">🧭</span>
+                            <span>导航详情</span>
+
+                            <!-- 将按钮移到最右边 -->
+                            <div class="nav-action">
+                                <button id="navigation-toggle-btn" class="action-btn">开始导航</button>
+                            </div>
+                        </div>
+                        
+                        <div class="nav-summary">
+                            <div class="destination-info">
+                                <div class="dest-name">error</div>
+                                <div class="dest-address">error</div>
+                            </div>
+                            
+                            <div class="arrival-info">
+                                <div class="arrival-time">error</div>
+                                <div class="arrival-label">预计到达</div>
+                            </div>
+
+                            
+                        </div>
+                        
+                        <div class="route-details">
+                            <div class="detail-item">
+                                <div class="detail-icon">🛣️</div>
+                                <div class="detail-text">error</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-icon">⏱️</div>
+                                <div class="detail-text">error</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-icon">📍</div>
+                                <div class="detail-text">error</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 路况信息卡片 -->
+                    <div class="info-widget traffic-info">
+                        <div class="widget-title">
+                            <span class="title-icon">🚦</span>
+                            <span>路况信息</span>
+                        </div>
+                        
+                        <div class="traffic-alerts">
+                            <div class="alert-item warning">
+                                <div class="alert-icon">⚠️</div>
+                                <div class="alert-content">
+                                    <div class="alert-title">error</div>
+                                    <div class="alert-desc">error</div>
+                                </div>
+                            </div>
+                            
+                            <div class="alert-item info">
+                                <div class="alert-icon">ℹ️</div>
+                                <div class="alert-content">
+                                    <div class="alert-title">error</div>
+                                    <div class="alert-desc">error</div>
+                                </div>
+                            </div>
+                            
+                            <div class="alert-item success">
+                                <div class="alert-icon">✅</div>
+                                <div class="alert-content">
+                                    <div class="alert-title">error</div>
+                                    <div class="alert-desc">error</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-widget quick-actions">
+                        <div class="widget-title">
+                            <span class="title-icon">⚡</span>
+                            <span>快捷操作</span>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="action-btn primary">
+                                <div class="btn-icon">🏠</div>
+                                <div class="btn-label">error</div>
+                            </button>
+                            
+                            <button class="action-btn">
+                                <div class="btn-icon">🏢</div>
+                                <div class="btn-label">error</div>
+                            </button>
+                            
+                            <button class="action-btn">
+                                <div class="btn-icon">⛽</div>
+                                <div class="btn-label">error</div>
+                            </button>
+                            
+                            <button class="action-btn">
+                                <div class="btn-icon">🅿️</div>
+                                <div class="btn-label">error</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../src/js/screen.js"></script>
+    <script src="../src/js/screen/navigationscreen.js"></script>
+</body>
+</html>
+

@@ -81,7 +81,6 @@ config.py 会优先使用.env文件中的配置，如果不存在则使用默认
 7. 启动后端服务
 ```bash
 cd backend
-flask --app app.py init-db  # 初始化数据库（只需要运行一次）
 python app.py
 ```
 8. 启动前端服务
