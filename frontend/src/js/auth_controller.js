@@ -1,8 +1,8 @@
 export function initAuth() {
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');
-    const mainInterface = document.querySelector('.main-interface');
-    const authModal = document.getElementById('authModal');
+    // const mainInterface = document.querySelector('.main-interface');
+    // const authModal = document.getElementById('authModal');
 
     // 登录功能
     loginBtn.addEventListener('click', async () => {
@@ -20,14 +20,17 @@ export function initAuth() {
             const data = await response.json();
             if (response.ok) {
                 localStorage.setItem('token', data.token);
-                authModal.style.display = 'none';
-                mainInterface.style.display = 'block';
-                updateUserStatus(username);
+                // authModal.style.display = 'none';
+                // mainInterface.style.display = 'block';
+                // updateUserStatus(username);
+                localStorage.setItem('username', username);
+                alert('登录成功！');
+                window.location.href = "../../main.html";
             } else {
                 alert(`登录失败: ${data.error}`);
             }
         } catch (error) {
-            alert('登录失败: ' + error.message);
+            alert('登录错误: ' + error.message);
         }
     });
 
@@ -68,8 +71,9 @@ export function initAuth() {
     });
 }
 
-function updateUserStatus(username) {
+export function updateUserStatus() {
     const userStatus = document.getElementById('userStatus');
+    const username = localStorage.getItem('username');
     userStatus.textContent = `已登录：${username}`;
     userStatus.style.color = 'green';
 }

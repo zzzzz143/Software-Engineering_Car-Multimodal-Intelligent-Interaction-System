@@ -1,0 +1,619 @@
+/* 导航布局 - 左右分栏 */
+.navigation-layout {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+/* 左侧地图区域 */
+.left-section {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 添加动态背景效果 */
+.left-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 118, 117, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    animation: backgroundShift 20s ease-in-out infinite;
+    z-index: 1;
+}
+
+/* 右侧信息面板 - 使用左侧背景 + 紧密布局 */
+.right-section {
+    flex: 1;
+    /* 使用与左侧相同的背景 */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 15px; /* 减少内边距 */
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* 减少间距 */
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    max-height: 100vh;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+/* 右侧面板背景装饰 - 与左侧一致 */
+.right-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 118, 117, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    animation: backgroundShift 20s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.right-section > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* 自定义滚动条样式 - 适配新背景 */
+.right-section::-webkit-scrollbar {
+    width: 6px;
+    background: transparent;
+}
+
+.right-section::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin: 8px 0;
+}
+
+.right-section::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.right-section::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+    transform: scaleX(1.2);
+}
+
+/* 距离指示器 */
+.distance-indicator {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 100;
+    color: white;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(20px);
+    padding: 20px 30px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.distance-value {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    background: linear-gradient(45deg, #fff, #e3f2fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.direction-text {
+    font-size: 16px;
+    opacity: 0.9;
+    margin-bottom: 5px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* 地图容器 */
+.map-container::before {
+    content: '';
+    position: absolute;
+    top: 50px;
+    left: 20px;
+    right: 30px;
+    bottom: 20px;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    animation: dashRotate 30s linear infinite;
+}
+
+.map-container::after {
+    content: '🗺️';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 64px;
+    opacity: 0.3;
+    animation: float 4s ease-in-out infinite;
+}
+
+.map-container {
+    --map-loaded: false; /* 默认显示伪元素 */
+    transform: translate(30px, 140px); /* 同时向右下移动50px */
+    transition: transform 0.3s ease; /* 添加平滑过渡效果 */
+}
+
+.map-container[style*="--map-loaded: true"]::after {
+    content: none; /* 隐藏伪元素内容 */
+}
+
+
+/* 右侧信息卡片 */
+.info-widget {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 16px; /* 减小圆角 */
+    padding: 18px; /* 减少内边距 */
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    min-height: fit-content;
+}
+
+/* 卡片光效 */
+.info-widget::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.6s;
+}
+
+.info-widget:hover::before {
+    left: 100%;
+}
+
+.info-widget:hover {
+    transform: translateY(-2px) scale(1.01); /* 减小变换 */
+    box-shadow: 
+        0 12px 35px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* 车辆状态卡片 - 紧密版 */
+.vehicle-status {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.vehicle-status .widget-header {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* 减少间距 */
+    margin-bottom: 18px; /* 减少间距 */
+    padding-bottom: 12px; /* 减少间距 */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 车辆图标容器 - 小巧版 */
+.vehicle-icon {
+    font-size: 24px; /* 减小图标 */
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px; /* 减少内边距 */
+    border-radius: 12px; /* 减小圆角 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.vehicle-info {
+    flex: 1;
+}
+
+.vehicle-name {
+    font-size: 18px; /* 减小字体 */
+    font-weight: 700;
+    margin-bottom: 4px; /* 减少间距 */
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.vehicle-plate {
+    font-size: 12px; /* 减小字体 */
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 3px 6px; /* 减少内边距 */
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.status-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* 减少间距 */
+}
+
+.metric-row {
+    display: grid;
+    grid-template-columns: 1fr auto 2fr auto;
+    gap: 10px; /* 减少间距 */
+    align-items: center;
+    padding: 10px; /* 减少内边距 */
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px; /* 减小圆角 */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.metric-row:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(3px); /* 减小位移 */
+}
+
+.metric-label {
+    font-size: 13px; /* 减小字体 */
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+}
+
+.metric-value {
+    font-size: 14px; /* 减小字体 */
+    font-weight: 700;
+    text-align: right;
+    color: #fff;
+}
+
+.metric-bar {
+    height: 8px; /* 减小高度 */
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.bar-fill.comfort {
+    background: linear-gradient(90deg, #27ae60, #219a52);
+}
+
+.bar-fill.warning {
+    background: linear-gradient(90deg, #f39c12, #e67e22);
+}
+
+/* 卡片标题 - 紧密版 */
+.widget-title {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* 减少间距 */
+    font-size: 16px; /* 减小字体 */
+    font-weight: 700;
+    margin-bottom: 15px; /* 减少间距 */
+    padding-bottom: 10px; /* 减少间距 */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.title-icon {
+    font-size: 18px; /* 减小图标 */
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px; /* 减少内边距 */
+    border-radius: 8px; /* 减小圆角 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+
+/* 导航详情优化 - 紧密版 */
+.nav-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* 调整为居中对齐 */
+    margin-bottom: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.nav-action {
+    margin-left: auto; /* 将按钮推到最右边 */
+}
+
+.dest-name {
+    font-size: 15px; /* 减小字体 */
+    font-weight: 700;
+    margin-bottom: 5px; /* 减少间距 */
+    color: #fff;
+}
+
+.dest-address {
+    font-size: 12px; /* 减小字体 */
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.4;
+}
+
+.arrival-time {
+    font-size: 24px; /* 减小字体 */
+    font-weight: 800;
+    color: #fff;
+    text-align: right;
+    line-height: 1;
+}
+
+.arrival-label {
+    font-size: 11px; /* 减小字体 */
+    color: rgba(255, 255, 255, 0.7);
+    text-align: right;
+    margin-top: 4px; /* 减少间距 */
+    font-weight: 500;
+}
+
+.route-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* 减少间距 */
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* 减少间距 */
+    padding: 10px; /* 减少内边距 */
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px; /* 减小圆角 */
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px); /* 减小位移 */
+}
+
+.detail-icon {
+    font-size: 16px; /* 减小图标 */
+    width: 20px; /* 减小宽度 */
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 6px; /* 减少内边距 */
+    border-radius: 6px; /* 减小圆角 */
+}
+
+.detail-text {
+    font-size: 13px; /* 减小字体 */
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+}
+
+/* 路况信息优化 - 紧密版 */
+.traffic-alerts {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* 减少间距 */
+}
+
+.alert-item {
+    display: flex;
+    gap: 12px; /* 减少间距 */
+    padding: 12px; /* 减少内边距 */
+    border-radius: 10px; /* 减小圆角 */
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.alert-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px; /* 减小宽度 */
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.alert-item:hover {
+    transform: translateX(5px); /* 减小位移 */
+}
+
+.alert-item.warning {
+    background: rgba(243, 156, 18, 0.15);
+    border: 1px solid rgba(243, 156, 18, 0.3);
+}
+
+.alert-item.warning::before {
+    background: #f39c12;
+}
+
+.alert-item.info {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.alert-item.info::before {
+    background: #fff;
+}
+
+.alert-item.success {
+    background: rgba(39, 174, 96, 0.15);
+    border: 1px solid rgba(39, 174, 96, 0.3);
+}
+
+.alert-item.success::before {
+    background: #27ae60;
+}
+
+.alert-icon {
+    font-size: 16px; /* 减小图标 */
+    margin-top: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 6px; /* 减少内边距 */
+    border-radius: 6px; /* 减小圆角 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.alert-title {
+    font-size: 14px; /* 减小字体 */
+    font-weight: 700;
+    margin-bottom: 5px; /* 减少间距 */
+    color: #fff;
+}
+
+.alert-desc {
+    font-size: 12px; /* 减小字体 */
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.4;
+}
+
+/* 快捷操作优化 - 紧密版 */
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px; /* 减少间距 */
+}
+
+.action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px; /* 减少间距 */
+    padding: 15px 12px; /* 减少内边距 */
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 12px; /* 减小圆角 */
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.action-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px) scale(1.02); /* 减小变换 */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.action-btn.primary {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-icon {
+    font-size: 20px; /* 减小图标 */
+    transition: transform 0.3s ease;
+}
+
+.action-btn:hover .btn-icon {
+    transform: scale(1.1); /* 减小缩放 */
+}
+
+.btn-label {
+    font-size: 12px; /* 减小字体 */
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* 动画效果 */
+@keyframes backgroundShift {
+    0%, 100% { transform: translateX(0) translateY(0); }
+    25% { transform: translateX(-20px) translateY(-10px); }
+    50% { transform: translateX(20px) translateY(10px); }
+    75% { transform: translateX(-10px) translateY(20px); }
+}
+
+@keyframes dashRotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+    50% { transform: translate(-50%, -50%) translateY(-10px); }
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+    .left-section {
+        flex: 1.5;
+    }
+    
+    .distance-value {
+        font-size: 36px;
+    }
+    
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-value {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 768px) {
+    .navigation-layout {
+        flex-direction: column;
+    }
+    
+    .left-section {
+        height: 60vh;
+    }
+    
+    .right-section {
+        height: 40vh;
+    }
+    
+    .right-section::-webkit-scrollbar {
+        width: 4px;
+    }
+}
+
+.hidden {
+    display: none !important;
+}
+
+.map-container.hidden {
+    display: block !important; /* 确保地图容器始终可见 */
+}
+

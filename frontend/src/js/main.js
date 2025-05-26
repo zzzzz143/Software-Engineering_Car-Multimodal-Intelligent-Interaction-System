@@ -1,4 +1,4 @@
-import { initAuth } from './auth_controller.js';
+import { updateUserStatus } from './auth_controller.js';
 import { initFace } from './face_animation.js'; 
 import { initChat } from './api_service.js';
 import { MusicPlayer } from './music_player.js';
@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // 统一初始化所有模块
-    initAuth();
+    // initAuth();
+    updateUserStatus();
     initFace();
     initChat();
     initMusicControls();    

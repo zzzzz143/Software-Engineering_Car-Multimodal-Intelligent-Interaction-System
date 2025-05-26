@@ -1,0 +1,515 @@
+/* 主布局 */
+.car-system {
+    display: flex;
+    height: 100vh;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* 侧边栏保持原样 */
+.sidebar {
+    width: 80px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 主内容区域 */
+.main-content {
+    flex: 1;
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+}
+
+/* 左侧功能区 */
+.left-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 车辆图片样式 */
+.vehicle-image {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    position: relative;
+}
+
+/* 车辆图片背景容器 */
+.vehicle-image::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85%;
+    height: 75%;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    z-index: 0;
+    transition: all 0.3s ease;
+    box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.vehicle-image:hover::before {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(74, 144, 226, 0.3);
+    box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        0 6px 25px rgba(74, 144, 226, 0.15),
+        0 0 30px rgba(74, 144, 226, 0.1);
+}
+
+.car-image {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+.car-image:hover {
+    transform: scale(1.03);
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5));
+}
+
+/* 车辆显示区域调整 */
+.vehicle-display {
+    height: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 添加背景装饰 */
+.vehicle-display::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 20%, rgba(74, 144, 226, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(52, 152, 219, 0.05) 0%, transparent 50%);
+    z-index: -1;
+}
+
+/* 可选：添加车辆信息悬浮提示 */
+.vehicle-image::after {
+    content: '';
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(74, 144, 226, 0.6), transparent);
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.vehicle-image:hover::after {
+    opacity: 1;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .car-image {
+        max-width: 180px;
+    }
+    
+    .vehicle-image {
+        padding: 15px;
+    }
+    
+    .vehicle-image::before {
+        width: 90%;
+        height: 80%;
+    }
+}
+
+@media (max-width: 480px) {
+    .car-image {
+        max-width: 140px;
+    }
+    
+    .vehicle-image {
+        padding: 10px;
+    }
+    
+    .vehicle-image::before {
+        width: 95%;
+        height: 85%;
+    }
+}
+
+
+
+/* 顶部小部件容器 */
+.top-widgets {
+    display: flex;
+    gap: 20px;
+    height: 200px;
+}
+
+/* 通用小部件样式 */
+.widget {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.widget-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    color: white;
+}
+
+.widget-icon {
+    font-size: 18px;
+    margin-right: 8px;
+}
+
+.widget-title {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* 音乐小部件 */
+.music-widget {
+    position: relative;
+}
+
+.album-info {
+    color: white;
+    margin-bottom: 15px;
+}
+
+.song-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.artist-name {
+    font-size: 12px;
+    color: #888;
+}
+
+.music-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.music-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.music-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.play-btn {
+    background: #4a90e2;
+}
+
+.progress-track {
+    height: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #4a90e2;
+    transition: width 0.3s ease;
+}
+
+
+/* 天气小部件 */
+.weather-info {
+    color: white;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.temperature {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.weather-desc {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 3px;
+}
+
+.location {
+    font-size: 11px;
+    color: #666;
+}
+
+.weather-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #888;
+}
+
+/* 智能对话框 */
+.chat-widget {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-left: auto;
+}
+
+.status-indicator.online {
+    background: #4CAF50;
+    box-shadow: 0 0 8px #4CAF50;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.message {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.user-message {
+    flex-direction: row-reverse;
+}
+
+.message-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.message-content {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 12px;
+    border-radius: 12px;
+    color: white;
+    font-size: 12px;
+    max-width: 70%;
+}
+
+.user-message .message-content {
+    background: #4a90e2;
+}
+
+.chat-input {
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 8px 15px;
+    color: white;
+    font-size: 12px;
+}
+
+.chat-input input::placeholder {
+    color: #888;
+}
+
+.send-btn {
+    background: #4a90e2;
+    border: none;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.3s ease;
+}
+
+.send-btn:hover {
+    background: #357abd;
+}
+
+/* 车辆显示区域 */
+.vehicle-display {
+    height: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+}
+
+.vehicle-header {
+    color: white;
+    margin-bottom: 20px;
+}
+
+.vehicle-header h2 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.vehicle-status {
+    display: flex;
+    gap: 20px;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: #888;
+}
+
+.status-icon {
+    font-size: 14px;
+}
+
+.vehicle-image {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.car-svg {
+    width: 100%;
+    max-width: 250px;
+    height: auto;
+}
+
+
+/* 导航按钮 */
+.nav-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.nav-btn {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 20px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.nav-btn.active {
+    background: #4a90e2;
+    border-color: #4a90e2;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .main-content {
+        flex-direction: column;
+        padding: 10px;
+    }
+    
+    .right-section {
+        width: 100%;
+        height: 300px;
+    }
+    
+    .top-widgets {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .widget {
+        height: 150px;
+    }
+}
