@@ -1,4 +1,4 @@
-import { initAuth } from './auth_controller.js';
+import { updateUserStatus } from './auth_controller.js';
 import { initFace } from './face_animation.js'; 
 import { initChat } from './api_service.js';
 import { initGesture } from './gesture_handler.js';
@@ -16,34 +16,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // 统一初始化所有模块
-    initAuth();
+    // initAuth();
+    updateUserStatus();
     initFace();
     initChat();
     //initGesture();
 
-    // 音乐播放/暂停
-    document.getElementById('playPauseBtn').addEventListener('click', () => {
-        musicPlayer.togglePlay();
-
-
-
-
-
+    // 添加页面点击激活播放
+    document.body.addEventListener('click', () => {
+        musicPlayer.audioElement.play()
+            .then(() => {
+                console.log('音频播放已激活');
+                musicPlayer.updateNowPlaying();
+            })
+            .catch(e => console.error('播放失败:', e));
     });
-    
-    // 切换上一首
-    document.getElementById('prevBtn').addEventListener('click', () => {
-      musicPlayer.playPrev();
-    });
-    
-    // 切换下一首
-    document.getElementById('nextBtn').addEventListener('click', () => {
-      musicPlayer.playNext();
-    });
+}); 
 
-    // 进度条控制
-    document.getElementById('progressBar').addEventListener('input', (e) => {
-      const seekTime = (e.target.value / 100) * musicPlayer.audioElement.duration;
-      musicPlayer.audioElement.currentTime = seekTime;
-  });
-});
+

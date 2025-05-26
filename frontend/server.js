@@ -9,11 +9,16 @@ const port = 3000;
 app.use(
   '/api',
   createProxyMiddleware({
-    target: 'http://localhost:5000/api',
+    target: 'http://127.0.0.1:5000/api',
     changeOrigin: true,
     pathRewrite: {'^/api' : ''}
   })
 );
+
+// 让根路径自动跳转到 login.html
+app.get('/', (req, res) => {
+  res.redirect('/main.html');
+});
 
 // 静态文件托管
 app.use(express.static(__dirname));
@@ -21,5 +26,5 @@ app.use('/src', express.static(path.join(__dirname, 'src')));
 app.use('/assets', express.static(path.join(__dirname, 'src', 'assets')));
 
 app.listen(port, () => {
-  console.log(`Frontend server running at http://localhost:${port}`);
+  console.log(`Frontend server running at http://127.0.0.1:${port}`);
 });
