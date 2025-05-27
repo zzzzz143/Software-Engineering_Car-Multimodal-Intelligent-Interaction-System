@@ -87,6 +87,11 @@
                     <div class="lyrics-section">
                         <div class="lyrics-header">
                             <h3>歌词</h3>
+                            <!-- 搜索功能区域 -->
+                            <div class="search-container">
+                                <input type="text" id="songSearchInput" placeholder="搜索歌曲..." />
+                                <button id="songSearchButton">🔍</button>
+                            </div>
                         </div>
                         <div class="lyrics-container" id="lyricsContainer">
                             <div class="lyrics-scroll">
@@ -199,6 +204,6 @@
     </div>
 
     <script src="../src/js/screen.js"></script>
-    <script src="../src/js/screen/playerscreen.js"></script>
+    <script type="module" src="../src/js/screen/playerscreen.js"></script>
 </body>
 </html>

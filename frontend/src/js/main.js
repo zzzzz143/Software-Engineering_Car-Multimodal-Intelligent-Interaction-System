@@ -9,10 +9,13 @@ window.sharedMusicPlayer = musicPlayer;
 
 document.addEventListener('DOMContentLoaded', () => {
     // 检查本地token
+    const authModal = document.getElementById('authModal');
+    const mainInterface = document.querySelector('.main-interface');
+    
     if (!localStorage.getItem('token')) {
-        document.getElementById('authModal').style.display = 'flex';
+        if (authModal) authModal.style.display = 'flex';
     } else {
-        document.querySelector('.main-interface').style.display = 'block';
+        if (mainInterface) mainInterface.style.display = 'block';
     }
     
     // 统一初始化所有模块
@@ -32,5 +35,3 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(e => console.error('播放失败:', e));
     });
 }); 
-
-

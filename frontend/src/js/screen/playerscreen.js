@@ -2,6 +2,8 @@
  * 音乐播放器数据更新类
  * 专注于HTML内容的动态更新和音频控制
  */
+import { neteaseApi } from '../service/netease_api.js';
+
 class MusicPlayerUI {
     constructor() {
         this.currentSongIndex = 0;
@@ -13,8 +15,9 @@ class MusicPlayerUI {
         this.isShuffled = false;
         this.isDragging = false;
         this.isSimulating = false; // 新增：标记是否在模拟播放模式
+        this.isLoading = false; // 新增：标记是否正在加载网络资源
         
-        // 模拟歌曲数据库
+        // 歌曲数据库
         this.songDatabase = [
             {
                 title: "沙文",
@@ -82,6 +85,44 @@ class MusicPlayerUI {
         this.createAudioElement();
         this.setupEventListeners();
         this.loadCurrentSong();
+
+        
+        
+        // 初始化完成后，尝试从网易云加载更多歌曲
+        this.loadNeteaseSongs();
+    }
+    
+    /**
+     * 从网易云API加载歌曲
+     * 基于网易云API获取音乐资源 
+     */
+    async loadNeteaseSongs() {
+        try {
+            console.log('正在从网易云API加载歌曲...');
+            this.isLoading = true;
+            
+            // 预定义一些热门歌曲ID用于展示 (根据你的喜好修改)
+            const songIds = [
+                1472307143,
+                1938019211,
+                2074506156,
+                1939655575
+            ];
+            
+            // 依次获取每首歌的详细信息
+            const songPromises = songIds.map(id => neteaseApi.getFullSongInfo(id));
+            const songs = await Promise.all(songPromises);
+            
+            // 过滤掉加载失败的歌曲，并添加到数据库
+            const validSongs = songs.filter(song => song !== null);
+            this.songDatabase = [...this.songDatabase, ...validSongs];
+            
+            console.log(`✅ 成功从网易云加载 ${validSongs.length} 首歌曲`);
+            this.isLoading = false;
+        } catch (error) {
+            console.error('从网易云加载歌曲失败:', error);
+            this.isLoading = false;
+        }
     }
 
     /**
@@ -166,6 +207,10 @@ class MusicPlayerUI {
             
             // 歌词容器
             lyricsContainer: document.getElementById('lyricsContainer'),
+            
+            // 搜索功能
+            searchInput: document.getElementById('songSearchInput'),
+            searchButton: document.getElementById('songSearchButton'),
         };
     }
 
@@ -771,6 +816,34 @@ class MusicPlayerUI {
         } else {
             console.warn('⚠️ 歌词容器元素不存在，跳过点击监听器设置');
         }
+
+        // 设置搜索功能事件监听
+        const searchInput = document.getElementById('songSearchInput');
+        const searchButton = document.getElementById('songSearchButton');
+        
+        if (searchInput && searchButton) {
+            // 点击搜索按钮执行搜索
+            searchButton.addEventListener('click', () => {
+                const keyword = searchInput.value.trim();
+                if (keyword) {
+                    this.searchSongs(keyword);
+                }
+            });
+            
+            // 按下回车键执行搜索
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const keyword = searchInput.value.trim();
+                    if (keyword) {
+                        this.searchSongs(keyword);
+                    }
+                }
+            });
+            
+            console.log('✅ 搜索功能监听器已设置');
+        } else {
+            console.warn('⚠️ 搜索元素不存在，跳过搜索监听器设置');
+        }
     }
 
     /**
@@ -831,6 +904,139 @@ class MusicPlayerUI {
             console.error('恢复播放器状态失败:', error);
         }
         return false;
+    }
+    
+    /**
+     * 通过关键词搜索歌曲
+     * @param {string} keyword - 搜索关键词
+     */
+    async searchSongs(keyword) {
+        try {
+            if (!keyword.trim()) {
+                return;
+            }
+            
+            console.log(`正在搜索歌曲: ${keyword}`);
+            this.isLoading = true;
+            
+            // 显示加载状态
+            if (this.elements.lyricsContainer) {
+                const lyricsScroll = this.elements.lyricsContainer.querySelector('.lyrics-scroll');
+                if (lyricsScroll) {
+                    lyricsScroll.innerHTML = '<div class="search-loading">搜索中，请稍候...</div>';
+                }
+            }
+            
+            // 执行搜索
+            const searchResults = await neteaseApi.searchSongs(keyword, 5);
+            
+            if (searchResults.length === 0) {
+                if (this.elements.lyricsContainer) {
+                    const lyricsScroll = this.elements.lyricsContainer.querySelector('.lyrics-scroll');
+                    if (lyricsScroll) {
+                        lyricsScroll.innerHTML = '<div class="no-results">未找到相关歌曲</div>';
+                    }
+                }
+                this.isLoading = false;
+                return;
+            }
+            
+            // 显示搜索结果
+            if (this.elements.lyricsContainer) {
+                const lyricsScroll = this.elements.lyricsContainer.querySelector('.lyrics-scroll');
+                if (lyricsScroll) {
+                    lyricsScroll.innerHTML = '';
+                    
+                    const searchHeader = document.createElement('div');
+                    searchHeader.className = 'search-header';
+                    searchHeader.textContent = `搜索结果: "${keyword}"`;
+                    lyricsScroll.appendChild(searchHeader);
+                    
+                    // 为每个搜索结果创建一个可点击的项目
+                    searchResults.forEach((song, index) => {
+                        const resultItem = document.createElement('div');
+                        resultItem.className = 'search-result-item';
+                        resultItem.dataset.songId = song.id;
+                        resultItem.dataset.index = index;
+                        resultItem.innerHTML = `
+                            <div class="song-title">${song.title}</div>
+                            <div class="song-artist">${song.artist}</div>
+                        `;
+                        
+                        // 点击加载歌曲
+                        resultItem.addEventListener('click', () => {
+                            this.loadSongById(song.id);
+                        });
+                        
+                        lyricsScroll.appendChild(resultItem);
+                    });
+                }
+            }
+            
+            this.isLoading = false;
+        } catch (error) {
+            console.error('搜索歌曲失败:', error);
+            this.isLoading = false;
+            
+            // 显示错误信息
+            if (this.elements.lyricsContainer) {
+                const lyricsScroll = this.elements.lyricsContainer.querySelector('.lyrics-scroll');
+                if (lyricsScroll) {
+                    lyricsScroll.innerHTML = '<div class="search-error">搜索失败，请稍后重试</div>';
+                }
+            }
+        }
+    }
+    
+    /**
+     * 通过网易云音乐ID加载歌曲
+     * @param {number} id - 网易云歌曲ID
+     */
+    async loadSongById(id) {
+        try {
+            // 显示加载状态
+            if (this.elements.lyricsContainer) {
+                const lyricsScroll = this.elements.lyricsContainer.querySelector('.lyrics-scroll');
+                if (lyricsScroll) {
+                    lyricsScroll.innerHTML = '<div class="loading">加载歌曲中...</div>';
+                }
+            }
+            
+            // 加载新歌曲
+            const songInfo = await neteaseApi.getFullSongInfo(id);
+            
+            if (!songInfo) {
+                throw new Error('无法加载歌曲');
+            }
+            
+            // 检查是否已经在数据库中
+            const existingIndex = this.songDatabase.findIndex(song => song.id === songInfo.id);
+            
+            if (existingIndex >= 0) {
+                // 歌曲已存在，直接切换到该索引
+                this.currentSongIndex = existingIndex;
+            } else {
+                // 添加新歌曲到数据库并切换
+                this.songDatabase.push(songInfo);
+                this.currentSongIndex = this.songDatabase.length - 1;
+            }
+            
+            // 加载歌曲
+            this.stopAllPlayback();
+            this.loadCurrentSong();
+            this.togglePlayPause();
+            
+        } catch (error) {
+            console.error('加载歌曲失败:', error);
+            
+            // 显示错误信息
+            if (this.elements.lyricsContainer) {
+                const lyricsScroll = this.elements.lyricsContainer.querySelector('.lyrics-scroll');
+                if (lyricsScroll) {
+                    lyricsScroll.innerHTML = '<div class="load-error">加载歌曲失败，请稍后重试</div>';
+                }
+            }
+        }
     }
 }
 

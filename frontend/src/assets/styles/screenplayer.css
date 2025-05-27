@@ -738,6 +738,88 @@
     background: rgba(255,255,255,0.3);
 }
 
+/* 搜索相关样式 */
+.search-container {
+    display: flex;
+    align-items: center;
+}
+
+#songSearchInput {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 20px 0 0 20px;
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 14px;
+    width: 150px;
+    transition: all 0.3s ease;
+}
+
+#songSearchInput:focus {
+    background-color: rgba(255, 255, 255, 0.3);
+    width: 170px;
+}
+
+#songSearchInput::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+#songSearchButton {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 0 20px 20px 0;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#songSearchButton:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* 搜索结果样式 */
+.search-header {
+    padding: 10px 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #FFD700;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 10px;
+}
+
+.search-result-item {
+    padding: 10px 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.search-result-item:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(5px);
+}
+
+.search-result-item .song-title {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 3px;
+}
+
+.search-result-item .song-artist {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.search-loading, .no-results, .search-error, .loading, .load-error {
+    padding: 20px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+}
+
 /* 响应式设计 - 现代gap方法，针对更窄的坞进行优化 */
 @media (max-width: 1200px) {
     .player-upper-section {
