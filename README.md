@@ -34,8 +34,11 @@
 │   │   └── requirements.txt           # 手势识别依赖库
 │   │   └── multi_recognition.py
 │   ├── Video/                         # 语音识别
-│   │   ├── test.py
-│   │   ├── video_model.py             # 头部姿态检测及视线预测
+│   │   ├── face_detection.py          # 人脸检测
+│   │   ├── gaze_tracking.py           # 视线预测
+│   │   ├── head_pose_detector.py      # 头部姿态检测
+│   │   ├── test.py                    # 功能测试
+│   │   ├── Video.py                   # 头部姿态检测及视线预测功能封装
 ├── conda-environment.yml              # 环境配置文件
 └── README.md                          # 项目文档
 ```
