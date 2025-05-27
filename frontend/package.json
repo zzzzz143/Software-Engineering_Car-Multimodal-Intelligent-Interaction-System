@@ -13,7 +13,8 @@
   "type": "commonjs",
   "dependencies": {
     "express": "^5.1.0",
-    "http-proxy-middleware": "^3.0.5"
+    "http-proxy-middleware": "^3.0.5",
+    "netease-cloud-music-api-alger": "^4.26.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
