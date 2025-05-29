@@ -2,4 +2,5 @@
 **/__pycache__/
 backend/.env
 multimodal/gesture/model/
-multimodal/Audio/SenseVoiceSmall/model.pt
+multimodal/audio/SenseVoiceSmall/model.pt
+**/node_modules/

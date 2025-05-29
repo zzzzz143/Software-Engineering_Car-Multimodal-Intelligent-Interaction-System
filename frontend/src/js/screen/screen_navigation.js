@@ -7,19 +7,19 @@
 class NavigationDisplayManager {
     constructor() {
         this.currentData = {
-            navigation: {},
-            vehicle: {},
-            traffic: {},
-            time: {}
+            navigation: {}, // 导航数据
+            vehicle: {}, // 车辆数据
+            traffic: {}, // 路况数据
+            time: {} // 时间数据
         };
 
-        this.map = null;
-        this.marker = null; // 当前位置标记
-        this.currentPosition = null;
-        this.driving = null;
-        this.destinationMarker = null;
-        this.realTimeNavigationInterval = null;
-        this.isNavigating = false;
+        this.map = null; // 地图实例
+        this.marker = null; // 始发点标记
+        this.currentPosition = null; // 当前位置
+        this.driving = null; // 驾车实例
+        this.destinationMarker = null; // 目的地标记
+        this.realTimeNavigationInterval = null; // 实时导航定时器
+        this.isNavigating = false; // 导航状态
 
         // 缓存DOM元素
         this.navigationToggleBtn = document.getElementById('navigation-toggle-btn');
@@ -356,55 +356,72 @@ class NavigationDisplayManager {
     }
 
     initializeMapWithCurrentLocation() {
-        AMap.plugin(['AMap.Geolocation', 'AMap.Geocoder'], () => {
-            const geolocation = new AMap.Geolocation({
-                enableHighAccuracy: true,
-                timeout: 3000,
+        return fetch('/api/amap/config')
+        .then(response => response.json())
+        .then(config => {
+            window._AMapSecurityConfig = {
+                securityJsCode: config.security_code
+            };
+            
+            const script = document.createElement('script');
+            script.src = `https://webapi.amap.com/maps?v=2.0&key=${config.api_key}&plugin=AMap.Geolocation,AMap.Geocoder`;
+            document.head.appendChild(script);
+            
+            return new Promise(resolve => {
+                script.onload = resolve;
             });
-            geolocation.getCurrentPosition((status, result) => {
-                const mapContainer = document.getElementById('map-container');
-                if (status === 'complete') {
-                    this.currentPosition = [result.position.lng, result.position.lat];
-                    console.log('当前位置：', this.currentPosition);
-                    this.map = new AMap.Map('map-container', {
-                        viewMode: '3D',
-                        zoom: 13,
-                        center: this.currentPosition
-                    });
-                    this.marker = new AMap.Marker({
-                        position: this.currentPosition,
-                        title: '当前位置',
-                        map: this.map
-                    });
-                    this.bindMapClickEvent();
-                    this.updateVehicleInfo({
-                        name: '当前车辆',
-                        plate: '沪A·12345'
-                    });
-                    this.updateVehicleMetrics({
-                        range: { value: 300, unit: 'km', percentage: 80 },
-                        temperature: { value: 22, unit: '°C', percentage: 50 },
-                        mileage: { value: 12000, unit: 'km', percentage: 20 }
-                    });
-                    if (mapContainer) {
-                        mapContainer.classList.remove('hidden');
-                        mapContainer.style.setProperty('--map-loaded', 'true');
+        })
+        .then(() => {
+            AMap.plugin(['AMap.Geolocation', 'AMap.Geocoder'], () => {
+                const geolocation = new AMap.Geolocation({
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                });
+                geolocation.getCurrentPosition((status, result) => {
+                    const mapContainer = document.getElementById('map-container');
+                    if (status === 'complete') {
+                        this.currentPosition = [result.position.lng, result.position.lat];
+                        console.log('当前位置：', this.currentPosition);
+                        this.map = new AMap.Map('map-container', {
+                            viewMode: '3D',
+                            zoom: 13,
+                            center: this.currentPosition
+                        });
+                        this.marker = new AMap.Marker({
+                            position: this.currentPosition,
+                            title: '当前位置',
+                            map: this.map
+                        });
+                        this.bindMapClickEvent();
+                        this.updateVehicleInfo({
+                            name: '当前车辆',
+                            plate: '沪A·12345'
+                        });
+                        this.updateVehicleMetrics({
+                            range: { value: 300, unit: 'km', percentage: 80 },
+                            temperature: { value: 22, unit: '°C', percentage: 50 },
+                            mileage: { value: 12000, unit: 'km', percentage: 20 }
+                        });
+                        if (mapContainer) {
+                            mapContainer.classList.remove('hidden');
+                            mapContainer.style.setProperty('--map-loaded', 'true');
+                        }
+                    } else {
+                        console.error('定位失败：', result);
+                        this.map = new AMap.Map('map-container', {
+                            viewMode: '3D',
+                            zoom: 13,
+                            center: [116.397428, 39.90923] 
+                        });
+                        this.bindMapClickEvent(); 
+                        if (mapContainer) {
+                            mapContainer.classList.remove('hidden');
+                            mapContainer.style.setProperty('--map-loaded', 'true');
+                        }
                     }
-                } else {
-                    console.error('定位失败：', result);
-                    this.map = new AMap.Map('map-container', {
-                        viewMode: '3D',
-                        zoom: 13,
-                        center: [116.397428, 39.90923] 
-                    });
-                    this.bindMapClickEvent(); 
-                    if (mapContainer) {
-                        mapContainer.classList.remove('hidden');
-                        mapContainer.style.setProperty('--map-loaded', 'true');
-                    }
-                }
+                });
             });
-        });
+        })
     }
 
     bindMapClickEvent() {

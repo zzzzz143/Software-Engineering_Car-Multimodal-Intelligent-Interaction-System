@@ -231,7 +231,7 @@ class GestureRecognition():
                 if gesture_name != self.last_displayed_gesture:
                     # print(f"手势识别: {gesture_name}")
                     self.last_displayed_gesture = None
-                    gesture_recognized_text = f"手势识别: {gesture_name}"
+                    gesture_recognized_text = gesture_name
             else:
                 if gesture_name != self.last_displayed_gesture:
                     # 重置计时器
@@ -242,7 +242,7 @@ class GestureRecognition():
                     if time.time() - self.gesture_start_time >= 2.0:
                         # print(f"手势识别: {gesture_name}{score_text}")
                         self.last_displayed_gesture = None
-                        gesture_recognized_text = f"手势识别: {gesture_name}"
+                        gesture_recognized_text = gesture_name
         else:
             self.last_displayed_gesture = None
             self.gesture_start_time = None
@@ -319,36 +319,3 @@ class GestureRecognition():
             mp.solutions.drawing_styles.get_default_hand_landmarks_style(),
             mp.solutions.drawing_styles.get_default_hand_connections_style())
         return image
-
-    def run(self):
-        try:
-            while True:
-                ret, frame = self.capture.read()
-                if ret:
-                    # 处理手势识别
-                    result = self.process_frame(frame)
-                    frame = result.get('frame')
-                    text = result.get('text')
-                    print(text)
-                    cv2.imshow('Gesture Recognition', frame)
-                    key = cv2.waitKey(1)
-                    if key in (27, ord('q')):
-                        break
-
-        except Exception as e:
-            print("关闭...")
-        finally:
-            self.exit()
-
-    def exit(self):
-        self.capture.release()
-        cv2.destroyAllWindows()
-
-if __name__ == '__main__':
-    try:
-        recognizer = GestureRecognition()
-        recognizer.run()
-    except Exception as e:
-        print(f"程序运行失败: {str(e)}")
-    finally:
-        print('程序运行结束')

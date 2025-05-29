@@ -15,9 +15,9 @@ app.use(
   })
 );
 
-// 让根路径自动跳转到 login.html
+// 让根路径自动跳转到 index.html
 app.get('/', (req, res) => {
-  res.redirect('/main.html');
+  res.redirect('/index.html');
 });
 
 // 静态文件托管

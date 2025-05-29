@@ -171,7 +171,6 @@ def get_tts_with_default_refer(text, text_language="zh"):
 # system_history_file_path = "system_history.json"
 # result = process_command(command, user_id, user_history_file_path)
 # print(result)
-
 # # 处理系统信息示例
 # system_info_only = "检测到车舱里温度过高"
 # result = process_system_info(system_info_only, user_id, system_history_file_path)

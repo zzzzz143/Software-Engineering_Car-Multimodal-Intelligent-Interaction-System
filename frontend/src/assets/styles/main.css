@@ -126,25 +126,6 @@ button {
     color: white;
     cursor: pointer;
 }
-.chat-box {
-    display: flex;
-    margin-bottom: 8px;
-}
-#userInput {
-    flex: 1;
-    padding: 6px 8px;
-    border-radius: 6px;
-    border: 1px solid #c7d0e5;
-    margin-right: 8px;
-}
-#sendBtn {
-    background: #3a72c9;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 6px 14px;
-    cursor: pointer;
-}
 .gesture-section {
     margin-bottom: 8px;
 }
