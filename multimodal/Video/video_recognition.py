@@ -1,16 +1,16 @@
 import time
 import cv2
 import numpy as np
-from multimodal.command_process import process_system_info,get_tts_with_default_refer,extract_feedback
+from command_process import process_system_info,get_tts_with_default_refer,extract_feedback
 
 user_history_file_path = "../user_history.json"
 system_history_file_path = "../system_history.json"
 
 class VisualRecognition:
     def __init__(self,user_id=None):
-        from .face_detection import FaceDetector
-        from .head_pose_detector import HeadPoseDetector
-        from .gaze_tracking import GazeTracker
+        from video.face_detection import FaceDetector
+        from video.head_pose_detector import HeadPoseDetector
+        from video.gaze_tracking import GazeTracker
 
         self.user_id = user_id
         self.face_detector = FaceDetector()
@@ -24,7 +24,6 @@ class VisualRecognition:
     def process_frame(self, frame):
         image = frame.copy()
         face_data = self.face_detector.detect_face(image)
-        visual_recognized_text = "无视觉检测结果"
         
         if face_data:
             landmarks = face_data['landmarks']
@@ -35,12 +34,11 @@ class VisualRecognition:
 
             # 视线检测
             gaze_result = self.gaze_tracker.track_gaze(landmarks, image)
-            
+
             # 终端输出点头/摇头
             if head_result['action'] in ("NOD", "SHAKE") and head_result['action'] != self.last_action:
-                # print(f"视觉识别：{head_result['action']}")
+                print(f"视觉识别：检测到动作{head_result['action']}")
                 self.last_action = head_result['action']
-                visual_recognized_text = head_result['action']
             elif head_result['action'] not in ("NOD", "SHAKE"):
                 self.last_action = None
 
@@ -53,13 +51,12 @@ class VisualRecognition:
                     self.gaze_away_start_time = now
                 elif now - self.gaze_away_start_time > self.DISTRACTION_THRESHOLD:
                     if self.last_gaze_status != "distracted":
-                        # print("视觉识别：检测到驾驶员持续分心或疲劳！")
-                        visual_recognized_text = "驾驶员持续分心或疲劳！"
+                        print("视觉识别：检测到驾驶员持续分心或疲劳！")
                         result = process_system_info("警告：检测到驾驶员持续分心或疲劳！", self.user_id, system_history_file_path)
-                        # print(result)
+                        print(result)
                         # 提取反馈
                         feedback = extract_feedback(result)
-                        # print(feedback)
+                        print(feedback)
                         # 语音合成
                         get_tts_with_default_refer(feedback)
                         self.last_gaze_status = "distracted"
@@ -110,9 +107,5 @@ class VisualRecognition:
                         int(pupil[1] + gaze_vec[1] * 50)
                     )
                     cv2.arrowedLine(image, (int(pupil[0]), int(pupil[1])), end_point, (0, 255, 0), 2)
-                
-        return {
-            'frame': image,
-            'text': visual_recognized_text
-        }
+        return image
 

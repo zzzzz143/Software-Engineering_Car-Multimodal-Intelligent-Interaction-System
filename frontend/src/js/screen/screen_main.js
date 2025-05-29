@@ -6,13 +6,13 @@ class MusicPlayer {
         this.duration = 240; 
         this.volume = 0.7;
         this.currentSong = {
-            title: "沙文",
-            artist: "林忆莲",
+            title: "普通朋友",
+            artist: "陶喆",
         };
         this.playlist = [
-            { title: "沙文", artist: "林忆莲", duration: 240 },
-            { title: "Between The Bars", artist: "Elliott Smith", duration: 280 },
-            { title: "格雷的画像", artist: "韦礼安", duration: 220 }
+            { title: "普通朋友", artist: "陶喆", duration: 255 },
+            { title: "阴天快乐", artist: "陈奕迅", duration: 264 },
+            { title: "执迷不悟", artist: "小乐哥（王唯乐）", duration: 234 }
         ];
         this.currentIndex = 0;
         this.progressInterval = null;

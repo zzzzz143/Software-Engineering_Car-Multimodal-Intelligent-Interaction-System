@@ -1,25 +1,48 @@
 # 项目结构
 ```plaintext
-├── backend/                           # Flask后端服务
-│   ├── .env                           # 环境变量配置
-│   └── app.py                         # 主入口(路由/数据库/API整合)
-├── frontend/                          # 前端界面
+├── backend/                                    # Flask后端服务
+│   ├── UserConfig/                             # 用户配置
+│   ├── .env                                    # 环境变量配置
+│   ├── app.py                                  # 主入口(路由/数据库/API整合)
+│   └── config.py                               # 配置文件
+├── frontend/                                   # 前端界面
+│   ├── node_modules/                           # 依赖库
+│   ├── public/
+│   │   ├── screen/
+│   │   │   ├── screen_main.html                # 主界面
+│   │   │   ├── screen_navigation.html          # 导航界面
+│   │   │   ├── screen_setting.html             # 设置界面
+│   │   │   ├── screen_video.html               # 视频界面
+│   │   │   ├── screen_player.html              # 播放器界面
+│   │   │   └── screen_phone.html               # 手机界面
+│   │   ├── user/
+│   │   │   ├── user_driver                     # 司机界面
+│   │   │   ├── user_passenger                  # 乘客界面
+│   │   │   ├── user_maintenance                # 维修人员界面
+│   │   │   └── user_admin                      # 管理员界面
+│   │   ├── hud.html                            # 头部导航栏
+│   │   └── main.html                           # 主页面(不同用户登录后进一步分发，显示不同界面)
 │   ├── src/
-│   │   ├── assets/                    # 静态资源
-│   │   │   ├── images/                # 图片资源
-│   │   │   ├── music/                 # 音频资源
-│   │   │   └── styles/                # CSS样式
-│   │   ├── js/                        # 功能模块(JavaScript脚本)
-│   │   │   ├── api_service.js         # API请求服务
-│   │   │   ├── auth_controller.js     # 认证相关逻辑
-│   │   │   ├── face_animation.js      # 面部动画逻辑
-│   │   │   ├── gesture_detection.js   # 手势检测逻辑
-│   │   │   ├── main.js                # 应用入口
-│   │   │   ├── music_player.js        # 音乐播放器逻辑
-│   │   │   └── response_view.js       # 响应展示处理
-│   └── index.html                     # 主界面
+│   │   ├── assets/                             # 静态资源
+│   │   │   ├── images/                         # 图片资源
+│   │   │   ├── music/                          # 音频资源
+│   │   │   └── styles/                         # CSS样式
+│   │   ├── js/                                 # 功能模块(JavaScript脚本)
+│   │   │   ├── interaction/                    # 交互逻辑
+│   │   │   │   ├── interaction.js              # 交互处理
+│   │   │   │   ├── update_user_status.js       # 用户状态更新
+│   │   │   │   ├── face_animation.js           # 面部动画逻辑
+│   │   │   │   └── multimodal_recognition.js   # 多模态识别
+│   │   │   ├── screen/                         # 屏幕相关
+│   │   │   │   ├── screen_main.js              # 主界面
+│   │   │   │   ├── screen_navigation.js        # 导航界面
+│   │   │   │   ├── screen_phone.js             # 手机界面
+│   │   │   │   ├── screen_player.js            # 播放器界面
+│   │   │   │   ├── screen.js                   # 屏幕管理
+│   │   │   │   └── setting_screen.js           # 设置界面
+│   └── index.html                              # 登录界面
 ├── multimodal
-│   ├── Audio/                         # 语音识别
+│   ├── audio/                                  # 语音识别
 │   │   ├── SenseVoiceSmall/
 │   │   │   ├── utils
 │   │   │   ├── chn_jpn_yue_eng_ko_spectok.bpe.model
@@ -27,17 +50,23 @@
 │   │   │   ├── configuration.json
 │   │   │   ├── model.pt
 │   │   │   └── model.py
-│   ├── gesture/                       # 手势识别
-│   │   ├── model/                     # 模型文件
+│   │   ├── audio_recognition.py                # 语音识别
+│   │   └── audio.py                            # 供外部调用的语音识别接口
+│   ├── gesture/                                # 手势识别
+│   │   ├── model/                              # 模型文件
 │   │   │   ├── gesture_recognizer.task
 │   │   │   └── hand_landmarker.task
-│   │   └── requirements.txt           # 手势识别依赖库
-│   │   └── multi_recognition.py
-│   ├── Video/                         # 语音识别
+│   │   ├── requirements.txt                    # 手势识别依赖库
+│   │   ├── gesture_recognition.py              # 手势识别
+│   │   └── gesture.py                          # 供外部调用的手势识别接口
+│   ├── video/                                  # 语音识别
 │   │   ├── test.py
-│   │   ├── video_model.py             # 头部姿态检测及视线预测
-├── conda-environment.yml              # 环境配置文件
-└── README.md                          # 项目文档
+│   │   ├── video_recognition.py                # 头部姿态检测及视线预测
+│   │   └── video.py                            # 供外部调用的视觉识别接口
+│   ├── multi_recognition.py                    # 多模态识别
+│   └── multi_recognition.py                    # 供外部调用的多模态识别接口
+├── conda-environment.yml                       # 环境配置文件
+└── README.md                                   # 项目文档
 ```
 
 # 技术栈
@@ -71,7 +100,7 @@ conda activate software
 ```plaintext
 MODEL_API_URL = your_model_api_url # 大模型API地址
 DASHSCOPE_API_KEY = your_dashscope_api_key # 大模型API密钥
-DATABASE_URL = postgresql://username:password@localhost/software_db # 数据库连接字符串
+SQLALCHEMY_DATABASE_URI = postgresql://username:password@localhost/software_db # 数据库连接字符串
 SECRET_KEY = your_secret_key # 安全密钥(32位随机字符串)
 PERMISSION_CODE = your_permission_code # 权限码
 AMAP_API_KEY = your_amap_web_key # 高德地图API KEY
@@ -91,25 +120,6 @@ npm run dev
 ```
 9. 访问前端界面http://localhost:3000
 
-# 核心功能流
-1. 用户认证系统
-   - 加密存储：使用pbkdf2算法加密密码
-   - 会话管理：JWT令牌实现无状态认证
-   - 错误处理： `register` 和 `login` 路由包含完整错误校验
-2. 智能对话流程
-   - 前端->>Express: POST /api/chat + JWT
-   - Express->>Flask: 代理请求
-   - Flask->>多模态大模型: 转发请求
-   - 多模态大模型-->>Flask: 返回AI响应
-   - Flask-->>Express: 返回JSON数据
-   - Express-->>前端: 返回JSON数据
-   - 前端->>DOM: 更新对话气泡
-   - 前端->>浏览器: 调用语音合成
-
-# 环境依赖
-1. Python 3.7+ (Flask相关库)
-2. Node.js (前端服务)
-3. PostgreSQL 10+
 
 # 多模态大模型
 ## 手势识别
@@ -149,6 +159,6 @@ npm run dev
 # 注册登录
 1. 访问注册页面：http://localhost:3000
 2. 输入用户名、密码
-3. 注册特权账户(管理员、维护人员)需要输入特权码
+3. 注册特权账户(管理员、维护人员)需要输入权限码
 4. 点击注册按钮，完成注册
 5. 注册成功后，点击登录按钮，完成登录

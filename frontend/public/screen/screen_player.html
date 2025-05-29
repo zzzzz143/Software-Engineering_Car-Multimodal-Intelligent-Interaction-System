@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>车载系统 - 音乐播放器</title>
-    <link rel="stylesheet" href="../src/assets/styles/screenstyle.css">
-    <link rel="stylesheet" href="../src/assets/styles/screenplayer.css">
+    <link rel="stylesheet" href="../../src/assets/styles/screen.css">
+    <link rel="stylesheet" href="../../src/assets/styles/screen_player.css">
 </head>
 <body>
     <div class="car-system">
@@ -35,7 +35,7 @@
                     <div class="album-section">
                         <div class="album-cover-container">
                             <div class="album-cover">
-                                <img src="../src/assets/images/cd.png" alt="专辑封面" id="albumCover">
+                                <img src="../../src/assets/images/cd.png" alt="专辑封面" id="albumCover">
                                 <div class="vinyl-effect"></div>
                                 <div class="play-indicator">
                                     <div class="pulse-ring"></div>
@@ -43,9 +43,9 @@
                             </div>
                             
                             <div class="album-info">
-                                <h2 class="song-title" id="songTitle">夜空中最亮的星</h2>
-                                <p class="artist-name" id="artistName">逃跑计划</p>
-                                <p class="album-name" id="albumName">世界</p>
+                                <h2 class="song-title" id="songTitle">普通朋友</h2>
+                                <p class="artist-name" id="artistName">陶喆</p>
+                                <p class="album-name" id="albumName">I'm OK</p>
                             </div>
 
                             <!-- 播放控制器 -->
@@ -58,15 +58,15 @@
                                             <div class="progress-thumb" id="progressThumb"></div>
                                         </div>
                                     </div>
-                                    <span class="time-total" id="totalTime">04:32</span>
+                                    <span class="time-total" id="totalTime">04:15</span>
                                 </div>
                                 
                                 <div class="control-buts">
-                                    <button class="control-btn shuffle" id="shuffleBtn">🔀</button>
+                                    <button class="control-btn play-mode" id="playModeBtn">🔁</button>
                                     <button class="control-btn prev" id="prevBtn">⏮</button>
                                     <button class="control-btn play-pause" id="playPauseBtn">▶</button>
                                     <button class="control-btn next" id="nextBtn">⏭</button>
-                                    <button class="control-btn repeat" id="repeatBtn">🔁</button>
+                                    <button class="control-btn play-queue" id="playQueueBtn">📋</button>
                                 </div>
 
                                 <div class="volume-section">
@@ -87,26 +87,24 @@
                     <div class="lyrics-section">
                         <div class="lyrics-header">
                             <h3>歌词</h3>
+                            <!-- 搜索功能区域 -->
+                            <div class="search-container">
+                                <input type="text" id="songSearchInput" placeholder="搜索歌曲..." />
+                                <button id="songSearchButton">🔍</button>
+                            </div>
                         </div>
                         <div class="lyrics-container" id="lyricsContainer">
                             <div class="lyrics-scroll">
-                                <div class="lyric-line active" data-time="0">夜空中最亮的星</div>
-                                <div class="lyric-line" data-time="5">能否听清</div>
-                                <div class="lyric-line" data-time="8">那仰望的人</div>
-                                <div class="lyric-line" data-time="12">心底的孤独和叹息</div>
-                                <div class="lyric-line" data-time="18">夜空中最亮的星</div>
-                                <div class="lyric-line" data-time="23">能否记起</div>
-                                <div class="lyric-line" data-time="26">曾与我同行</div>
-                                <div class="lyric-line" data-time="30">消失在风里的身影</div>
-                                <div class="lyric-line" data-time="36">我祈祷拥有一颗透明的心灵</div>
-                                <div class="lyric-line" data-time="42">和会流泪的眼睛</div>
-                                <div class="lyric-line" data-time="48">给我再去相信的勇气</div>
-                                <div class="lyric-line" data-time="54">越过谎言去拥抱你</div>
-                                <div class="lyric-line" data-time="60">每当我找不到存在的意义</div>
-                                <div class="lyric-line" data-time="66">每当我迷失在黑夜里</div>
-                                <div class="lyric-line" data-time="72">夜空中最亮的星</div>
-                                <div class="lyric-line" data-time="78">请指引我靠近你</div>
+                                <div class="lyric-line active" data-time="19.713">等待</div>
+                                <div class="lyric-line" data-time="22.395">我随时随地在等待</div>
                             </div>
+                        </div>
+                    </div>
+                    
+                    <div class="play_queue_modal" id="playQueueModal">
+                        <div class="play-queue-container" id="playQueueContainer">
+                            <div class="play-queue-header">播放队列</div>
+                            <div class="play-queue-list" id="playQueueList"></div>
                         </div>
                     </div>
 
@@ -198,7 +196,7 @@
         </div>
     </div>
 
-    <script src="../src/js/screen.js"></script>
-    <script src="../src/js/screen/playerscreen.js"></script>
+    <script src="../../src/js/screen/screen.js"></script>
+    <script type="module" src="../../src/js/screen/screen_player.js"></script>
 </body>
 </html>

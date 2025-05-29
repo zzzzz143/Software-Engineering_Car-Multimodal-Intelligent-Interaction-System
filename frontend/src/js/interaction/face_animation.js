@@ -1,5 +1,5 @@
 // 面部动画模块
-export function initFace() {
+export function initFaceAnimation() {
     const faceContainer = document.querySelector(".face-container");
     const eyes = document.querySelectorAll(".eye");
 
