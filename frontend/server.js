@@ -17,8 +17,7 @@ app.use(
 
 // 让根路径自动跳转到 index.html
 app.get('/', (req, res) => {
-  // res.redirect('/index.html');
-  res.redirect('/public/screen/screen_main.html');
+  res.redirect('/index.html');
 });
 
 // 静态文件托管
