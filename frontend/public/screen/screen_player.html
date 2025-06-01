@@ -120,9 +120,17 @@
                         </div>
 
                         <!-- 第三方音乐应用 -->
-                        <div class="dock-app" data-app="spotify">
-                            <div class="app-icon spotify-icon">🎧</div>
-                            <span class="app-name">Spotify</span>
+                        <script>
+                            document.addEventListener("DOMContentLoaded", function() {
+                                const videoPlayerIcon = document.querySelector(".dock-app[data-app='video-player']");
+                                videoPlayerIcon.addEventListener("click", function() {
+                                    window.location.href = "screen_vedio.html"; // 跳转到指定页面
+                                });
+                            });
+                        </script>
+                        <div class="dock-app" data-app="video-player" onclick="goToVideoPlayer()">
+                            <div class="app-icon video-player-icon">📽︎</div>
+                            <span class="app-name">视频播放</span>
                         </div>
 
                         <div class="dock-app" data-app="netease">
