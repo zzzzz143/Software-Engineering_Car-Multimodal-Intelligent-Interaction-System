@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>车载系统 - 视频播放器</title>
+    <link rel="stylesheet" href="../../src/assets/styles/screen.css">
+    <link rel="stylesheet" href="../../src/assets/styles/screen_vedio.css">
+</head>
+<body>
+    <div class="car-system">
+        <!-- 左侧导航栏 -->
+        <div class="sidebar">
+            <div class="time-display">
+                <span class="hour">09</span>
+                <span class="separator">:</span>
+                <span class="minute">35</span>
+            </div>
+            <div class="nav-buttons">
+                <a href="screen_main.html" class="nav-btn">🏠</a>
+                <a href="screen_navigation.html" class="nav-btn">📍</a>
+                <a href="screen_setting.html" class="nav-btn">⚙️</a>
+                <a href="screen_player.html" class="nav-btn">🎵</a>
+                <a href="screen_phone.html" class="nav-btn">📞</a>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <!-- 视频播放器界面 -->
+            <div class="video-player-content">
+                <!-- 视频播放区域 -->
+                <video id="videoPlayer" controls>
+                    <source src="../../src/assets/vedio/test.mp4" type="video/mp4">
+                    您的浏览器不支持HTML5视频播放器。
+                </video>
+
+                <!-- 播放控制器 -->
+                <div class="player-controls">
+                    <div class="progress-section">
+                        <span class="time-current" id="currentTime">02:15</span>
+                        <div class="progress-bar">
+                            <div class="progress-track">
+                                <div class="progress-fill" id="progressFill"></div>
+                                <div class="progress-thumb" id="progressThumb"></div>
+                            </div>
+                        </div>
+                        <span class="time-total" id="totalTime">04:15</span>
+                    </div>
+                    
+                    <div class="control-buts">
+                        <button class="control-btn play-mode" id="playModeBtn">🔁</button>
+                        <button class="control-btn prev" id="prevBtn">⏮</button>
+                        <button class="control-btn play-pause" id="playPauseBtn">▶</button>
+                        <button class="control-btn next" id="nextBtn">⏭</button>
+                        <button class="control-btn play-queue" id="playQueueBtn">📋</button>
+                    </div>
+
+                    <div class="volume-section">
+                        <span class="volume-icon">🔊</span>
+                        <div class="volume-bar">
+                            <div class="volume-track">
+                                <div class="volume-fill" id="volumeFill"></div>
+                                <div class="volume-thumb" id="volumeThumb"></div>
+                            </div>
+                        </div>
+                        <span class="volume-value" id="volumeValue">75%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../src/js/screen/screen.js"></script>
+    <script type="module" src="../../src/js/screen/screen_vedio.js"></script>
+</body>
+</html>

@@ -39,7 +39,7 @@
             <div class="car-screen-container">
                 <div class="screen-frame">
                     <div class="screen-bezel">
-                        <iframe src="./user/driver_screen.html" 
+                        <iframe src="./screen/screen_main.html" 
                                 frameborder="0" 
                                 width="100%" 
                                 height="100%"
@@ -62,10 +62,32 @@
             const role = urlParams.get('role') || 'driver';
             
             const iframe = document.getElementById('rightPanelFrame');
-            iframe.src = `./user/${role}_screen.html`;
+            
+            // 根据不同角色设置不同的iframe源文件
+            switch(role) {
+                case 'driver':
+                    iframe.src = `./screen/screen_main.html`;
+                    break;
+                case 'passenger':
+                    iframe.src = `./user/passenger_screen.html`;
+                    break;
+                case 'maintenance':
+                    iframe.src = `./user/maintenance_screen.html`;
+                    break;
+                default:
+                    iframe.src = `./screen/screen_main.html`;
+            }
 
-            if (!['admin', 'maintenance'].includes(role)) {
+            if (role === 'driver') {
                 document.querySelector('.left-panel').style.display = 'block';
+            } 
+            else if(role === 'passenger') {
+                document.querySelector('.left-panel').style.display = 'block';
+                // 隐藏HUD区域，只显示交互区
+                document.querySelector('.hud-area').style.display = 'none';
+            }
+            else {
+                document.querySelector('.left-panel').style.display = 'none';
             }
         });
     </script>

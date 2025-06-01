@@ -25,7 +25,9 @@ from multimodal.multimodal import process_multimodal_request
 
 # —————— 初始化 Flask ——————
 app = Flask(__name__)
-app.config.from_object(Config)
+# app.config.from_object(Config)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:123456@localhost/software_db'
+app.config['SECRET_KEY'] = '5f4dcc3b5aa765d61d8327deb882cf99'
 CORS(app, resources={r"/*": {"origins": "*"}}) 
 db = SQLAlchemy(app)
 

@@ -3,133 +3,396 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>车载系统 - 管理员界面</title>
-    <link rel="stylesheet" href="../../src/assets/styles/screen.css">
-    <link rel="stylesheet" href="../../src/assets/styles/screen_main.css">
+    <title>车载系统 - 系统管理员界面</title>
+    <link rel="stylesheet" href="../../src/assets/styles/admin_screen.css">
 </head>
 <body>
     <div class="car-system">
         <!-- 左侧导航栏 -->
         <div class="sidebar">
             <div class="time-display">
-                <span class="hour">09</span>
+                <span class="hour">14</span>
                 <span class="separator">:</span>
-                <span class="minute">35</span>
+                <span class="minute">25</span>
             </div>
-            <div class="nav-buttons">
-                <a href="../screen/screen_main.html" class="nav-btn active">🏠</a>
-                <a href="../screen/screen_navigation.html" class="nav-btn">📍</a>
-                <a href="../screen/screen_setting.html" class="nav-btn">⚙️</a>
-                <a href="../screen/screen_player.html" class="nav-btn">🎵</a>
-                <a href="../screen/screen_phone.html" class="nav-btn">📞</a>
+            <div class="admin-profile">
+                <div class="avatar">🧙‍♀️</div>
+                <div class="admin-name">系统管理员</div>
+                <div class="admin-level">root</div>
             </div>
         </div>
+
         <!-- 主内容区域 -->
         <div class="main-content">
-            <!-- 左侧功能区 -->
+            <!-- 左侧功能区 - 2x2网格布局 -->
             <div class="left-section">
-                <!-- 上方：音乐和天气 -->
-                <div class="top-widgets">
-                    <!-- 音乐播放器 -->
-                    <div class="widget music-widget">
-                        <div class="widget-header">
-                            <span class="widget-icon">🎵</span>
-                            <span class="widget-title">音乐</span>
-                        </div>
-                        <div class="album-info">
-                            <div class="song-title" id="songTitle">error</div>
-                            <div class="artist-name" id="artistName">error</div>
-                        </div>
-                        <div class="music-controls">
-                            <button class="control-btn prev" id="prevBtn">⏮</button>
-                            <button class="control-btn play-pause" id="playPauseBtn">▶</button>
-                            <button class="control-btn next" id="nextBtn">⏭</button>
-                        </div>
-                        <div class="progress-track">
-                            <div class="progress-fill" id="progressFill"></div>
-                        </div>
+                <!-- 系统状态总览 -->
+                <div class="widget system-status-widget">
+                    <div class="widget-header">
+                        <span class="widget-icon">🖥️</span>
+                        <span class="widget-title">系统状态</span>
+                        <div class="system-health-indicator healthy"></div>
                     </div>
-
-                    <!-- 天气信息 -->
-                    <div class="widget weather-widget">
-                        <div class="widget-header">
-                            <span class="widget-icon">🌤️</span>
-                            <span class="widget-title">天气</span>
-                        </div>
-                        <div class="weather-info">
-                            <div class="temperature">error</div>
-                            <div class="weather-desc">error</div>
-                            <div class="location">error</div>
-                        </div>
-                        <div class="weather-details">
-                            <div class="detail-item">
-                                <span>湿度</span>
-                                <span>error</span>
-                            </div>
-                            <div class="detail-item">
-                                <span>风速</span>
-                                <span>error</span>
+                    <div class="widget-content">
+                        <div class="system-overview">
+                            <div class="status-grid">
+                                <div class="status-item">
+                                    <div class="status-label">在线用户</div>
+                                    <div class="status-value">1,247</div>
+                                    <div class="status-trend up">↗ +5.2%</div>
+                                </div>
+                                <div class="status-item">
+                                    <div class="status-label">系统负载</div>
+                                    <div class="status-value">68%</div>
+                                    <div class="status-trend stable">→ 稳定</div>
+                                </div>
+                                <div class="status-item">
+                                    <div class="status-label">连接车辆</div>
+                                    <div class="status-value">892</div>
+                                    <div class="status-trend up">↗ +12</div>
+                                </div>
+                                <div class="status-item">
+                                    <div class="status-label">数据吞吐</div>
+                                    <div class="status-value">2.4GB/s</div>
+                                    <div class="status-trend down">↘ -0.3%</div>
+                                </div>
+                                <div class="status-item">
+                                    <div class="status-label">响应时间</div>
+                                    <div class="status-value">12ms</div>
+                                    <div class="status-trend up">↗ 优秀</div>
+                                </div>
+                                <div class="status-item">
+                                    <div class="status-label">错误率</div>
+                                    <div class="status-value">0.02%</div>
+                                    <div class="status-trend down">↘ -0.01%</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 下方：智能对话框 -->
-                <div class="chat-widget">
+                <!-- 多模态服务监控 -->
+                <div class="widget multimodal-widget">
                     <div class="widget-header">
                         <span class="widget-icon">🤖</span>
-                        <span class="widget-title">智能助手</span>
-                        <div class="status-indicator online"></div>
+                        <span class="widget-title">多模态服务</span>
                     </div>
-                    <div class="chat-messages" id="chatMessages">
-                        <div class="message assistant-message">
-                            <div class="message-avatar">🤖</div>
-                            <div class="message-content">您好！我是您的智能助手，有什么可以帮您的吗？</div>
-                        </div>
-                        <div class="message user-message">
-                            <div class="message-content">播放一些轻音乐</div>
-                            <div class="message-avatar">👤</div>
-                        </div>
-                        <div class="message assistant-message">
-                            <div class="message-avatar">🤖</div>
-                            <div class="message-content">好的，正在为您播放轻音乐...</div>
+                    <div class="widget-content">
+                        <div class="service-grid">
+                            <div class="service-item active">
+                                <div class="service-icon">🗣️</div>
+                                <div class="service-name">语音识别</div>
+                                <div class="service-status online">运行中</div>
+                                <div class="service-load">CPU: 45%</div>
+                            </div>
+                            <div class="service-item active">
+                                <div class="service-icon">👁️</div>
+                                <div class="service-name">视觉识别</div>
+                                <div class="service-status online">运行中</div>
+                                <div class="service-load">GPU: 72%</div>
+                            </div>
+                            <div class="service-item warning">
+                                <div class="service-icon">🧠</div>
+                                <div class="service-name">AI决策</div>
+                                <div class="service-status warning">高负载</div>
+                                <div class="service-load">CPU: 89%</div>
+                            </div>
+                            <div class="service-item active">
+                                <div class="service-icon">📡</div>
+                                <div class="service-name">通信模块</div>
+                                <div class="service-status online">运行中</div>
+                                <div class="service-load">网络: 正常</div>
+                            </div>
+                            <div class="service-item active">
+                                <div class="service-icon">🔊</div>
+                                <div class="service-name">音频处理</div>
+                                <div class="service-status online">运行中</div>
+                                <div class="service-load">DSP: 56%</div>
+                            </div>
+                            <div class="service-item active">
+                                <div class="service-icon">🌐</div>
+                                <div class="service-name">云端同步</div>
+                                <div class="service-status online">运行中</div>
+                                <div class="service-load">带宽: 80%</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="chat-input">
-                        <input type="text" placeholder="输入消息..." id="chatInput">
-                        <button class="send-btn" id="sendBtn">发送</button>
+                </div>
+
+                <!-- 用户管理 -->
+                <div class="widget user-management-widget">
+                    <div class="widget-header">
+                        <span class="widget-icon">👥</span>
+                        <span class="widget-title">用户管理</span>
+                        <button class="add-user-btn">+ 添加用户</button>
+                    </div>
+                    <div class="widget-content">
+                        <div class="user-list">
+                            <div class="user-item admin">
+                                <div class="user-avatar">👨‍💼</div>
+                                <div class="user-info">
+                                    <div class="user-name">张管理员</div>
+                                    <div class="user-role">系统管理员</div>
+                                    <div class="user-last-login">最后登录: 2分钟前</div>
+                                </div>
+                                <div class="user-status online">在线</div>
+                                <div class="user-actions">
+                                    <button class="action-btn edit">编辑</button>
+                                    <button class="action-btn delete">删除</button>
+                                </div>
+                            </div>
+                            <div class="user-item technician">
+                                <div class="user-avatar">🔧</div>
+                                <div class="user-info">
+                                    <div class="user-name">李技术员</div>
+                                    <div class="user-role">维修技术员</div>
+                                    <div class="user-last-login">最后登录: 15分钟前</div>
+                                </div>
+                                <div class="user-status online">在线</div>
+                                <div class="user-actions">
+                                    <button class="action-btn edit">编辑</button>
+                                    <button class="action-btn delete">删除</button>
+                                </div>
+                            </div>
+                            <div class="user-item driver">
+                                <div class="user-avatar">🚗</div>
+                                <div class="user-info">
+                                    <div class="user-name">王司机</div>
+                                    <div class="user-role">驾驶员</div>
+                                    <div class="user-last-login">最后登录: 1小时前</div>
+                                </div>
+                                <div class="user-status offline">离线</div>
+                                <div class="user-actions">
+                                    <button class="action-btn edit">编辑</button>
+                                    <button class="action-btn delete">删除</button>
+                                </div>
+                            </div>
+                            <div class="user-item operator">
+                                <div class="user-avatar">👩‍💻</div>
+                                <div class="user-info">
+                                    <div class="user-name">陈操作员</div>
+                                    <div class="user-role">系统操作员</div>
+                                    <div class="user-last-login">最后登录: 30分钟前</div>
+                                </div>
+                                <div class="user-status online">在线</div>
+                                <div class="user-actions">
+                                    <button class="action-btn edit">编辑</button>
+                                    <button class="action-btn delete">删除</button>
+                                </div>
+                            </div>
+                            <div class="user-item guest">
+                                <div class="user-avatar">👤</div>
+                                <div class="user-info">
+                                    <div class="user-name">访客001</div>
+                                    <div class="user-role">临时用户</div>
+                                    <div class="user-last-login">最后登录: 2小时前</div>
+                                </div>
+                                <div class="user-status offline">离线</div>
+                                <div class="user-actions">
+                                    <button class="action-btn edit">编辑</button>
+                                    <button class="action-btn delete">删除</button>
+                                </div>
+                            </div>
+                            <div class="user-item maintenance">
+                                <div class="user-avatar">🛠️</div>
+                                <div class="user-info">
+                                    <div class="user-name">刘维护员</div>
+                                    <div class="user-role">系统维护</div>
+                                    <div class="user-last-login">最后登录: 5分钟前</div>
+                                </div>
+                                <div class="user-status online">在线</div>
+                                <div class="user-actions">
+                                    <button class="action-btn edit">编辑</button>
+                                    <button class="action-btn delete">删除</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 系统日志 -->
+                <div class="widget system-log-widget">
+                    <div class="widget-header">
+                        <span class="widget-icon">📋</span>
+                        <span class="widget-title">系统日志</span>
+                        <div class="log-filters">
+                            <select class="log-level-filter">
+                                <option value="all">全部级别</option>
+                                <option value="info">信息</option>
+                                <option value="warning">警告</option>
+                                <option value="error">错误</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="widget-content">
+                        <div class="log-entries">
+                            <div class="log-entry info">
+                                <div class="log-time">14:25:30</div>
+                                <div class="log-level">INFO</div>
+                                <div class="log-message">用户登录成功 - 张管理员</div>
+                            </div>
+                            <div class="log-entry warning">
+                                <div class="log-time">14:24:15</div>
+                                <div class="log-level">WARN</div>
+                                <div class="log-message">AI决策模块CPU使用率过高: 89%</div>
+                            </div>
+                            <div class="log-entry error">
+                                <div class="log-time">14:22:45</div>
+                                <div class="log-level">ERROR</div>
+                                <div class="log-message">车辆ID:V001连接超时</div>
+                            </div>
+                            <div class="log-entry info">
+                                <div class="log-time">14:21:20</div>
+                                <div class="log-level">INFO</div>
+                                <div class="log-message">系统备份完成</div>
+                            </div>
+                            <div class="log-entry warning">
+                                <div class="log-time">14:20:05</div>
+                                <div class="log-level">WARN</div>
+                                <div class="log-message">内存使用率达到85%</div>
+                            </div>
+                            <div class="log-entry info">
+                                <div class="log-time">14:19:30</div>
+                                <div class="log-level">INFO</div>
+                                <div class="log-message">多模态服务重启完成</div>
+                            </div>
+                            <div class="log-entry error">
+                                <div class="log-time">14:18:12</div>
+                                <div class="log-level">ERROR</div>
+                                <div class="log-message">数据库连接失败，正在重试</div>
+                            </div>
+                            <div class="log-entry info">
+                                <div class="log-time">14:17:45</div>
+                                <div class="log-level">INFO</div>
+                                <div class="log-message">定时任务执行成功</div>
+                            </div>
+                            <div class="log-entry warning">
+                                <div class="log-time">14:16:20</div>
+                                <div class="log-level">WARN</div>
+                                <div class="log-message">网络延迟异常: 150ms</div>
+                            </div>
+                            <div class="log-entry info">
+                                <div class="log-time">14:15:00</div>
+                                <div class="log-level">INFO</div>
+                                <div class="log-message">系统健康检查通过</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 右侧车辆区域 -->
+            <!-- 右侧控制区域 -->
             <div class="right-section">
-                <div class="vehicle-display">
-                    <div class="vehicle-header">
-                        <h2>Model</h2>
-                        <div class="vehicle-status">
-                            <span class="status-item">
-                                <span class="status-icon">电量</span>
-                                <span>error</span>
-                            </span>
-                            <span class="status-item">
-                                <span class="status-icon">速度</span>
-                                <span>error</span>
-                            </span>
+                <!-- 系统控制面板 -->
+                <div class="control-panel">
+                    <div class="panel-header">
+                        <h2>系统控制中心</h2>
+                        <div class="system-time">
+                            <span class="date">2024年6月1日</span>
+                            <span class="weekday">星期六</span>
                         </div>
                     </div>
-                    
-                    <div class="vehicle-image">
-                        <img src="../../src/assets/images/car.png" 
-                            alt="Model" 
-                            class="car-image">
+
+                    <!-- 快速控制按钮 -->
+                    <div class="quick-controls">
+                        <div class="control-section">
+                            <h3>系统操作</h3>
+                            <div class="control-buttons">
+                                <button class="control-btn primary">
+                                    <span class="btn-icon">🔄</span>
+                                    <span class="btn-text">重启系统</span>
+                                </button>
+                                <button class="control-btn secondary">
+                                    <span class="btn-icon">💾</span>
+                                    <span class="btn-text">系统备份</span>
+                                </button>
+                                <button class="control-btn warning">
+                                    <span class="btn-icon">🛡️</span>
+                                    <span class="btn-text">安全模式</span>
+                                </button>
+                                <button class="control-btn danger">
+                                    <span class="btn-icon">🚨</span>
+                                    <span class="btn-text">紧急停机</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="control-section">
+                            <h3>服务管理</h3>
+                            <div class="service-controls">
+                                <div class="service-control-item">
+                                    <span class="service-name">语音识别服务</span>
+                                    <div class="toggle-switch active">
+                                        <input type="checkbox" id="voice-service" checked>
+                                        <label for="voice-service"></label>
+                                    </div>
+                                </div>
+                                <div class="service-control-item">
+                                    <span class="service-name">视觉识别服务</span>
+                                    <div class="toggle-switch active">
+                                        <input type="checkbox" id="vision-service" checked>
+                                        <label for="vision-service"></label>
+                                    </div>
+                                </div>
+                                <div class="service-control-item">
+                                    <span class="service-name">AI决策服务</span>
+                                    <div class="toggle-switch active">
+                                        <input type="checkbox" id="ai-service" checked>
+                                        <label for="ai-service"></label>
+                                    </div>
+                                </div>
+                                <div class="service-control-item">
+                                    <span class="service-name">通信服务</span>
+                                    <div class="toggle-switch active">
+                                        <input type="checkbox" id="comm-service" checked>
+                                        <label for="comm-service"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-section">
+                            <h3>数据管理</h3>
+                            <div class="data-controls">
+                                <button class="data-btn">
+                                    <span class="btn-icon">📊</span>
+                                    <span class="btn-text">生成报告</span>
+                                </button>
+                                <button class="data-btn">
+                                    <span class="btn-icon">🗄️</span>
+                                    <span class="btn-text">数据归档</span>
+                                </button>
+                                <button class="data-btn">
+                                    <span class="btn-icon">🧹</span>
+                                    <span class="btn-text">清理缓存</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 系统资源监控图表 -->
+                    <div class="resource-charts">
+                        <h3>资源使用情况</h3>
+                        <div class="chart-container">
+                            <div class="chart-item">
+                                <div class="chart-title">CPU使用率</div>
+                                <div class="chart-display">
+                                    <canvas id="cpu-chart" width="200" height="100"></canvas>
+                                </div>
+                            </div>
+                            <div class="chart-item">
+                                <div class="chart-title">内存使用率</div>
+                                <div class="chart-display">
+                                    <canvas id="memory-chart" width="200" height="100"></canvas>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <script src="../../src/js/screen/screen.js"></script>
-    <script src="../../src/js/screen/screen_main.js"></script>
-    <script type="module" src="../../src/js/screen/screen_player.js"></script>
+    <script src="../../src/js/screen/screen_admin.js"></script>
 </body>
 </html>
