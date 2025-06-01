@@ -2,6 +2,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');
 
+    // 根据角色显示令牌输入
+    document.getElementById('role').addEventListener('change', function() {
+        document.getElementById('PermissioncodeField').style.display = 
+            ['admin','maintenance'].includes(this.value) ? 'block' : 'none';
+    });
+
     // 登录功能
     loginBtn.addEventListener('click', async () => {
         const username = document.getElementById('username').value;
@@ -21,7 +27,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('username', username);
                 localStorage.setItem('role', role);
                 alert('登录成功！');
-                window.location.href = `../../public/main.html?role=${role}`;
+
+                let redirectUrl;
+                switch(role) {
+                    case 'driver':
+                        redirectUrl = '../../public/main.html';
+                        window.location.href = `${redirectUrl}?role=${role}`;
+                        break;
+                    case 'passenger':
+                        redirectUrl = '../../public/main.html';
+                        window.location.href = `${redirectUrl}?role=${role}`;
+                        break;
+                    case 'admin':
+                        redirectUrl = '../../public/user/admin_screen.html';
+                        window.location.href = `${redirectUrl}`;
+                        break;
+                    case 'maintenance':
+                        redirectUrl = '../../public/main.html';
+                        window.location.href = `${redirectUrl}?role=${role}`;
+                        break;
+                }
             } else {
                 alert(`登录失败: ${data.error}`);
             }
@@ -36,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = document.getElementById('password').value;
         const role = document.getElementById('role').value;
         const Permissioncode = document.getElementById('Permissioncode').value || null;
-        
+
         try {
             const response = await fetch('/api/register', {
                 method: 'POST',
@@ -47,12 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     role,
                     Permissioncode
                 })
-            });
-
-            // 根据角色显示令牌输入
-            document.getElementById('role').addEventListener('change', function() {
-                document.getElementById('PermissioncodeField').style.display = 
-                    ['admin','maintenance'].includes(this.value) ? 'block' : 'none';
             });
 
             const data = await response.json();

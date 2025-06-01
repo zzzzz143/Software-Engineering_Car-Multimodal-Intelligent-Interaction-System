@@ -2,8 +2,8 @@ import base64
 import cv2
 import numpy as np
 from multimodal.gesture.gesture import GestureRecognition
-from multimodal.video.video import VisualRecognition
-from multimodal.audio.audio import AudioRecognition
+from multimodal.Video.Video import VisualRecognition
+from multimodal.Audio.Audio import AudioRecognition
 
 
 class MultimodalProcessor:
