@@ -1,4 +1,4 @@
-export function initMultiRecognition() {
+export function initMultimodalRecognition() {
     const video = document.getElementById('recognitionView');
     let socket = null;
 

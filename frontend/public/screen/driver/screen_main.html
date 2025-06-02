@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>车载系统 - 主界面</title>
+    <link rel="stylesheet" href="../../../src/assets/styles/screen.css">
+    <link rel="stylesheet" href="../../../src/assets/styles/screen_main.css">
+</head>
+<body>
+    <div class="car-system">
+        <!-- 左侧导航栏 -->
+        <div class="sidebar">
+            <div class="time-display">
+                <span class="hour">09</span>
+                <span class="separator">:</span>
+                <span class="minute">35</span>
+            </div>
+            <div class="nav-buttons">
+                <a href="screen_main.html" class="nav-btn active">🏠</a>
+                <a href="screen_navigation.html" class="nav-btn">📍</a>
+                <a href="screen_player.html" class="nav-btn">🎵</a>
+                <a href="screen_phone.html" class="nav-btn">📞</a>
+                <a href="screen_setting.html" class="nav-btn">⚙️</a>
+            </div>
+        </div>
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <!-- 左侧功能区 -->
+            <div class="left-section">
+                <!-- 上方：音乐和天气 -->
+                <div class="top-widgets">
+                    <!-- 音乐播放器 -->
+                    <div class="widget music-widget">
+                        <div class="widget-header">
+                            <span class="widget-icon">🎵</span>
+                            <span class="widget-title">音乐</span>
+                        </div>
+                        <div class="album-info">
+                            <div class="song-title" id="songTitle">error</div>
+                            <div class="artist-name" id="artistName">error</div>
+                        </div>
+                        <div class="music-controls">
+                            <button class="control-btn prev" id="prevBtn">⏮</button>
+                            <button class="control-btn play-pause" id="playPauseBtn">▶</button>
+                            <button class="control-btn next" id="nextBtn">⏭</button>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                    </div>
+
+                    <!-- 天气信息 -->
+                    <div class="widget weather-widget">
+                        <div class="widget-header">
+                            <span class="widget-icon">🌤️</span>
+                            <span class="widget-title">天气</span>
+                        </div>
+                        <div class="weather-info">
+                            <div class="temperature">error</div>
+                            <div class="weather-desc">error</div>
+                            <div class="location">error</div>
+                        </div>
+                        <div class="weather-details">
+                            <div class="detail-item">
+                                <span>湿度</span>
+                                <span>error</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>风速</span>
+                                <span>error</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 下方：智能对话框 -->
+                <div class="chat-widget">
+                    <div class="widget-header">
+                        <span class="widget-icon">🤖</span>
+                        <span class="widget-title">智能助手</span>
+                        <div class="status-indicator online"></div>
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message assistant-message">
+                            <div class="message-avatar">🤖</div>
+                            <div class="message-content">您好！我是您的智能助手，有什么可以帮您的吗？</div>
+                        </div>
+                        <div class="message user-message">
+                            <div class="message-content">播放一些轻音乐</div>
+                            <div class="message-avatar">👤</div>
+                        </div>
+                        <div class="message assistant-message">
+                            <div class="message-avatar">🤖</div>
+                            <div class="message-content">好的，正在为您播放轻音乐...</div>
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" placeholder="输入消息..." id="chatInput">
+                        <button class="send-btn" id="sendBtn">发送</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧车辆区域 -->
+            <div class="right-section">
+                <div class="vehicle-display">
+                    <div class="vehicle-header">
+                        <h2>Model</h2>
+                        <div class="vehicle-status">
+                            <span class="status-item">
+                                <span class="status-icon">电量</span>
+                                <span>error</span>
+                            </span>
+                            <span class="status-item">
+                                <span class="status-icon">速度</span>
+                                <span>error</span>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="vehicle-image">
+                        <img src="../../../src/assets/images/car.png" 
+                            alt="Model" 
+                            class="car-image">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../../../src/js/screen/screen.js"></script>
+    <script src="../../../src/js/screen/screen_main.js"></script>
+    <script type="module" src="../../../src/js/screen/screen_player.js"></script>
+</body>
+</html>

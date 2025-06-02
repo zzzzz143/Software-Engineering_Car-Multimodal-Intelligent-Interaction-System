@@ -12,7 +12,7 @@
 │   │   │   ├── screen_main.html                # 主界面
 │   │   │   ├── screen_navigation.html          # 导航界面
 │   │   │   ├── screen_setting.html             # 设置界面
-│   │   │   ├── screen_video.html               # 视频界面
+│   │   │   ├── screen_vedio.html               # 视频界面
 │   │   │   ├── screen_player.html              # 播放器界面
 │   │   │   └── screen_phone.html               # 手机界面
 │   │   ├── user/

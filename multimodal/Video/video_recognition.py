@@ -1,7 +1,7 @@
 import time
 import cv2
 import numpy as np
-from command_process import process_system_info,get_tts_with_default_refer,extract_feedback
+from command_process import process_system_info,generate_speech,extract_feedback
 
 user_history_file_path = "../user_history.json"
 system_history_file_path = "../system_history.json"
@@ -54,11 +54,22 @@ class VisualRecognition:
                         print("视觉识别：检测到驾驶员持续分心或疲劳！")
                         result = process_system_info("警告：检测到驾驶员持续分心或疲劳！", self.user_id, system_history_file_path)
                         print(result)
+                        # 提取系统决策
+                        decision = extract_decision(result)
+                        print(f"系统决策:{decision}")
+                        # 提取指令编码
+                        instruction_code = extract_instruction_code(result)
+                        print(f"指令编码: {instruction_code}")
                         # 提取反馈
                         feedback = extract_feedback(result)
-                        print(feedback)
+                        print(f"用户反馈:{feedback}")
                         # 语音合成
-                        get_tts_with_default_refer(feedback)
+                        try:
+                            speech_data = generate_speech(feedback, voice_index=2)  # 第二个参数为音色索引
+                            with open("multimodal/TTS/test_submit.mp3", "wb") as file_to_save:
+                                file_to_save.write(speech_data)
+                        except Exception as e:
+                            print(f"Error: {e}")
                         self.last_gaze_status = "distracted"
             else:
                 self.gaze_away_start_time = None

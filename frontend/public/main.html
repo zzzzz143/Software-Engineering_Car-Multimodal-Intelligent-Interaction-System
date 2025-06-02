@@ -62,31 +62,15 @@
             const role = urlParams.get('role') || 'driver';
             
             const iframe = document.getElementById('rightPanelFrame');
-            
-            // 根据不同角色设置不同的iframe源文件
-            switch(role) {
-                case 'driver':
-                    iframe.src = `./screen/screen_main.html`;
-                    break;
-                case 'passenger':
-                    iframe.src = `./user/passenger_screen.html`;
-                    break;
-                case 'maintenance':
-                    iframe.src = `./user/maintenance_screen.html`;
-                    break;
-                default:
-                    iframe.src = `./screen/screen_main.html`;
-            }
 
             if (role === 'driver') {
+                iframe.src = `./screen/driver/screen_main.html`;
+                // 显示左侧区域(HUD区和交互区)
                 document.querySelector('.left-panel').style.display = 'block';
             } 
-            else if(role === 'passenger') {
-                document.querySelector('.left-panel').style.display = 'block';
-                // 隐藏HUD区域，只显示交互区
-                document.querySelector('.hud-area').style.display = 'none';
-            }
             else {
+                iframe.src = `./user/passenger.html`;
+                // 隐藏左侧区域(HUD区和交互区)
                 document.querySelector('.left-panel').style.display = 'none';
             }
         });

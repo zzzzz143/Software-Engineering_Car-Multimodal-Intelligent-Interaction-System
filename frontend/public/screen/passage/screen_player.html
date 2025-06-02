@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>车载系统 - 音乐播放器</title>
-    <link rel="stylesheet" href="../../src/assets/styles/screen.css">
-    <link rel="stylesheet" href="../../src/assets/styles/screen_player.css">
+    <link rel="stylesheet" href="../../../src/assets/styles/screen.css">
+    <link rel="stylesheet" href="../../../src/assets/styles/screen_player.css">
 </head>
 <body>
     <div class="car-system">
@@ -17,11 +17,8 @@
                 <span class="minute">35</span>
             </div>
             <div class="nav-buttons">
-                <a href="screen_main.html" class="nav-btn">🏠</a>
-                <a href="screen_navigation.html" class="nav-btn">📍</a>
-                <a href="screen_setting.html" class="nav-btn">⚙️</a>
-                <a href="screen_player.html" class="nav-btn active">🎵</a>
-                <a href="screen_phone.html" class="nav-btn">📞</a>
+                <a href="screen_player.html" class="nav-btn">🎵</a>
+                <a href="screen_vedio.html" class="nav-btn">🎞️</a>
             </div>
         </div>
 
@@ -35,7 +32,7 @@
                     <div class="album-section">
                         <div class="album-cover-container">
                             <div class="album-cover">
-                                <img src="../../src/assets/images/cd.png" alt="专辑封面" id="albumCover">
+                                <img src="../../../src/assets/images/cd.png" alt="专辑封面" id="albumCover">
                                 <div class="vinyl-effect"></div>
                                 <div class="play-indicator">
                                     <div class="pulse-ring"></div>
@@ -120,17 +117,9 @@
                         </div>
 
                         <!-- 第三方音乐应用 -->
-                        <script>
-                            document.addEventListener("DOMContentLoaded", function() {
-                                const videoPlayerIcon = document.querySelector(".dock-app[data-app='video-player']");
-                                videoPlayerIcon.addEventListener("click", function() {
-                                    window.location.href = "screen_vedio.html"; // 跳转到指定页面
-                                });
-                            });
-                        </script>
-                        <div class="dock-app" data-app="video-player" onclick="goToVideoPlayer()">
-                            <div class="app-icon video-player-icon">📽︎</div>
-                            <span class="app-name">视频播放</span>
+                        <div class="dock-app" data-app="spotify">
+                            <div class="app-icon spotify-icon">🎧</div>
+                            <span class="app-name">Spotify</span>
                         </div>
 
                         <div class="dock-app" data-app="netease">
@@ -204,7 +193,7 @@
         </div>
     </div>
 
-    <script src="../../src/js/screen/screen.js"></script>
-    <script type="module" src="../../src/js/screen/screen_player.js"></script>
+    <script src="../../../src/js/screen/screen.js"></script>
+    <script type="module" src="../../../src/js/screen/screen_player.js"></script>
 </body>
 </html>

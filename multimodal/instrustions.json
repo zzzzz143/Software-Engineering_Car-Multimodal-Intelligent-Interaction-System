@@ -1,0 +1,284 @@
+{
+    "instructions": [
+        {
+            "input": "把空调温度调到二十二摄氏度",
+            "response": "0201[22]"
+        },
+        {
+            "input": "空调温度设置为24度",
+            "response": "0201[24]"
+        },
+        {
+            "input": "请把温度调高一点",
+            "response": "0501"
+        },
+        {
+            "input": "空调温度调低些",
+            "response": "0601"
+        },
+        {
+            "input": "打开空调",
+            "response": "0001"
+        },
+        {
+            "input": "关闭空调",
+            "response": "0101"
+        },
+        {
+            "input": "帮我导航到北京市朝阳区",
+            "response": "0302[北京市朝阳区]"
+        },
+        {
+            "input": "设置导航目的地为上海市",
+            "response": "0202[上海市]"
+        },
+        {
+            "input": "取消导航",
+            "response": "0402"
+        },
+        {
+            "input": "播放音乐",
+            "response": "0303"
+        },
+        {
+            "input": "暂停音乐",
+            "response": "0403"
+        },
+        {
+            "input": "音量调大",
+            "response": "0503"
+        },
+        {
+            "input": "把声音调小一点",
+            "response": "0603"
+        },
+        {
+            "input": "打开驾驶员车窗",
+            "response": "0004"
+        },
+        {
+            "input": "关闭副驾驶车窗",
+            "response": "0105"
+        },
+        {
+            "input": "打开左后车窗",
+            "response": "0006"
+        },
+        {
+            "input": "关闭右后车窗",
+            "response": "0107"
+        },
+        {
+            "input": "打开天窗",
+            "response": "0008"
+        },
+        {
+            "input": "关闭天窗",
+            "response": "0108"
+        },
+        {
+            "input": "打开驾驶员座椅加热",
+            "response": "0009"
+        },
+        {
+            "input": "关闭乘客座椅加热",
+            "response": "0110"
+        },
+        {
+            "input": "打开方向盘加热",
+            "response": "0011"
+        },
+        {
+            "input": "关闭方向盘加热",
+            "response": "0111"
+        },
+        {
+            "input": "打开大灯",
+            "response": "0012"
+        },
+        {
+            "input": "关闭大灯",
+            "response": "0112"
+        },
+        {
+            "input": "打开雾灯",
+            "response": "0013"
+        },
+        {
+            "input": "关闭车内灯",
+            "response": "0114"
+        },
+        {
+            "input": "锁车",
+            "response": "0015"
+        },
+        {
+            "input": "解锁车门",
+            "response": "0115"
+        },
+        {
+            "input": "查询当前温度",
+            "response": "0801"
+        },
+        {
+            "input": "调整驾驶员座椅位置",
+            "response": "0909"
+        },
+        {
+            "input": "切换灯光模式",
+            "response": "0712"
+        },
+        {
+            "input": "空调调到22度",
+            "response": "0201[22]"
+        },
+        {
+            "input": "请将温度设定为25摄氏度",
+            "response": "0201[25]"
+        },
+        {
+            "input": "导航到西湖",
+            "response": "0302[西湖]"
+        },
+        {
+            "input": "把导航设为故宫博物院",
+            "response": "0202[故宫博物院]"
+        },
+        {
+            "input": "激活自动泊车",
+            "response": "1049"
+        },
+        {
+            "input": "停用车道辅助",
+            "response": "1125"
+        },
+        {
+            "input": "切换到运动驾驶模式",
+            "response": "1939"
+        },
+        {
+            "input": "切换到经济驾驶模式",
+            "response": "1938"
+        },
+        {
+            "input": "切换到舒适驾驶模式",
+            "response": "1940"
+        },
+        {
+            "input": "打开后备箱",
+            "response": "0016"
+        },
+        {
+            "input": "关闭后备箱",
+            "response": "0116"
+        },
+        {
+            "input": "启动发动机",
+            "response": "0317"
+        },
+        {
+            "input": "关闭发动机",
+            "response": "0417"
+        },
+        {
+            "input": "打开雨刷",
+            "response": "0018"
+        },
+        {
+            "input": "调高雨刷速度",
+            "response": "0518"
+        },
+        {
+            "input": "降低雨刷速度",
+            "response": "0618"
+        },
+        {
+            "input": "定位我的车辆",
+            "response": "1400"
+        },
+        {
+            "input": "连接蓝牙设备",
+            "response": "1527"
+        },
+        {
+            "input": "断开蓝牙连接",
+            "response": "1627"
+        },
+        {
+            "input": "调整驾驶员座椅位置",
+            "response": "0943"
+        },
+        {
+            "input": "打开驾驶员座椅按摩",
+            "response": "0045"
+        },
+        {
+            "input": "关闭乘客座椅按摩",
+            "response": "0146"
+        },
+        {
+            "input": "打开氛围灯光",
+            "response": "0042"
+        },
+        {
+            "input": "调整氛围灯光颜色为蓝色",
+            "response": "0242[蓝色]"
+        },
+        {
+            "input": "查询当前胎压",
+            "response": "0833"
+        },
+        {
+            "input": "查看燃油剩余量",
+            "response": "0835"
+        },
+        {
+            "input": "电池还有多少电量",
+            "response": "0831"
+        },
+        {
+            "input": "开启语音助手",
+            "response": "0047"
+        },
+        {
+            "input": "预约明早7点启动空调",
+            "response": "1201[07:00]"
+        },
+        {
+            "input": "取消预约的空调启动",
+            "response": "1301"
+        },
+        {
+            "input": "拨打电话给张三",
+            "response": "0329[张三]"
+        },
+        {
+            "input": "发送短信给李四",
+            "response": "0330[李四]"
+        },
+        {
+            "input": "设置巡航速度为80公里每小时",
+            "response": "0224[80]"
+        },
+        {
+            "input": "打开摄像头",
+            "response": "0048"
+        },
+        {
+            "input": "查询附近交通状况",
+            "response": "0850"
+        },
+        {
+            "input": "设置最佳路线避开拥堵",
+            "response": "0202[避开拥堵]"
+        },
+        {
+            "input": "调整左侧后视镜",
+            "response": "0920"
+        },
+        {
+            "input": "重置多媒体系统",
+            "response": "1803"
+        }
+    ]
+}

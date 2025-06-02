@@ -190,7 +190,7 @@ class NavigationDisplayManager {
     updateQuickActions() {
         // 修正选择器，仅选择 .quick-actions 容器内的 .action-btn
         const actionButtons = document.querySelectorAll('.quick-actions .action-buttons .action-btn');
-        const labels = ['回家', '公司', '加油站', '停车场'];
+        const labels = ['家', '学校', '公司', '加油站', '停车场'];
         actionButtons.forEach((button, index) => {
             const btnLabel = button.querySelector('.btn-label');
             if (btnLabel) {
@@ -222,9 +222,16 @@ class NavigationDisplayManager {
                     }
 
                     switch (label) {
-                        case '回家':
+                        case '家':
                             this.navigateToFixedDestination({
                                 destination: '我的家',
+                                address: '南开大学津南校区'
+                            });
+                            if (this.navigationToggleBtn) this.navigationToggleBtn.click(); // 开始新的导航
+                            break;
+                        case '学校':
+                            this.navigateToFixedDestination({
+                                destination: '我的学校',
                                 address: '南开大学津南校区'
                             });
                             if (this.navigationToggleBtn) this.navigationToggleBtn.click(); // 开始新的导航

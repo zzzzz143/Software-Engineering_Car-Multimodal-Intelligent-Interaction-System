@@ -3,6 +3,8 @@ monkey.patch_all()  # 猴子补丁
 
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
+import signal
+import sys
 
 from flask import Flask, request, jsonify
 import requests
@@ -25,9 +27,7 @@ from multimodal.multimodal import process_multimodal_request
 
 # —————— 初始化 Flask ——————
 app = Flask(__name__)
-# app.config.from_object(Config)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:123456@localhost/software_db'
-app.config['SECRET_KEY'] = '5f4dcc3b5aa765d61d8327deb882cf99'
+app.config.from_object(Config)
 CORS(app, resources={r"/*": {"origins": "*"}}) 
 db = SQLAlchemy(app)
 
@@ -89,7 +89,13 @@ class User(db.Model):
 # 注册路由
 @app.route('/api/register', methods=['POST'])
 def register():
-    data = request.get_json()    
+    data = request.get_json()
+    
+    # 检查用户名是否已存在
+    requested_username = data.get('username')
+    if User.query.filter_by(username=requested_username).first():
+        return jsonify({'error': '用户名已存在'}), 400
+    
     # 获取权限码并验证
     input_code = data.get('Permissioncode')
     valid_code = generate_password_hash(Config.PERMISSION_CODE)
@@ -104,11 +110,7 @@ def register():
     # 校验角色合法性
     selected_role = data.get('role')
     if selected_role not in allowed_roles:
-        return jsonify({
-            "status": "error",
-            "message": "该角色需要有效权限码",
-            "allowed_roles": allowed_roles
-        }), 403
+        return jsonify({'error': '注册该角色需要有效权限码'}), 403
     
     # 如果是特权用户
     if selected_role in ['admin', 'maintenance']:
@@ -126,10 +128,19 @@ def register():
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json()
-    user = User.query.filter_by(username=data['username']).first()
-    if not user or not check_password_hash(user.password_hash, data['password']):
+    
+    # 检查用户名和密码
+    requested_username = data.get('username')
+    requested_password = data.get('password')
+    user = User.query.filter_by(username=requested_username).first()
+    if not user or not check_password_hash(user.password_hash, requested_password):
         return jsonify({'error': '用户名或密码错误'}), 401
-        
+    
+    # 检查角色
+    requested_role = data.get('role')
+    if user.role != requested_role:
+        return jsonify({'error': '用户角色不匹配'}), 403
+    
     token = jwt.encode({
         'user_id': user.id,
         'role': user.role,
@@ -237,7 +248,17 @@ def dispatcher_app(environ, start_response):
     # 其他一律给 Flask
     return app.wsgi_app(environ, start_response)
 
+# 信号处理函数
+def signal_handler(signum, frame):
+    print('\n正在关闭服务...')
+    sys.exit(0)
+
+# 注册信号处理函数
+signal.signal(signal.SIGINT, signal_handler)  # 捕获 Ctrl+C
+
 if __name__ == '__main__':
+    app.debug = True  # 启用调试模式
+    
     # 确保数据库表已创建
     with app.app_context():
         db.create_all()
@@ -248,7 +269,11 @@ if __name__ == '__main__':
             dispatcher_app,
             handler_class=WebSocketHandler
         )
-        print('WebSocket服务已启动，监听端口5000...')
+        print('服务已启动，监听端口5000...')
         server.serve_forever()
+    except KeyboardInterrupt:
+        print('\n检测到 Ctrl+C，正在关闭服务器...')
+        server.stop(timeout=2)
+        signal_handler(signal.SIGINT, None)
     except Exception as e:
         print(f"WebSocket服务启动失败: {str(e)}")

@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>车载系统 - 设置</title>
-    <link rel="stylesheet" href="../../src/assets/styles/screen.css">
-    <link rel="stylesheet" href="../../src/assets/styles/screen_setting.css">
+    <link rel="stylesheet" href="../../../src/assets/styles/screen.css">
+    <link rel="stylesheet" href="../../../src/assets/styles/screen_setting.css">
 </head>
 <body>
     <div class="car-system">
@@ -19,9 +19,9 @@
             <div class="nav-buttons">
                 <a href="screen_main.html" class="nav-btn">🏠</a>
                 <a href="screen_navigation.html" class="nav-btn">📍</a>
-                <a href="screen_setting.html" class="nav-btn active">⚙️</a>
                 <a href="screen_player.html" class="nav-btn">🎵</a>
                 <a href="screen_phone.html" class="nav-btn">📞</a>
+                <a href="screen_setting.html" class="nav-btn active">⚙️</a>
             </div>
         </div>
 
@@ -331,6 +331,63 @@
                                 <div class="panel-status">6个设备在线</div>
                             </div>
 
+                            <!-- 网络连接 -->
+                            <div class="control-section network-section">
+                                <div class="control-title">
+                                    <span class="control-icon">📶</span>
+                                    <span>网络连接</span>
+                                    <div class="network-status">5G已连接</div>
+                                </div>
+                                <div class="network-controls">
+                                    <div class="wifi-section">
+                                        <div class="wifi-header">
+                                            <div class="wifi-status">
+                                                <span class="wifi-icon">📶</span>
+                                                <div class="wifi-info">
+                                                    <span class="wifi-name">Tesla_WiFi_5G</span>
+                                                    <span class="wifi-signal">信号强度: 强</span>
+                                                </div>
+                                            </div>
+                                            <button class="wifi-btn">更换</button>
+                                        </div>
+                                        <div class="wifi-list">
+                                            <div class="wifi-item">
+                                                <div class="wifi-details">
+                                                    <span class="wifi-ssid">Home_WiFi</span>
+                                                    <span class="wifi-type">WPA2</span>
+                                                </div>
+                                                <span class="wifi-strength">📶📶📶</span>
+                                            </div>
+                                            <div class="wifi-item">
+                                                <div class="wifi-details">
+                                                    <span class="wifi-ssid">Office_5G</span>
+                                                    <span class="wifi-type">WPA3</span>
+                                                </div>
+                                                <span class="wifi-strength">📶📶</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="control-item" data-control="mobile-hotspot">
+                                        <div class="control-label">
+                                            <div class="label-text">移动热点</div>
+                                            <div class="label-desc">共享网络连接</div>
+                                        </div>
+                                        <div class="toggle-switch" data-control="hotspot">
+                                            <div class="switch-handle"></div>
+                                        </div>
+                                    </div>
+                                    <div class="control-item" data-control="bluetooth">
+                                        <div class="control-label">
+                                            <div class="label-text">蓝牙</div>
+                                            <div class="label-desc">设备配对连接</div>
+                                        </div>
+                                        <div class="toggle-switch active" data-control="bluetooth">
+                                            <div class="switch-handle"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
                             <!-- 温度控制 -->
                             <div class="control-section climate-section">
                                 <div class="control-title">
@@ -446,63 +503,6 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- 网络连接 -->
-                            <div class="control-section network-section">
-                                <div class="control-title">
-                                    <span class="control-icon">📶</span>
-                                    <span>网络连接</span>
-                                    <div class="network-status">5G已连接</div>
-                                </div>
-                                <div class="network-controls">
-                                    <div class="wifi-section">
-                                        <div class="wifi-header">
-                                            <div class="wifi-status">
-                                                <span class="wifi-icon">📶</span>
-                                                <div class="wifi-info">
-                                                    <span class="wifi-name">Tesla_WiFi_5G</span>
-                                                    <span class="wifi-signal">信号强度: 强</span>
-                                                </div>
-                                            </div>
-                                            <button class="wifi-btn">更换</button>
-                                        </div>
-                                        <div class="wifi-list">
-                                            <div class="wifi-item">
-                                                <div class="wifi-details">
-                                                    <span class="wifi-ssid">Home_WiFi</span>
-                                                    <span class="wifi-type">WPA2</span>
-                                                </div>
-                                                <span class="wifi-strength">📶📶📶</span>
-                                            </div>
-                                            <div class="wifi-item">
-                                                <div class="wifi-details">
-                                                    <span class="wifi-ssid">Office_5G</span>
-                                                    <span class="wifi-type">WPA3</span>
-                                                </div>
-                                                <span class="wifi-strength">📶📶</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="control-item" data-control="mobile-hotspot">
-                                        <div class="control-label">
-                                            <div class="label-text">移动热点</div>
-                                            <div class="label-desc">共享网络连接</div>
-                                        </div>
-                                        <div class="toggle-switch" data-control="hotspot">
-                                            <div class="switch-handle"></div>
-                                        </div>
-                                    </div>
-                                    <div class="control-item" data-control="bluetooth">
-                                        <div class="control-label">
-                                            <div class="label-text">蓝牙</div>
-                                            <div class="label-desc">设备配对连接</div>
-                                        </div>
-                                        <div class="toggle-switch active" data-control="bluetooth">
-                                            <div class="switch-handle"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
@@ -583,6 +583,24 @@
                                         </div>
                                         <div class="setting-arrow">›</div>
                                     </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-icon quick-nav">⚡</div>
+                                        <div class="setting-text">
+                                            <div class="setting-name">快捷导航设置</div>
+                                            <div class="setting-desc">设置常用地址</div>
+                                        </div>
+                                        <div class="setting-arrow">›</div>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <div class="setting-icon voice-assistant">🎤</div>
+                                        <div class="setting-text">
+                                            <div class="setting-name">语音助手设置</div>
+                                            <div class="setting-desc">设置唤醒词</div>
+                                        </div>
+                                        <div class="setting-arrow">›</div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -653,7 +671,7 @@
         </div>
     </div>
     
-    <script src="../../src/js/screen/screen.js"></script>
-    <script src="../../src/js/screen/screen_setting.js"></script>
+    <script src="../../../src/js/screen/screen.js"></script>
+    <script src="../../../src/js/screen/screen_setting.js"></script>
 </body>
 </html>

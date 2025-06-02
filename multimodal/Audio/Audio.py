@@ -4,7 +4,7 @@ import pyaudio
 from funasr import AutoModel
 from funasr.utils.postprocess_utils import rich_transcription_postprocess
 
-from multimodal.command_process import process_command,get_tts_with_default_refer,extract_feedback
+from multimodal.command_process import process_command,generate_speech,extract_feedback
 
 # 音频参数
 CHUNK = 8012  # 每个缓冲区的帧数
@@ -102,11 +102,22 @@ class AudioRecognition():
                     if not audio_recognized_text=="音频数据为空":
                         result = process_command(audio_recognized_text, self.user_id, user_history_file_path)
                         print(result)
+                        # 提取系统决策
+                        decision = extract_decision(result)
+                        print(f"系统决策:{decision}")
+                        # 提取指令编码
+                        instruction_code = extract_instruction_code(result)
+                        print(f"指令编码: {instruction_code}")
                         # 提取反馈
                         feedback = extract_feedback(result)
-                        print(feedback)
+                        print(f"用户反馈:{feedback}")
                         # 语音合成
-                        get_tts_with_default_refer(feedback)
+                        try:
+                            speech_data = generate_speech(feedback, voice_index=2)  # 第二个参数为音色索引
+                            with open("multimodal/TTS/test_submit.mp3", "wb") as file_to_save:
+                                file_to_save.write(speech_data)
+                        except Exception as e:
+                            print(f"Error: {e}")
                     # 清空缓冲区
                     self.audio_buffer = []
                     self.silence_start_time = None

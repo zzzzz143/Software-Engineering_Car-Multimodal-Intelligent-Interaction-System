@@ -23,9 +23,9 @@ class MusicPlayerUI {
                 title: "普通朋友",
                 artist: "陶喆",
                 album: "I'm OK",
-                cover: "../../src/assets/images/cd.png",
+                cover: "../../../src/assets/images/cd.png",
                 duration: 255, // 4:15
-                audioSrc: "../../src/assets/music/普通朋友.mp3",
+                audioSrc: "../../../src/assets/music/普通朋友.mp3",
                 lyrics: [
                     { time: 19.713, text: "等待" },
                     { time: 22.395, text: "我随时随地在等待" },
@@ -91,9 +91,9 @@ class MusicPlayerUI {
                 title: "阴天快乐",
                 artist: "陈奕迅",
                 album: "米·闪",
-                cover: "../../src/assets/images/cd.png",
+                cover: "../../../src/assets/images/cd.png",
                 duration: 264, // 4:24
-                audioSrc: "../../src/assets/music/阴天快乐.mp3",
+                audioSrc: "../../../src/assets/music/阴天快乐.mp3",
                 lyrics: [
                     { time: 21.002, text: "天空它像什么" },
                     { time: 24.694, text: "爱情就像什么" },
@@ -145,9 +145,9 @@ class MusicPlayerUI {
                 title: "执迷不悟",
                 artist: "小乐哥（王唯乐）",
                 album: "执迷不悟",
-                cover: "../../src/assets/images/cd.png",
+                cover: "../../../src/assets/images/cd.png",
                 duration: 234, // 3:54
-                audioSrc: "../../src/assets/music/执迷不悟.mp3",
+                audioSrc: "../../../src/assets/music/执迷不悟.mp3",
                 lyrics: [
                     { time: 2.194, text: "我对你又何止是执迷不悟" },
                     { time: 5.085, text: "眼泪偶尔会莫名的光顾" },
@@ -394,7 +394,7 @@ class MusicPlayerUI {
                 
                 // 处理图片加载失败
                 this.elements.albumCover.onerror = () => {
-                    this.elements.albumCover.src = '../../src/assets/images/cd.png';
+                    this.elements.albumCover.src = '../../../src/assets/images/cd.png';
                 };
             }
         }

@@ -1,35 +1,8 @@
-/* 主布局 */
-.car-system {
-    display: flex;
-    height: 100vh;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* 侧边栏保持原样 */
-.sidebar {
-    width: 80px;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 20px 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
-}
-
 /* 主内容区域 */
 .main-content {
     flex: 1;
     display: flex;
     padding: 20px;
-    gap: 20px;
-}
-
-/* 左侧功能区 */
-.left-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
     gap: 20px;
 }
 
@@ -458,58 +431,4 @@
     width: 100%;
     max-width: 250px;
     height: auto;
-}
-
-
-/* 导航按钮 */
-.nav-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.nav-btn {
-    width: 50px;
-    height: 50px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    font-size: 20px;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.nav-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: scale(1.05);
-}
-
-.nav-btn.active {
-    background: #4a90e2;
-    border-color: #4a90e2;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-    .main-content {
-        flex-direction: column;
-        padding: 10px;
-    }
-    
-    .right-section {
-        width: 100%;
-        height: 300px;
-    }
-    
-    .top-widgets {
-        flex-direction: column;
-        height: auto;
-    }
-    
-    .widget {
-        height: 150px;
-    }
 }

@@ -23,25 +23,25 @@ class VideoPlayerUI {
                 title: "普通朋友",
                 artist: "陶喆",
                 album: "I'm OK",
-                cover: "../../src/assets/images/cd.png",
+                cover: "../../../src/assets/images/cd.png",
                 duration: 255, // 4:15
-                videoSrc: "../../src/assets/video/普通朋友.mp4"
+                videoSrc: "../../../src/assets/video/普通朋友.mp4"
             },
             {
                 title: "阴天快乐",
                 artist: "陈奕迅",
                 album: "米·闪",
-                cover: "../../src/assets/images/cd.png",
+                cover: "../../../src/assets/images/cd.png",
                 duration: 264, // 4:24
-                videoSrc: "../../src/assets/video/阴天快乐.mp4"
+                videoSrc: "../../../src/assets/video/阴天快乐.mp4"
             },
             {
                 title: "执迷不悟",
                 artist: "小乐哥（王唯乐）",
                 album: "执迷不悟",
-                cover: "../../src/assets/images/cd.png",
+                cover: "../../../src/assets/images/cd.png",
                 duration: 234, // 3:54
-                videoSrc: "../../src/assets/video/执迷不悟.mp4"
+                videoSrc: "../../../src/assets/video/执迷不悟.mp4"
             }
         ];
 
@@ -230,7 +230,7 @@ class VideoPlayerUI {
                 
                 // 处理图片加载失败
                 this.elements.albumCover.onerror = () => {
-                    this.elements.albumCover.src = '../../src/assets/images/cd.png';
+                    this.elements.albumCover.src = '../../../src/assets/images/cd.png';
                 };
             }
         }
