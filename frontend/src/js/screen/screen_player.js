@@ -17,6 +17,12 @@ class MusicPlayerUI {
         this.isShowPlayQueue = false; // 是否显示播放队列
         this.isLoading = false; // 是否正在加载网络资源
         
+        // 登录相关状态
+        this.isLoggedIn = false; // 登录状态
+        this.userInfo = null; // 用户信息
+        this.qrTimer = null; // 二维码轮询定时器
+        this.currentQrKey = null; // 当前二维码key
+        
         // 歌曲数据库
         this.songDatabase = [
             {
@@ -201,40 +207,250 @@ class MusicPlayerUI {
         this.createAudioElement(); // 创建音频元素
         this.setupEventListeners(); // 事件监听
         this.loadCurrentSong(); // 加载当前歌曲
-        this.loadNeteaseSongs();// 初始化完成后，尝试从网易云加载更多歌曲
+        this.checkLoginStatus(); // 检查登录状态
     }
 
     /**
-     * 从网易云API加载歌曲
-     * 基于网易云API获取音乐资源 
+     * 检查登录状态
+     * 初始化时检查是否已经登录
      */
-    async loadNeteaseSongs() {
-        try {
-            console.log('正在从网易云API加载歌曲...');
-            this.isLoading = true;
+    checkLoginStatus() {
+        this.isLoggedIn = neteaseApi.isLoggedIn();
+        this.userInfo = neteaseApi.getUserInfo();
+        
+        if (this.isLoggedIn && this.userInfo) {
+            console.log('✅ 已登录用户:', this.userInfo.nickname);
+            this.updateLyricsWithUserInfo();
+            this.hideNeteaseLoginSection();
             
-            // 预定义一些热门歌曲ID用于展示 (根据你的喜好修改)
-            const songIds = [
-                1472307143,
-                1938019211,
-                2074506156,
-                1939655575
-            ];
-            
-            // 依次获取每首歌的详细信息
-            const songPromises = songIds.map(id => neteaseApi.getFullSongInfo(id));
-            const songs = await Promise.all(songPromises);
-            
-            // 过滤掉加载失败的歌曲，并添加到数据库
-            const validSongs = songs.filter(song => song !== null);
-            this.songDatabase = [...this.songDatabase, ...validSongs];
-            
-            console.log(`✅ 成功从网易云加载 ${validSongs.length} 首歌曲`);
-            this.isLoading = false;
-        } catch (error) {
-            console.error('从网易云加载歌曲失败:', error);
-            this.isLoading = false;
+            // 如果已经登录，自动加载喜欢的音乐
+            setTimeout(() => {
+                this.loadUserLikedMusic();
+            }, 1000);
+        } else {
+            console.log('ℹ️ 未登录，显示本地歌曲歌词和二维码登录选项');
+            // 显示当前本地歌曲的歌词
+            this.showLocalSongLyrics();
+            // 显示下方的二维码登录区域
+            this.showNeteaseLoginSection();
         }
+    }
+
+    /**
+     * 显示本地歌曲歌词
+     * 未登录时在歌词区域显示当前本地歌曲的歌词
+     */
+    showLocalSongLyrics() {
+        const currentSong = this.songDatabase[this.currentSongIndex];
+        if (currentSong && currentSong.lyrics && this.elements.lyricsContainer) {
+            const lyricsScroll = this.elements.lyricsContainer.querySelector('.lyrics-scroll');
+            if (lyricsScroll) {
+                // 清空现有内容
+                lyricsScroll.innerHTML = '';
+                
+                // 生成歌词HTML
+                currentSong.lyrics.forEach((lyric, index) => {
+                    const lyricElement = document.createElement('div');
+                    lyricElement.className = 'lyric-line';
+                    lyricElement.dataset.time = lyric.time;
+                    lyricElement.dataset.index = index;
+                    lyricElement.textContent = lyric.text;
+                    lyricsScroll.appendChild(lyricElement);
+                });
+                
+                // 高亮当前时间的歌词
+                this.highlightCurrentLyric(this.currentTime);
+                
+                console.log('✅ 已显示本地歌曲歌词:', currentSong.title);
+            }
+        } else {
+            // 如果没有歌词，显示提示
+            const lyricsScroll = this.elements.lyricsContainer.querySelector('.lyrics-scroll');
+            if (lyricsScroll) {
+                lyricsScroll.innerHTML = '<div class="no-lyrics">暂无歌词</div>';
+            }
+        }
+    }
+
+    /**
+     * 显示网易云登录区域
+     */
+    showNeteaseLoginSection() {
+        const loginSection = document.getElementById('neteaseLoginSection');
+        if (loginSection) {
+            loginSection.style.display = 'block';
+            
+            // 初始化二维码区域
+            this.initializeQrArea();
+            
+            // 绑定事件
+            this.bindNeteaseLoginEvents();
+        }
+    }
+
+    /**
+     * 隐藏网易云登录区域
+     */
+    hideNeteaseLoginSection() {
+        const loginSection = document.getElementById('neteaseLoginSection');
+        if (loginSection) {
+            loginSection.style.display = 'none';
+            
+            // 停止二维码轮询
+            this.stopQrPolling();
+        }
+    }
+
+    /**
+     * 初始化二维码区域
+     */
+    async initializeQrArea() {
+        const qrCodeArea = document.getElementById('qrCodeArea');
+        if (!qrCodeArea) return;
+        
+        try {
+            // 显示加载状态
+            qrCodeArea.innerHTML = '<div class="qr-loading">正在生成二维码...</div>';
+            
+            // 生成二维码
+            const qrKey = await neteaseApi.generateQrKey();
+            const qrData = await neteaseApi.createQrCode(qrKey);
+            
+            this.currentQrKey = qrKey;
+            
+            // 显示二维码
+            qrCodeArea.innerHTML = `
+                <div class="qr-code-content">
+                    <img src="${qrData.qrimg}" alt="登录二维码" class="qr-image">
+                    <div class="qr-status waiting" id="qrStatusBottom">等待扫码...</div>
+                </div>
+            `;
+            
+            // 开始轮询
+            this.startQrPolling();
+            
+        } catch (error) {
+            console.error('生成二维码失败:', error);
+            qrCodeArea.innerHTML = '<div class="qr-error">二维码生成失败，请重试</div>';
+        }
+    }
+
+    /**
+     * 绑定网易云登录事件
+     */
+    bindNeteaseLoginEvents() {
+        const refreshBtn = document.getElementById('refreshQrBtn');
+        const hideBtn = document.getElementById('hideQrBtn');
+        
+        if (refreshBtn) {
+            refreshBtn.onclick = () => {
+                this.refreshBottomQrCode();
+            };
+        }
+        
+        if (hideBtn) {
+            hideBtn.onclick = () => {
+                this.hideNeteaseLoginSection();
+            };
+        }
+    }
+
+    /**
+     * 刷新底部二维码
+     */
+    async refreshBottomQrCode() {
+        this.stopQrPolling();
+        await this.initializeQrArea();
+    }
+
+    /**
+     * 更新歌词界面（含用户信息）
+     */
+    updateLyricsWithUserInfo() {
+        if (!this.elements.lyricsContainer) return;
+        
+        const lyricsScroll = this.elements.lyricsContainer.querySelector('.lyrics-scroll');
+        if (!lyricsScroll) return;
+        
+        // 创建用户信息和歌词容器
+        let userInfoHtml = '';
+        
+        if (this.isLoggedIn && this.userInfo) {
+            // 处理头像URL，确保有备用方案
+            const avatarUrl = this.userInfo.avatarUrl || '../../../src/assets/images/cd.png';
+            const nickname = this.userInfo.nickname || '网易云用户';
+            const vipLevel = this.userInfo.vipType || 0;
+            
+            userInfoHtml = `
+                <div class="user-info-container">
+                    <div class="user-avatar">
+                        <img src="${avatarUrl}" 
+                             alt="用户头像" 
+                             class="avatar-img"
+                             onerror="this.src='../../../src/assets/images/cd.png'">
+                    </div>
+                    <div class="user-details">
+                        <div class="username">${nickname}</div>
+                        <div class="user-level">VIP${vipLevel}</div>
+                    </div>
+                    <div class="logout-btn" id="logoutBtn">退出</div>
+                </div>
+                <div class="lyrics-divider"></div>
+            `;
+        }
+        
+        // 获取当前歌曲歌词
+        const currentSong = this.songDatabase[this.currentSongIndex];
+        const lyrics = currentSong?.lyrics || [];
+        
+        // 生成歌词HTML
+        let lyricsHtml = '';
+        if (lyrics.length > 0) {
+            lyricsHtml = lyrics.map((lyric, index) => {
+                return `<div class="lyric-line" data-time="${lyric.time}" data-index="${index}">${lyric.text}</div>`;
+            }).join('');
+        } else {
+            lyricsHtml = '<div class="no-lyrics">暂无歌词</div>';
+        }
+        
+        // 更新界面
+        lyricsScroll.innerHTML = userInfoHtml + lyricsHtml;
+        
+        // 绑定退出登录事件
+        if (this.isLoggedIn) {
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    this.logout();
+                });
+            }
+        }
+        
+        // 高亮当前歌词
+        this.highlightCurrentLyric(this.currentTime);
+        
+        console.log('✅ 用户信息界面已更新，显示用户:', this.userInfo?.nickname);
+    }
+
+    /**
+     * 退出登录
+     */
+    logout() {
+        // 停止轮询
+        this.stopQrPolling();
+        
+        // 清除API状态
+        neteaseApi.logout();
+        
+        // 清除本地状态
+        this.isLoggedIn = false;
+        this.userInfo = null;
+        
+        console.log('✅ 已退出登录');
+        
+        // 显示本地歌曲歌词并显示登录选项
+        this.showLocalSongLyrics();
+        this.showNeteaseLoginSection();
     }
 
     /**
@@ -340,8 +556,13 @@ class MusicPlayerUI {
         // 更新歌曲信息显示
         this.updateSongInfo(currentSong);
         
-        // 更新歌词
-        this.updateLyrics(currentSong.lyrics);
+                // 根据登录状态更新歌词显示
+        if (this.isLoggedIn) {
+            this.updateLyricsWithUserInfo();
+        } else {
+            // 如果未登录，显示本地歌曲歌词
+            this.showLocalSongLyrics();
+        }
         
         // 设置音频源
         this.audio.src = currentSong.audioSrc;
@@ -565,8 +786,27 @@ class MusicPlayerUI {
             const item = document.createElement('div');
             item.className = 'play-queue-item';
             
+            // 判断歌曲来源
+            const isCurrentSong = index === this.currentSongIndex;
+            const isLocalSong = index < 3; // 前3首是本地歌曲
+            const sourceTag = isLocalSong ? '本地' : '我喜欢';
+            
             // 设置歌曲信息
-            item.innerHTML = `${index + 1}. ${song.title} - ${song.artist}`;
+            item.innerHTML = `
+                <div class="queue-item-content">
+                    <span class="queue-item-number">${index + 1}</span>
+                    <div class="queue-item-info">
+                        <div class="queue-item-title ${isCurrentSong ? 'current-playing' : ''}">${song.title}</div>
+                        <div class="queue-item-artist">${song.artist}</div>
+                    </div>
+                    <span class="queue-item-source ${isLocalSong ? 'local' : 'favorite'}">${sourceTag}</span>
+                </div>
+            `;
+            
+            // 如果是当前播放歌曲，添加特殊样式
+            if (isCurrentSong) {
+                item.classList.add('current-playing');
+            }
             
             // 点击歌曲播放
             item.addEventListener('click', () => {
@@ -656,6 +896,12 @@ class MusicPlayerUI {
      * 动态歌词内容渲染和同步
      */
     updateLyrics(lyricsArray, currentTime = 0) {
+        // 如果已登录，使用带用户信息的歌词显示
+        if (this.isLoggedIn) {
+            this.updateLyricsWithUserInfo();
+            return;
+        }
+        
         if(this.elements.lyricsContainer){
             const lyricsScroll = this.elements.lyricsContainer.querySelector('.lyrics-scroll');
         
@@ -1079,6 +1325,181 @@ class MusicPlayerUI {
             }
         }
     }
+
+    /**
+     * 加载用户喜欢的音乐
+     */
+    async loadUserLikedMusic() {
+        try {
+            if (!this.isLoggedIn || !this.userInfo || !this.userInfo.nickname) {
+                console.warn('用户未登录或缺少昵称信息，跳过喜欢音乐加载');
+                return;
+            }
+            
+            console.log(`🎵 开始加载用户 ${this.userInfo.nickname} 的"我喜欢的音乐"歌单...`);
+            
+            // 显示加载状态（在歌词区域的搜索框下方）
+            this.showLikedMusicLoadingStatus('正在加载您的"我喜欢的音乐"歌单...');
+            
+            // 获取用户"我喜欢的音乐"歌单（限制20首，避免加载过多）
+            const favoriteSongs = await neteaseApi.getUserFavoritePlaylist(this.userInfo.nickname, 20);
+            
+            if (favoriteSongs.length > 0) {
+                // 将喜欢的音乐添加到歌曲数据库
+                const originalCount = this.songDatabase.length;
+                
+                // 去重：检查是否已经存在相同的歌曲
+                const newSongs = favoriteSongs.filter(song => {
+                    return !this.songDatabase.some(existingSong => 
+                        existingSong.title === song.title && existingSong.artist === song.artist
+                    );
+                });
+                
+                this.songDatabase.push(...newSongs);
+                
+                console.log(`✅ "我喜欢的音乐"加载完成！原有 ${originalCount} 首，新增 ${newSongs.length} 首，总计 ${this.songDatabase.length} 首`);
+                
+                // 显示加载成功状态
+                this.showLikedMusicLoadingStatus(`✅ 成功加载 ${newSongs.length} 首"我喜欢的音乐"！`, 'success');
+                
+                // 3秒后清除状态显示
+                setTimeout(() => {
+                    this.clearLikedMusicLoadingStatus();
+                }, 3000);
+                
+            } else {
+                console.log('⚠️ "我喜欢的音乐"歌单为空或获取失败');
+                this.showLikedMusicLoadingStatus('暂无"我喜欢的音乐"', 'warning');
+                
+                setTimeout(() => {
+                    this.clearLikedMusicLoadingStatus();
+                }, 2000);
+            }
+            
+        } catch (error) {
+            console.error('加载用户"我喜欢的音乐"失败:', error);
+            this.showLikedMusicLoadingStatus('❌ 加载"我喜欢的音乐"失败', 'error');
+            
+            setTimeout(() => {
+                this.clearLikedMusicLoadingStatus();
+            }, 3000);
+        }
+    }
+
+    /**
+     * 显示喜欢音乐加载状态
+     * @param {string} message - 状态消息
+     * @param {string} type - 状态类型：loading, success, warning, error
+     */
+    showLikedMusicLoadingStatus(message, type = 'loading') {
+        const lyricsHeader = document.querySelector('.lyrics-header');
+        if (!lyricsHeader) return;
+        
+        // 移除现有的状态显示
+        this.clearLikedMusicLoadingStatus();
+        
+        // 创建状态显示元素
+        const statusElement = document.createElement('div');
+        statusElement.className = `liked-music-status ${type}`;
+        statusElement.textContent = message;
+        statusElement.id = 'likedMusicStatus';
+        
+        // 插入到歌词标题下方
+        lyricsHeader.appendChild(statusElement);
+    }
+
+    /**
+     * 清除喜欢音乐加载状态显示
+     */
+    clearLikedMusicLoadingStatus() {
+        const statusElement = document.getElementById('likedMusicStatus');
+        if (statusElement) {
+            statusElement.remove();
+        }
+    }
+
+    /**
+     * 开始二维码轮询
+     */
+    startQrPolling() {
+        if (!this.currentQrKey) return;
+        
+        this.qrTimer = neteaseApi.startQrPolling(this.currentQrKey, (code, result) => {
+            this.handleQrStatusChange(code, result);
+        });
+    }
+
+    /**
+     * 停止二维码轮询
+     */
+    stopQrPolling() {
+        if (this.qrTimer) {
+            clearInterval(this.qrTimer);
+            this.qrTimer = null;
+        }
+    }
+
+    /**
+     * 处理二维码状态变化
+     */
+    handleQrStatusChange(code, result) {
+        const statusElement = document.getElementById('qrStatusBottom');
+        if (!statusElement) return;
+        
+        switch (code) {
+            case 800: // 二维码过期
+                statusElement.textContent = '二维码已过期，请刷新';
+                statusElement.className = 'qr-status expired';
+                break;
+                
+            case 801: // 等待扫码
+                statusElement.textContent = '等待扫码...';
+                statusElement.className = 'qr-status waiting';
+                break;
+                
+            case 802: // 待确认
+                // 显示用户信息并更新本地状态
+                if (result.nickname) {
+                    statusElement.textContent = `${result.nickname} 请在手机上确认登录`;
+                    
+                    // 更新本地用户信息（但还未完全登录）
+                    this.userInfo = neteaseApi.getUserInfo();
+                    console.log('✅ 待确认状态，UI已更新用户信息:', this.userInfo);
+                } else {
+                    statusElement.textContent = '请在手机上确认登录';
+                }
+                statusElement.className = 'qr-status confirming';
+                break;
+                
+            case 803: // 登录成功
+                // 显示登录成功信息
+                if (result.nickname) {
+                    statusElement.textContent = `${result.nickname} 登录成功！`;
+                } else {
+                    statusElement.textContent = '登录成功！';
+                }
+                statusElement.className = 'qr-status success';
+                
+                // 更新登录状态为已登录
+                this.isLoggedIn = true;
+                this.userInfo = neteaseApi.getUserInfo();
+                
+                console.log('✅ 登录完成，UI状态更新 - 用户信息:', this.userInfo);
+                
+                // 延迟一秒后更新界面并开始加载喜欢音乐
+                setTimeout(() => {
+                    this.updateLyricsWithUserInfo();
+                    this.hideNeteaseLoginSection();
+                    this.loadUserLikedMusic();
+                }, 1000);
+                
+                break;
+                
+            default:
+                statusElement.textContent = '登录出现异常';
+                statusElement.className = 'qr-status error';
+        }
+    }
 }
 
 let musicPlayer = null;
@@ -1099,7 +1520,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     console.log('音乐播放器初始化完成');
-    console.log('当前歌曲库包含', musicPlayer.songDatabase.length, '首歌曲');
+    console.log('当前歌曲库包含', musicPlayer.songDatabase.length, '首本地歌曲（扫码登录后可获取更多网易云音乐）');
     
     // 每秒保存一次状态
     setInterval(() => {

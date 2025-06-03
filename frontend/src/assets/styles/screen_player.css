@@ -288,6 +288,97 @@
     background: rgba(255,255,255,0.1);
 }
 
+/* 增强的播放队列项目样式 */
+.queue-item-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.queue-item-number {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6);
+    min-width: 30px;
+    text-align: center;
+}
+
+.queue-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.queue-item-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.queue-item-title.current-playing {
+    color: #22c55e;
+    font-weight: 600;
+}
+
+.queue-item-artist {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.queue-item-source {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.queue-item-source.local {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.queue-item-source.favorite {
+    background: rgba(236, 72, 153, 0.2);
+    color: #f472b6;
+    border: 1px solid rgba(236, 72, 153, 0.3);
+}
+
+/* 保持向后兼容 */
+.queue-item-source.liked {
+    background: rgba(236, 72, 153, 0.2);
+    color: #f472b6;
+    border: 1px solid rgba(236, 72, 153, 0.3);
+}
+
+/* 当前播放歌曲的特殊样式 */
+.play-queue-item.current-playing {
+    background: rgba(34, 197, 94, 0.1);
+    border-left: 3px solid #22c55e;
+}
+
+.play-queue-item.current-playing .queue-item-number {
+    color: #22c55e;
+    font-weight: 700;
+}
+
+/* 播放队列项目悬停效果 */
+.play-queue-item:hover .queue-item-title {
+    color: #60a5fa;
+}
+
+.play-queue-item.current-playing:hover .queue-item-title {
+    color: #22c55e;
+}
+
 /* 音量控制 - 去除margin，由父元素gap控制 */
 .volume-section {
     display: flex;
@@ -354,6 +445,7 @@
     align-items: center;
     margin-bottom: 20px;
     padding-left: 15px;
+    position: relative;
 }
 
 .lyrics-header h3 {
@@ -1044,6 +1136,596 @@
 }
 
 .control-btn:disabled:hover {
+    background: rgba(255,255,255,0.1);
     transform: none;
-    background: none;
+}
+
+/* ==================== 二维码登录界面样式 ==================== */
+
+/* 二维码登录容器 */
+.qr-login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    text-align: center;
+    min-height: 400px;
+}
+
+.qr-login-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: white;
+}
+
+.qr-login-header p {
+    font-size: 14px;
+    opacity: 0.8;
+    margin: 0 0 25px 0;
+    color: white;
+}
+
+/* 二维码包装器 */
+.qr-code-wrapper {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+}
+
+.qr-image {
+    width: 180px;
+    height: 180px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    display: block;
+}
+
+/* 二维码状态文字 */
+.qr-status {
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 20px;
+    margin: 0;
+    transition: all 0.3s ease;
+}
+
+.qr-status.waiting {
+    color: #2563eb;
+    background: rgba(37, 99, 235, 0.1);
+}
+
+.qr-status.confirming {
+    color: #ea580c;
+    background: rgba(234, 88, 12, 0.1);
+}
+
+.qr-status.success {
+    color: #16a34a;
+    background: rgba(22, 163, 74, 0.1);
+}
+
+.qr-status.expired {
+    color: #dc2626;
+    background: rgba(220, 38, 38, 0.1);
+}
+
+.qr-status.error {
+    color: #dc2626;
+    background: rgba(220, 38, 38, 0.1);
+}
+
+/* 二维码操作按钮 */
+.qr-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.refresh-qr-btn, .skip-login-btn, .retry-qr-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 100px;
+}
+
+.refresh-qr-btn, .retry-qr-btn {
+    background: rgba(255, 255, 255, 0.9);
+    color: #374151;
+}
+
+.refresh-qr-btn:hover, .retry-qr-btn:hover {
+    background: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.skip-login-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.skip-login-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+/* 加载状态 */
+.qr-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    font-size: 16px;
+    color: white;
+    opacity: 0.8;
+}
+
+/* 错误界面 */
+.qr-error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    text-align: center;
+    min-height: 300px;
+}
+
+.error-message h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: #ef4444;
+}
+
+.error-message p {
+    font-size: 14px;
+    opacity: 0.8;
+    margin: 0 0 25px 0;
+    color: white;
+}
+
+.error-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+/* ==================== 用户信息显示样式 ==================== */
+
+/* 用户信息容器 */
+.user-info-container {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    margin-bottom: 15px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 15px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.username {
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    margin: 0 0 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-level {
+    font-size: 12px;
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.2);
+    padding: 2px 8px;
+    border-radius: 10px;
+    display: inline-block;
+    font-weight: 500;
+}
+
+.logout-btn {
+    padding: 8px 16px;
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.logout-btn:hover {
+    background: rgba(239, 68, 68, 0.3);
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* 歌词分隔线 */
+.lyrics-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    margin: 15px 0;
+}
+
+/* 优化歌词显示 */
+.lyrics-scroll .lyric-line {
+    padding: 8px 15px;
+    margin: 4px 0;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.lyrics-scroll .lyric-line:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.lyrics-scroll .lyric-line.active {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 无歌词提示 */
+.no-lyrics {
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 14px;
+    opacity: 0.6;
+    color: white;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .qr-login-container {
+        padding: 20px 15px;
+        min-height: 350px;
+    }
+    
+    .qr-code-wrapper {
+        padding: 15px;
+    }
+    
+    .qr-image {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .qr-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .refresh-qr-btn, .skip-login-btn, .retry-qr-btn {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .user-info-container {
+        padding: 12px 15px;
+    }
+    
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        margin-right: 12px;
+    }
+    
+    .username {
+        font-size: 14px;
+    }
+    
+    .user-level {
+        font-size: 11px;
+    }
+    
+    .logout-btn {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+}
+
+/* 加载动画 */
+@keyframes qrPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.qr-loading {
+    animation: qrPulse 2s ease-in-out infinite;
+}
+
+/* 成功状态动画 */
+@keyframes successFade {
+    0% { opacity: 0; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.qr-status.success {
+    animation: successFade 0.5s ease-out;
+}
+
+/* ==================== 喜欢音乐加载状态样式 ==================== */
+
+/* 网易云音乐二维码登录区域 - 位于播放器下方 */
+.netease-login-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    margin: 15px 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.netease-login-container {
+    padding: 20px;
+}
+
+.netease-login-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.login-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.login-text h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 5px 0;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.login-text p {
+    font-size: 13px;
+    opacity: 0.8;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.qr-code-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    min-height: 120px;
+}
+
+.qr-code-area .qr-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 8px;
+    background: white;
+    padding: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.qr-code-area .qr-loading,
+.qr-code-area .qr-error {
+    font-size: 12px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 20px;
+}
+
+.qr-status {
+    font-size: 11px;
+    text-align: center;
+    margin-top: 8px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.qr-status.waiting {
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.qr-status.confirming {
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.qr-status.success {
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.1);
+}
+
+.qr-status.expired {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.qr-status.error {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.login-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 80px;
+}
+
+.refresh-qr-btn,
+.hide-qr-btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.refresh-qr-btn {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.refresh-qr-btn:hover {
+    background: rgba(59, 130, 246, 0.3);
+    transform: translateY(-1px);
+}
+
+.hide-qr-btn {
+    background: rgba(107, 114, 128, 0.2);
+    color: #d1d5db;
+    border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+.hide-qr-btn:hover {
+    background: rgba(107, 114, 128, 0.3);
+    transform: translateY(-1px);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .netease-login-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .login-actions {
+        flex-direction: row;
+        justify-content: center;
+        min-width: auto;
+    }
+    
+    .qr-code-area .qr-image {
+        width: 80px;
+        height: 80px;
+    }
+}
+
+/* 喜欢音乐加载状态 */
+.liked-music-status {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    margin-top: 5px;
+    transition: all 0.3s ease;
+    z-index: 10;
+    backdrop-filter: blur(10px);
+}
+
+.liked-music-status.loading {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.liked-music-status.success {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.liked-music-status.warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.liked-music-status.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* 确保歌词标题区域有相对定位，以便状态提示正确定位 */
+.lyrics-header {
+    position: relative;
+}
+
+/* 加载动画效果 */
+.liked-music-status.loading::after {
+    content: '';
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    margin-left: 8px;
+    animation: statusSpin 1s linear infinite;
+}
+
+@keyframes statusSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 成功状态的动画 */
+.liked-music-status.success {
+    animation: statusSlideIn 0.5s ease-out;
+}
+
+@keyframes statusSlideIn {
+    0% { 
+        opacity: 0; 
+        transform: translateY(-10px); 
+    }
+    100% { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .liked-music-status {
+        font-size: 11px;
+        padding: 6px 12px;
+    }
 }

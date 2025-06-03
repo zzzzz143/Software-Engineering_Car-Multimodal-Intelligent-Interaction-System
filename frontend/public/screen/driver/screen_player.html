@@ -95,8 +95,9 @@
                         </div>
                         <div class="lyrics-container" id="lyricsContainer">
                             <div class="lyrics-scroll">
-                                <div class="lyric-line active" data-time="19.713">等待</div>
-                                <div class="lyric-line" data-time="22.395">我随时随地在等待</div>
+                                <!-- 歌词内容将通过JavaScript动态填充 -->
+                                <!-- 未登录时显示二维码登录界面 -->
+                                <!-- 已登录时显示用户信息和歌词 -->
                             </div>
                         </div>
                     </div>
@@ -108,6 +109,25 @@
                         </div>
                     </div>
 
+                </div>
+
+                <!-- 网易云音乐二维码登录区域 -->
+                <div class="netease-login-section" id="neteaseLoginSection" style="display: none;">
+                    <div class="netease-login-container">
+                        <div class="netease-login-content">
+                            <div class="login-text">
+                                <h4>🎵 扫码登录网易云音乐</h4>
+                                <p>获取更多个性化音乐推荐</p>
+                            </div>
+                            <div class="qr-code-area" id="qrCodeArea">
+                                <!-- 二维码内容将通过JavaScript动态填充 -->
+                            </div>
+                            <div class="login-actions">
+                                <button class="refresh-qr-btn" id="refreshQrBtn">刷新二维码</button>
+                                <button class="hide-qr-btn" id="hideQrBtn">隐藏</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 下半部分：应用程序坞 -->
