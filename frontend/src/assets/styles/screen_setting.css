@@ -1363,6 +1363,14 @@
     background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
 }
 
+.setting-icon.quick-nav {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+}
+
+.setting-icon.voice-assistant {
+    background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+}
+
 .setting-text {
     flex: 1;
     min-width: 0;

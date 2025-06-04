@@ -21,11 +21,31 @@ class NavigationDisplayManager {
         this.realTimeNavigationInterval = null; // 实时导航定时器
         this.isNavigating = false; // 导航状态
 
+        this.home_address = null;
+        this.school_address = null;
+        this.company_address = null;
+        this.initAddress();
+
         // 缓存DOM元素
         this.navigationToggleBtn = document.getElementById('navigation-toggle-btn');
         this.distanceIndicator = document.querySelector('.distance-indicator');
         
         console.log('🚗 导航显示管理器初始化完成');
+    }
+
+    async initAddress() {
+        try {
+            const response = await fetch('/api/publicUser/account', {
+                headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}
+            });
+            const data = await response.json();
+            this.home_address = data.addresses.home_address;
+            this.school_address = data.addresses.school_address;
+            this.company_address = data.addresses.company_address;
+            
+        } catch (error) {
+            console.error('获取快捷地址失败:', error);
+        }
     }
 
     // 更新距离提示信息
@@ -207,7 +227,7 @@ class NavigationDisplayManager {
     // 绑定快捷操作事件
     bindQuickActions() {
         // const navigationToggleBtn = document.getElementById('navigation-toggle-btn'); // 使用 this.navigationToggleBtn
-        document.addEventListener('click', (e) => {
+        document.addEventListener('click', async (e) => {
             const actionBtn = e.target.closest('.action-btn');
             if (actionBtn && actionBtn.closest('.quick-actions')) { // 确保是快捷操作按钮
                 const btnLabel = actionBtn.querySelector('.btn-label');
@@ -223,23 +243,38 @@ class NavigationDisplayManager {
 
                     switch (label) {
                         case '家':
+                            const homeAddress = this.home_address;
+                            if (!homeAddress) {
+                                alert('请先设置家庭地址');
+                                return;
+                            }
                             this.navigateToFixedDestination({
                                 destination: '我的家',
-                                address: '南开大学津南校区'
+                                address: homeAddress
                             });
                             if (this.navigationToggleBtn) this.navigationToggleBtn.click(); // 开始新的导航
                             break;
                         case '学校':
+                            const schoolAddress = this.school_address;
+                            if (!schoolAddress) {
+                                alert('请先设置学校地址');
+                                return;
+                            }
                             this.navigateToFixedDestination({
                                 destination: '我的学校',
-                                address: '南开大学津南校区'
+                                address: schoolAddress
                             });
                             if (this.navigationToggleBtn) this.navigationToggleBtn.click(); // 开始新的导航
                             break;
                         case '公司':
+                            const companyAddress = this.company_address;
+                            if (!companyAddress) {
+                                alert('请先设置公司地址');
+                                return;
+                            }
                             this.navigateToFixedDestination({
                                 destination: '我的公司',
-                                address: '天津大学北洋园校区'
+                                address: companyAddress
                             });
                             if (this.navigationToggleBtn) this.navigationToggleBtn.click(); // 开始新的导航
                             break;
@@ -363,7 +398,7 @@ class NavigationDisplayManager {
     }
 
     initializeMapWithCurrentLocation() {
-        return fetch('/api/amap/config')
+        return fetch('/api/driver/amapConfig')
         .then(response => response.json())
         .then(config => {
             window._AMapSecurityConfig = {
@@ -382,13 +417,14 @@ class NavigationDisplayManager {
             AMap.plugin(['AMap.Geolocation', 'AMap.Geocoder'], () => {
                 const geolocation = new AMap.Geolocation({
                     enableHighAccuracy: true,
-                    timeout: 5000,
+                    timeout: 8000,
                 });
                 geolocation.getCurrentPosition((status, result) => {
                     const mapContainer = document.getElementById('map-container');
                     if (status === 'complete') {
                         this.currentPosition = [result.position.lng, result.position.lat];
                         console.log('当前位置：', this.currentPosition);
+                        localStorage.setItem('currentPosition', JSON.stringify(this.currentPosition));
                         this.map = new AMap.Map('map-container', {
                             viewMode: '3D',
                             zoom: 13,

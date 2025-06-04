@@ -3,44 +3,62 @@
 ├── backend/                                    # Flask后端服务
 │   ├── UserConfig/                             # 用户配置
 │   ├── .env                                    # 环境变量配置
-│   ├── app.py                                  # 主入口(路由/数据库/API整合)
-│   └── config.py                               # 配置文件
+│   ├── app.py                                  # 后端启动脚本
+│   ├── routes/                                 # 路由模块
+│   │   ├── auth.py                             # 注册登录路由
+│   │   ├── account.py                          # 账户管理路由
+│   │   ├── map.py                              # 高德地图路由
+│   │   ├── admin.py                            # 管理员路由
+│   │   └── websocket.py                        # WebSocket路由
+│   ├── utils/                                  # 工具模块
+│   │   └── decorators.py                       # JWT验证装饰器
+│   ├── config.py                               # 配置文件
+│   ├── extensions.py                           # 扩展初始化
+│   └── models.py                               # 数据库模型
 ├── frontend/                                   # 前端界面
 │   ├── node_modules/                           # 依赖库
 │   ├── public/
-│   │   ├── screen/
-│   │   │   ├── screen_main.html                # 主界面
-│   │   │   ├── screen_navigation.html          # 导航界面
-│   │   │   ├── screen_setting.html             # 设置界面
-│   │   │   ├── screen_vedio.html               # 视频界面
-│   │   │   ├── screen_player.html              # 播放器界面
-│   │   │   └── screen_phone.html               # 手机界面
-│   │   ├── user/
-│   │   │   ├── user_driver                     # 司机界面
-│   │   │   ├── user_passenger                  # 乘客界面
-│   │   │   ├── user_maintenance                # 维修人员界面
-│   │   │   └── user_admin                      # 管理员界面
+│   │   ├── screen/                             # 屏幕
+│   │   │   ├── driver/                         # 驾驶员屏幕
+│   │   │   │   ├── screen_main.html            # 驾驶员主界面
+│   │   │   │   ├── screen_navigation.html      # 导航界面
+│   │   │   │   ├── screen_player.html          # 音乐界面
+│   │   │   │   ├── screen_phone.html           # 电话界面
+│   │   │   │   └── screen_setting.html         # 设置界面
+│   │   │   ├── passage/                        # 乘客屏幕
+│   │   │   │   ├── screen_vedio.html           # 视频界面
+│   │   │   │   ├── screen_player.html          # 音乐界面
+│   │   │   │   └── screen_setting.html         # 设置界面
+│   │   ├── user/                               # 用户界面
+│   │   │   ├── admin_screen.html               # 管理员界面
+│   │   │   └── maintenance_screen.html         # 维修人员界面
 │   │   ├── hud.html                            # 头部导航栏
-│   │   └── main.html                           # 主页面(不同用户登录后进一步分发，显示不同界面)
+│   │   └── main.html                           # 主页面
 │   ├── src/
 │   │   ├── assets/                             # 静态资源
 │   │   │   ├── images/                         # 图片资源
 │   │   │   ├── music/                          # 音频资源
+│   │   │   ├── vedio/                          # 音频资源
 │   │   │   └── styles/                         # CSS样式
 │   │   ├── js/                                 # 功能模块(JavaScript脚本)
 │   │   │   ├── interaction/                    # 交互逻辑
 │   │   │   │   ├── interaction.js              # 交互处理
-│   │   │   │   ├── update_user_status.js       # 用户状态更新
 │   │   │   │   ├── face_animation.js           # 面部动画逻辑
 │   │   │   │   └── multimodal_recognition.js   # 多模态识别
 │   │   │   ├── screen/                         # 屏幕相关
-│   │   │   │   ├── screen_main.js              # 主界面
-│   │   │   │   ├── screen_navigation.js        # 导航界面
-│   │   │   │   ├── screen_phone.js             # 手机界面
-│   │   │   │   ├── screen_player.js            # 播放器界面
 │   │   │   │   ├── screen.js                   # 屏幕管理
-│   │   │   │   └── setting_screen.js           # 设置界面
-│   └── index.html                              # 登录界面
+│   │   │   │   ├── screen_main.js              # 驾驶员主界面
+│   │   │   │   ├── screen_navigation.js        # 导航界面
+│   │   │   │   ├── screen_phone.js             # 电话界面
+│   │   │   │   ├── screen_player.js            # 音乐界面
+│   │   │   │   ├── screen_vedio.js             # 视频界面
+│   │   │   │   ├── screen_setting.js           # 设置界面
+│   │   │   │   ├── screen_setting_passage.js   # 乘客设置界面
+│   │   │   │   ├── screen_admin.js             # 管理员界面
+│   │   │   │   └── screen_maintenance.js       # 维修人员界面
+│   ├── conda_dev.cmd                           # 启动前端脚本
+│   ├── index.html                              # 登录界面
+│   └── server.js                               # 前端服务器
 ├── multimodal
 │   ├── audio/                                  # 语音识别
 │   │   ├── SenseVoiceSmall/
@@ -109,8 +127,7 @@ AMAP_SECURITY_CODE = your_amap_security_code # 高德地图安全密钥
 config.py 会优先使用.env文件中的配置，如果不存在则使用默认值
 7. 启动后端服务
 ```bash
-cd backend
-python app.py
+python -m backend.app
 ```
 8. 启动前端服务
 ```bash

@@ -1,4 +1,3 @@
-import { updateUserStatus } from './update_user_status.js';
 import { initFaceAnimation } from './face_animation.js'; 
 import { initMultimodalRecognition } from './multimodal_recognition.js';
 
@@ -14,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // 统一初始化所有模块
-    updateUserStatus();
     initFaceAnimation();
     initMultimodalRecognition();
 });

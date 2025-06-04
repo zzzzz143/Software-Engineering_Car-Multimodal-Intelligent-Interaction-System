@@ -1,25 +1,97 @@
 import base64
 import cv2
 import numpy as np
-from multimodal.gesture.gesture import GestureRecognition
-from multimodal.Video.Video import VisualRecognition
-from multimodal.Audio.Audio import AudioRecognition
+import io
+import wave
+from gesture.gesture import GestureRecognition
+from video.video import VisualRecognition
+from audio.audio import AudioRecognition
 
+def detect_speech(audio_array, sample_rate, threshold=0.1, min_length=0.3):
+    """
+    检测音频中是否包含有意义的语音内容
+    
+    参数:
+    audio_array: 音频数据 numpy 数组
+    sample_rate: 采样率 (Hz)
+    threshold: 语音活动阈值 (0.0-1.0)
+    min_length: 最小语音长度 (秒)
+    
+    返回:
+    (bool, float): 是否包含语音, 语音部分比例
+    """
+    # 将音频数组归一化到 [-1, 1] 范围
+    if audio_array.dtype == np.uint8:
+        audio_norm = (audio_array.astype(np.float32) - 128) / 128.0
+    elif audio_array.dtype == np.int16:
+        audio_norm = audio_array.astype(np.float32) / 32768.0
+    elif audio_array.dtype == np.int32:
+        audio_norm = audio_array.astype(np.float32) / 2147483648.0
+    else:
+        audio_norm = audio_array.astype(np.float32)
+    
+    # 计算短时能量来检测语音活动
+    frame_length = int(0.02 * sample_rate)  # 20ms 帧长
+    hop_length = int(0.01 * sample_rate)   # 10ms 帧移
+    
+    # 分帧
+    frames = []
+    for i in range(0, len(audio_norm) - frame_length, hop_length):
+        frames.append(audio_norm[i:i+frame_length])
+    
+    # 计算每帧的能量
+    energies = np.array([np.sum(frame**2) / frame_length for frame in frames])
+    
+    # 归一化能量
+    if energies.max() > 0:
+        energies = energies / energies.max()
+    
+    # 基于能量的语音活动检测
+    is_speech_frame = energies > threshold
+    
+    # 计算语音片段长度
+    speech_frames = 0
+    max_speech_length = 0
+    current_length = 0
+    
+    for frame in is_speech_frame:
+        if frame:
+            current_length += 1
+            speech_frames += 1
+        else:
+            if current_length > max_speech_length:
+                max_speech_length = current_length
+            current_length = 0
+    
+    # 检查最后一个片段
+    if current_length > max_speech_length:
+        max_speech_length = current_length
+    
+    # 转换为秒
+    max_speech_length_sec = max_speech_length * hop_length / sample_rate
+    speech_ratio = speech_frames / len(is_speech_frame) if len(is_speech_frame) > 0 else 0
+    
+    # 判断是否包含有意义的语音
+    has_speech = max_speech_length_sec >= min_length and speech_ratio > 0.1
+    
+    return has_speech, speech_ratio
 
 class MultimodalProcessor:
-    def __init__(self, user_id="default_user"):
-        self.user_id = user_id
+    def __init__(self):
+        self.user_id = None
         self.gesture = None
         self.video = None
-        # self.audio = None
+        self.audio = None
         self.initialized = False
+        self.isAwake = False
+        self.wake_word = "小艺小艺"
         
     def initialize(self):
         """初始化所有模块"""
         self.initialized = True
         self.gesture = GestureRecognition(capture=None, user_id=self.user_id)
         self.video = VisualRecognition(user_id=self.user_id)
-        # self.audio = AudioRecognition(user_id=self.user_id)
+        self.audio = AudioRecognition(user_id=self.user_id)
 
     def process_request(self, data):
         """处理多模态请求"""
@@ -28,7 +100,8 @@ class MultimodalProcessor:
         
         try:
             if not self.initialized:
-                self.user_id = data.get('user_id')
+                self.user_id = data.get('user_id', self.user_id)
+                self.wake_word = data.get('wake_word', self.wake_word)
                 self.initialize()
             
             # 处理图像数据
@@ -59,25 +132,108 @@ class MultimodalProcessor:
                 video_recognized_text = video_result.get('text')
                 # print("视觉识别结果:", video_recognized_text)
             
-            # # 处理语音识别
-            # audio_data = data.get('audio')
-            # audio_recognized_text = None
+            # 处理语音识别
+            audio_recognized_text = "音频数据为空"
+            base64_audio = data.get('audio')
+            if not base64_audio:
+                raise ValueError({'error': 'No audio data provided'})
             
-            # if audio_data:
-            #     audio_recognized_text = self.audio.process_audio(audio_data)
+            # 解码 Base64 字符串
+            try:
+                audio_data = base64.b64decode(base64_audio)
+            except Exception as e:
+                print(f"Error decoding base64 audio: {e}")
             
-            # print("多模态大模型响应请求")
+            print(f"Size of audio_data: {len(audio_data)} bytes")
+            
+            # 配置过滤参数
+            min_speech_length = 0.3  # 最小语音长度(秒)
+            speech_threshold = 0.1    # 语音活动阈值(0.0-1.0)
+            max_silence_ratio = 1   # 最大静音比例
+            
+            # 尝试使用 wave 模块解析 WAV 格式
+            try:
+                with io.BytesIO(audio_data) as f:
+                    with wave.open(f, 'rb') as wf:
+                        # 获取音频参数
+                        num_channels = wf.getnchannels()
+                        sample_width = wf.getsampwidth()
+                        frame_rate = wf.getframerate()
+                        num_frames = wf.getnframes()
+                        
+                        # print(f"Audio info: {num_channels} channels, {sample_width*8} bits, {frame_rate} Hz")
+                        
+                        # 检查是否为单声道
+                        if num_channels > 1:
+                            print("Warning: 多声道音频将被转换为单声道")
+                        
+                        # 读取音频数据
+                        raw_audio = wf.readframes(num_frames)
+                        
+                        # 根据采样宽度确定数据类型
+                        if sample_width == 1:  # 8-bit
+                            dtype = np.uint8
+                        elif sample_width == 2:  # 16-bit
+                            dtype = np.int16
+                        elif sample_width == 4:  # 32-bit
+                            dtype = np.int32
+                        else:
+                            # print(f"Unsupported sample width: {sample_width}")
+                            raise ValueError(f"Unsupported sample width: {sample_width}")
+                            
+                        
+                        # 转换为 numpy 数组
+                        audio_array = np.frombuffer(raw_audio, dtype=dtype)
+                        
+                        # 如果是多声道，转换为单声道
+                        if num_channels > 1:
+                            audio_array = audio_array.reshape((-1, num_channels)).mean(axis=1).astype(dtype)
+                        
+                        # print(f"Shape of audio_array: {audio_array.shape}")
+                        
+                        # 检查音频数据是否为空
+                        if audio_array.size == 0:
+                            # print("No audio data found")
+                            raise ValueError("No audio data found")
+                            
+                        
+                        # 计算音频总时长(秒)
+                        audio_duration = num_frames / frame_rate
+                        # print(f"Audio duration: {audio_duration:.2f} seconds")
+                        
+                        # 内容过滤：检测静音和无意义内容
+                        is_speech, speech_ratio = detect_speech(audio_array, frame_rate, 
+                                                                threshold=speech_threshold, 
+                                                                min_length=min_speech_length)
+                        
+                        # print(f"Speech ratio: {speech_ratio:.2f}, Threshold: {speech_threshold}")
+                        
+                        # 如果语音比例过低，认为是无意义内容
+                        if not is_speech or speech_ratio < (1 - max_silence_ratio):
+                            # print("No meaningful speech detected")
+                            raise ValueError("No meaningful speech detected")
+                            
+                        
+                        # 将音频数据传递给 AudioRecognition 实例进行处理
+                        audio_recognized_text = self.audio.recognize_speech(audio_array)
+                        
+            except Exception as e:
+                print(f"Error processing audio: {e}")
+            
+            # 检查文本中是否包含唤醒词
+            if self.wake_word in audio_recognized_text:
+                self.isAwake = True
+            else:
+                self.isAwake = False
+            
             return {
                 'gesture': gesture_recognized_text,
                 'video': video_recognized_text,
-                # 'audio': audio_recognized_text
+                'audio': audio_recognized_text,
+                'is_wake': self.isAwake
             }
         except Exception as e:
-            return {'error': str(e)}
-
-# 创建全局处理器实例（单例模式）
-global_processor = MultimodalProcessor()
-
-def process_multimodal_request(data):
-    """处理多模态请求"""
-    return global_processor.process_request(data)
+            return {
+                'is_wake': False,
+                'error': str(e)
+            }

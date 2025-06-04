@@ -21,21 +21,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ username, password, role})
             });
 
-            const data = await response.json();
+            
             if (response.ok) {
+                const data = await response.json();
+                console.log('登录成功:', data);
                 localStorage.setItem('token', data.token);
-                localStorage.setItem('username', username);
-                localStorage.setItem('role', role);
+                localStorage.setItem('user_id', data.user_info.user_id);
+                localStorage.setItem('username', data.user_info.username);
+                localStorage.setItem('role', data.user_info.role);
                 alert('登录成功！');
 
                 let redirectUrl;
                 switch(role) {
                     case 'admin':
-                        redirectUrl = '../../public/user/admin.html';
+                        redirectUrl = '../../public/user/admin_screen.html';
                         window.location.href = `${redirectUrl}`;
                         break;
                     case 'maintenance':
-                        redirectUrl = '../../public/user/maintenance.html';
+                        redirectUrl = '../../public/user/maintenance_screen.html';
                         window.location.href = `${redirectUrl}`;
                         break;
                     default:

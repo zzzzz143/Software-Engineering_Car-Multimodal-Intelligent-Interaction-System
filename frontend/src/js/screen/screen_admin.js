@@ -133,83 +133,193 @@ class AdminScreenController {
 
     // 用户管理初始化
     initUserManagement() {
+        this.loadUsers();
+        this.getRoleIcon = (role) => {
+            const icons = { driver: '🚗', 
+                passage: '👤', 
+                admin: '👨‍💼', 
+                maintenance: '🔧'
+            }
+            if (role in icons) {
+                return icons[role];
+            }
+        };
+        this.getRoleName = (role) => {
+            const names = { driver: '驾驶员',
+                passage: '乘客',
+                admin: '系统管理员',
+                maintenance: '维修人员'
+            }
+            if (role in names) {
+                return names[role];
+            }
+        }
+        this.getStatusName = (status) => {
+            const names = { online: '在线',
+                offline: '离线'
+            }
+            if (status in names) {
+                return names[status];
+            }
+        }
         const addUserBtn = document.querySelector('.add-user-btn');
         if (addUserBtn) {
             addUserBtn.addEventListener('click', () => this.showAddUserDialog());
         }
 
-        // 为所有编辑和删除按钮添加事件监听器
-        document.querySelectorAll('.action-btn.edit').forEach(btn => {
-            btn.addEventListener('click', (e) => this.editUser(e));
+        document.querySelector('.user-list').addEventListener('click', (e) => {
+            if (e.target.closest('.action-btn.delete')) {
+                this.deleteUser(e);
+            }
+            if (e.target.closest('.action-btn.edit')) {
+                this.showEditUserDialog(e);
+            }
         });
-
-        document.querySelectorAll('.action-btn.delete').forEach(btn => {
-            btn.addEventListener('click', (e) => this.deleteUser(e));
-        });
-
+        
         // 模拟用户状态更新
         setInterval(() => this.updateUserStatus(), 30000);
     }
 
+    async loadUsers() {
+        try {
+            const response = await fetch('/api/admin/users', {
+                headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}
+            });
+            const users = await response.json();
+            if (response.ok) {
+                this.renderUserList(users);
+                console.log('用户加载成功');
+                this.showNotification(`用户加载成功`,'success');
+            } else {
+                console.error('用户加载失败:', users.error);
+                this.showNotification(`用户加载失败: ${users.error}`, 'error');
+            }
+        } catch (error) {
+            console.error('用户加载失败:', error);
+            this.showNotification('用户加载失败', 'error');
+        }
+    }
+
+    renderUserList(users) {
+        const userList = document.querySelector('.user-list');
+        userList.innerHTML = users.map(user => `
+            <div class="user-item ${user.role}">
+                <div class="user-avatar">${this.getRoleIcon(user.role)}</div>
+                <div class="user-info">
+                    <div class="user-name">${user.username}</div>
+                    <div class="user-role">${this.getRoleName(user.role)}</div>
+                    <div class="user-last-login">最后登录: ${user.last_login}</div>
+                </div>
+                <div class="user-status ${user.status}">${this.getStatusName(user.status)}</div>
+                <div class="user-actions">
+                    <button class="action-btn edit" data-id="${user.id}">编辑</button>
+                    <button class="action-btn delete" data-id="${user.id}">删除</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
     showAddUserDialog() {
-        const userName = prompt('请输入新用户姓名:');
+        const userName = prompt('请输入新的用户名:');
         if (userName) {
-            const userRole = prompt('请选择用户角色:\n1. 系统管理员\n2. 维修技术员\n3. 驾驶员\n4. 系统操作员\n请输入数字:');
+            const userRole = prompt('请选择用户角色:\n1. 驾驶员\n2. 乘客\n3. 系统管理员\n4. 维修人员\n请输入数字:');
             if (userRole && userRole >= 1 && userRole <= 4) {
                 this.addNewUser(userName, userRole);
             }
         }
     }
 
-    addNewUser(name, roleNum) {
-        const roles = ['', '系统管理员', '维修技术员', '驾驶员', '系统操作员'];
-        const avatars = ['', '👨‍💼', '🔧', '🚗', '👩‍💻'];
-        
-        const userList = document.querySelector('.user-list');
-        if (!userList) return;
-
-        const userItem = document.createElement('div');
-        userItem.className = 'user-item';
-        userItem.innerHTML = `
-            <div class="user-avatar">${avatars[roleNum]}</div>
-            <div class="user-info">
-                <div class="user-name">${name}</div>
-                <div class="user-role">${roles[roleNum]}</div>
-                <div class="user-last-login">最后登录: 刚刚</div>
-            </div>
-            <div class="user-status online">在线</div>
-            <div class="user-actions">
-                <button class="action-btn edit">编辑</button>
-                <button class="action-btn delete">删除</button>
-            </div>
-        `;
-
-        // 添加事件监听器
-        userItem.querySelector('.action-btn.edit').addEventListener('click', (e) => this.editUser(e));
-        userItem.querySelector('.action-btn.delete').addEventListener('click', (e) => this.deleteUser(e));
-
-        userList.appendChild(userItem);
-        this.showNotification('用户添加成功', 'success');
-    }
-
-    editUser(event) {
-        const userItem = event.target.closest('.user-item');
-        const userName = userItem.querySelector('.user-name').textContent;
-        const newName = prompt(`编辑用户信息 - 当前用户: ${userName}\n请输入新的用户名:`, userName);
-        
-        if (newName && newName !== userName) {
-            userItem.querySelector('.user-name').textContent = newName;
-            this.showNotification('用户信息更新成功', 'success');
+    async addNewUser(name, roleNum) {
+        try {
+            const response = await fetch('/api/admin/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({
+                    username: name,
+                    role: ['admin', 'maintenance', 'driver', 'operator'][roleNum-1]
+                })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                this.loadUsers(); // 重新加载用户列表
+                console.log('用户添加成功');
+                this.showNotification('用户添加成功', 'success');
+            } else {
+                console.error('添加用户失败:', data.error);
+                this.showNotification(`添加用户失败: ${data.error}`, 'error');
+            }
+        } catch (error) {
+            this.showNotification('添加用户失败', 'error');
+            console.error('添加用户失败:', error);
         }
     }
 
-    deleteUser(event) {
-        const userItem = event.target.closest('.user-item');
-        const userName = userItem.querySelector('.user-name').textContent;
-        
-        if (confirm(`确定要删除用户 "${userName}" 吗？`)) {
-            userItem.remove();
-            this.showNotification('用户删除成功', 'warning');
+    showEditUserDialog(event) {
+        const userId = event.target.dataset.id;
+        const userName = prompt('请输入新的用户名:');
+        if (userName) {
+            const userType = prompt('请选择用户权限:\n1. 普通用户\n2. 特权用户\n请输入数字:');
+            if (userType && userType >= 1 && userType <= 2) {
+                this.editUser(userId, userName, userType);
+            }
+        }
+    }
+
+    async editUser(userId, userName, userType) {
+        if (userId && userName && userType) {
+            try {
+                const response = await fetch(`/api/admin/manage_user/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        username: userName,
+                        type: userType === '1' ? 'normal' : 'privileged'
+                    })
+                })
+                const data = await response.json();
+                if (response.ok) {
+                    this.loadUsers(); // 重新加载用户列表
+                    console.log('用户更新成功');
+                    this.showNotification('用户更新成功','success');
+                } else {
+                    console.error('更新用户失败:', data.error);
+                    this.showNotification(`更新用户失败: ${data.error}`, 'error');
+                }
+            }
+            catch (error) {
+                this.showNotification('更新用户失败', 'error');
+                console.error('更新用户失败:', error.message || error);
+            }
+        }
+    }
+
+    async deleteUser(event) {
+        const userId = event.target.dataset.id;
+        if (confirm('确定要删除用户吗？')) {
+            try {
+                const response = await fetch(`/api/admin/manage_user/${userId}`, {
+                    method: 'DELETE',
+                    headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    event.target.closest('.user-item').remove();
+                    console.log('用户删除成功');
+                    this.showNotification('用户删除成功', 'warning');
+                } else {
+                    console.error('删除用户失败:', data.error);
+                    this.showNotification(`删除用户失败: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                console.error('删除用户失败:', error);
+                this.showNotification('删除用户失败', 'error');
+            }
         }
     }
 

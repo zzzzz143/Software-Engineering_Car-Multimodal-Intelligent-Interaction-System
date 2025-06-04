@@ -1,0 +1,536 @@
+{
+    "history": [
+        {
+            "timestamp": "2025-06-04T23:53:13.198205",
+            "source": "system",
+            "system_info": "挂断电话视觉数据为空",
+            "command": "",
+            "response": "用户指令分析：根据系统信息“挂断电话视觉数据为空”，可以推测需要执行的操作是挂断电话。\n\n【instruction_code】: 0429  \n（操作码04表示停止，操作数29表示电话）\n\n【decision】: 车辆系统将执行挂断当前通话的操作。\n\n【feedback】: 电话已成功挂断。如有其他需求，请随时告知。"
+        },
+        {
+            "timestamp": "2025-06-04T23:57:06.881010",
+            "source": "system",
+            "system_info": "挂断电话视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】1629  \n【decision】断开当前正在进行的电话连接。  \n【feedback】电话已成功挂断。如有需要，您可以重新拨打或接听其他来电。"
+        },
+        {
+            "timestamp": "2025-06-05T00:02:34.380558",
+            "source": "system",
+            "system_info": "挂断电话视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】1629  \n【decision】挂断当前电话连接  \n【feedback】电话已成功挂断。如有其他需要，请随时告诉我！"
+        },
+        {
+            "timestamp": "2025-06-05T00:12:12.032903",
+            "source": "system",
+            "system_info": "挂断电话,视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】1629  \n【decision】挂断当前正在进行的电话连接。  \n【feedback】电话已成功挂断。如果有其他需要，请随时告诉我！"
+        },
+        {
+            "timestamp": "2025-06-05T00:40:36.776140",
+            "source": "system",
+            "system_info": "挂断电话,视觉数据为空",
+            "command": "",
+            "response": "用户指令: \"挂断电话\"  \n【instruction_code】1629  \n【decision】车辆系统将执行挂断当前通话的操作。  \n【feedback】电话已成功挂断。如有其他需要，请告诉我。"
+        },
+        {
+            "timestamp": "2025-06-05T00:40:41.701882",
+            "source": "system",
+            "system_info": "挂断电话,视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】1629  \n【decision】挂断当前正在进行的电话连接  \n【feedback】电话已成功挂断。如有其他需要，请随时告诉我。"
+        },
+        {
+            "timestamp": "2025-06-05T00:40:59.486677",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】激活紧急操作，提醒驾驶员注意专注驾驶，并在必要时启动紧急停车辅助。  \n【feedback】检测到您可能分心或疲劳，请专注驾驶以确保安全。如果需要休息，建议尽快寻找合适地点停车休息。您的安全是我们最重要的任务！"
+        },
+        {
+            "timestamp": "2025-06-05T00:41:39.402123",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】激活紧急操作，提醒驾驶员注意安全，并建议休息或停车。如果疲劳状态持续，准备启动紧急停车辅助功能。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶，建议适当休息。如果需要帮助，我可以协助寻找附近休息点或启动紧急停车辅助功能。"
+        },
+        {
+            "timestamp": "2025-06-05T00:42:02.208398",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员分心/疲劳]\n\n【decision】激活紧急操作程序，提醒驾驶员注意驾驶状态，并在必要时启动安全辅助功能。\n\n【feedback】检测到您可能处于分心或疲劳状态，请集中注意力驾驶，确保行车安全。需要我为您开启驾驶辅助功能吗？"
+        },
+        {
+            "timestamp": "2025-06-05T00:42:22.883628",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员分心/疲劳警告]  \n【decision】激活紧急操作，发出声音警报并提示驾驶员休息，同时检查是否需要启用自动驾驶辅助功能以确保安全。如果车辆支持，可建议寻找最近的安全停车点。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请立即集中注意力或考虑停车休息。如果需要，我可以帮您找到最近的休息区域。"
+        },
+        {
+            "timestamp": "2025-06-05T00:42:41.468957",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员持续分心或疲劳]  \n【decision】触发紧急操作，提醒驾驶员注意安全，并建议休息。如果车辆具备自动驾驶功能，可逐步减速并开启危险警示灯。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶或选择安全地点休息。需要进一步协助吗？"
+        },
+        {
+            "timestamp": "2025-06-05T00:42:57.076606",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】激活紧急操作程序，提醒驾驶员注意休息或停车，并在必要时触发紧急制动或靠边停车功能。  \n【feedback】检测到您可能处于分心或疲劳状态，建议您尽快休息或安全停车。您的安全是我们最关心的！如果需要，我可以帮助您找到附近的休息区。"
+        },
+        {
+            "timestamp": "2025-06-05T00:45:22.622979",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员分心/疲劳警告]  \n【decision】激活紧急警告系统，提醒驾驶员注意状态，并建议休息。如果情况持续恶化，准备启动紧急停车程序。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶或考虑适当休息。如果需要帮助，请告诉我，我可以为您找到最近的休息区。"
+        },
+        {
+            "timestamp": "2025-06-05T00:45:35.063336",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】激活紧急操作，提醒驾驶员注意行车安全，并在必要时启动紧急停车辅助。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶。如果需要帮助，请立即启用紧急停车功能。"
+        },
+        {
+            "timestamp": "2025-06-05T00:46:07.544367",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员分心或疲劳]  \n【decision】激活紧急操作，提醒驾驶员注意安全，并建议休息。如果车辆支持，可逐步减速并打开危险警示灯。  \n【feedback】检测到您可能分心或疲劳，请注意行车安全！建议适当休息，如需帮助请确认是否启用自动靠边停车功能。"
+        },
+        {
+            "timestamp": "2025-06-05T00:47:03.497800",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】激活紧急操作，提醒驾驶员注意安全，并建议休息或启用驾驶辅助功能。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶，或选择安全地点休息。需要我为您开启驾驶辅助功能吗？"
+        },
+        {
+            "timestamp": "2025-06-05T00:47:24.305427",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员持续分心或疲劳]\n\n【decision】触发紧急操作，包括但不限于发出警报声、降低媒体音量、建议休息，并在必要时准备启动自动紧急停车功能。\n\n【feedback】检测到您可能处于分心或疲劳状态，系统已发出警报提醒，请注意行车安全！建议您尽快找个安全的地方休息一下。如果需要，我可以帮您启动紧急停车模式。您的安全是我们最关心的事情！"
+        },
+        {
+            "timestamp": "2025-06-05T00:47:31.534729",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员持续分心或疲劳]\n\n【decision】触发紧急操作，提醒驾驶员注意行车安全，并建议休息。如果车辆具备相应功能，可激活自动驾驶辅助系统以确保安全。\n\n【feedback】检测到您可能处于分心或疲劳状态，为了您的行车安全，请集中注意力驾驶，建议适当休息。如果需要，我可以帮您寻找附近的休息点。您的安全是我们最关心的事情！"
+        },
+        {
+            "timestamp": "2025-06-05T00:48:49.173602",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】触发紧急操作，提醒驾驶员注意安全，并在必要时启动紧急停车程序。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶。如果需要休息，建议尽快寻找合适地点停车休息。"
+        },
+        {
+            "timestamp": "2025-06-05T00:49:09.744168",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员持续分心或疲劳]\n\n【decision】激活紧急操作，提醒驾驶员注意行车安全，并建议休息或启用自动驾驶辅助功能（如果可用）。\n\n【feedback】检测到您可能处于分心或疲劳状态，为了您的行车安全，请集中注意力驾驶，建议适当休息。需要启用自动驾驶辅助功能吗？请说“启用自动驾驶辅助”以确认。"
+        },
+        {
+            "timestamp": "2025-06-05T00:50:37.578656",
+            "source": "system",
+            "system_info": "挂断电话,视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】1629  \n【decision】断开当前正在进行的电话连接  \n【feedback】电话已成功挂断。如有其他需要，请随时告诉我！"
+        },
+        {
+            "timestamp": "2025-06-05T00:54:51.297051",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员分心/疲劳]  \n【decision】激活紧急操作，提醒驾驶员注意安全，并建议休息或启用驾驶辅助功能。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶，或选择安全地点休息。需要我帮您启用驾驶辅助功能吗？"
+        },
+        {
+            "timestamp": "2025-06-05T00:55:18.499046",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员持续分心或疲劳]  \n【decision】触发紧急操作，提醒驾驶员注意安全，并建议休息或启用驾驶辅助功能。如果疲劳状态持续，可考虑自动减速并打开警示灯。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶或选择合适地点休息。需要我为您开启驾驶辅助功能吗？"
+        },
+        {
+            "timestamp": "2025-06-05T00:55:33.027944",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】激活紧急操作，提醒驾驶员注意安全，并建议休息或停车。如果疲劳状态持续，可启动自动驾驶辅助功能将车辆停靠至安全区域。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶或选择合适地点休息。需要我协助开启自动驾驶辅助功能吗？"
+        },
+        {
+            "timestamp": "2025-06-05T00:56:07.823806",
+            "source": "system",
+            "system_info": "挂断电话,视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】1629  \n【decision】挂断当前正在进行的电话连接。  \n【feedback】电话已成功挂断。如有需要，您可以重新拨打或接听其他来电。"
+        },
+        {
+            "timestamp": "2025-06-05T00:59:44.584573",
+            "source": "system",
+            "system_info": "挂断电话,视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】1629  \n【decision】断开当前正在进行的电话连接。  \n【feedback】电话已成功挂断。如果有其他需要，请告诉我！"
+        },
+        {
+            "timestamp": "2025-06-05T00:59:52.701539",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】激活紧急操作，提醒驾驶员注意安全，并建议休息或停车。如果疲劳状态持续，准备启动紧急制动或路边停车辅助功能。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶，建议适当休息。如果需要帮助，我可以协助您找到最近的休息区或启动紧急停车辅助功能。请确认是否需要进一步帮助！"
+        },
+        {
+            "timestamp": "2025-06-05T01:00:14.404806",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员分心/疲劳]\n\n【decision】激活紧急操作程序，包括但不限于发出警报声、提示驾驶员休息、在严重情况下自动减速并靠边停车。\n\n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，建议您尽快休息。系统已启动安全警报，请集中注意力驾驶。如果状态持续，系统将采取进一步的安全措施。"
+        },
+        {
+            "timestamp": "2025-06-05T01:00:24.949287",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】触发紧急操作，提醒驾驶员注意安全，并建议休息或停车。如果疲劳状态持续，可激活自动驾驶辅助功能将车辆停靠在安全区域。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶或选择安全地点休息。需要帮助时，我可以协助联系紧急服务或启动自动停车功能。"
+        },
+        {
+            "timestamp": "2025-06-05T01:00:43.881574",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】系统将触发紧急操作，包括发出警报声提醒驾驶员，并在持续分心或疲劳的情况下准备启用自动紧急制动和车道保持辅助功能。如果情况恶化，可能会减速并靠边停车。  \n【feedback】检测到您可能处于分心或疲劳状态，建议您集中注意力驾驶或适当休息。系统已准备好协助您确保安全！"
+        },
+        {
+            "timestamp": "2025-06-05T01:01:10.848682",
+            "source": "system",
+            "system_info": "播放下一首音乐,视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】0503  \n【decision】将当前播放的音乐切换到下一首。  \n【feedback】好的，正在为您播放下一首音乐。"
+        },
+        {
+            "timestamp": "2025-06-05T01:02:06.695833",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员分心/疲劳]  \n【decision】系统应触发紧急操作，例如发出警报声、提示休息信息，或在严重情况下激活紧急制动和路边停车功能。  \n【feedback】检测到您可能处于分心或疲劳状态，建议立即休息或安全停车。已为您启用驾驶警示系统，请确保集中注意力驾驶以保障安全！"
+        },
+        {
+            "timestamp": "2025-06-05T01:03:23.565791",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员分心/疲劳]\n\n【decision】激活紧急操作程序，包括发出警报声、提醒驾驶员注意行车安全，如果情况严重则逐步减速并寻找安全地带停车。\n\n【feedback】检测到您可能处于分心或疲劳状态，系统已启动安全警报。为了您的安全，请集中注意力驾驶，如有需要请尽快休息。如果状态持续，系统将采取进一步的安全措施。"
+        },
+        {
+            "timestamp": "2025-06-05T01:09:22.070063",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】触发紧急操作，提醒驾驶员注意行车安全，并在必要时启动紧急停车程序。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶或考虑休息。如果需要，我可以帮您寻找附近的休息点。请确认是否需要进一步协助！"
+        },
+        {
+            "timestamp": "2025-06-05T01:09:24.738659",
+            "source": "system",
+            "system_info": "挂断电话,视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】1629  \n【decision】挂断当前正在进行的电话连接。  \n【feedback】电话已成功挂断。如有其他需要，请告诉我！"
+        },
+        {
+            "timestamp": "2025-06-05T01:09:50.109017",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】激活紧急操作，提醒驾驶员注意安全，并建议休息。如果疲劳状态持续，准备启动紧急停车辅助功能。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶或选择合适地点休息。需要我协助开启紧急停车模式吗？"
+        },
+        {
+            "timestamp": "2025-06-05T01:10:38.829014",
+            "source": "system",
+            "system_info": "None,None",
+            "command": "",
+            "response": "请提供具体的用户指令，以便我根据指令内容生成标准指令编码、决策和反馈。如果没有用户提供指令，我将无法生成相应的编码和决策。\n\n例如，如果用户说：“把空调温度调到22摄氏度”，我可以生成如下内容：\n\n【instruction_code】0201[22]  \n【decision】将空调目标温度设置为22摄氏度。  \n【feedback】已将空调温度调整至22摄氏度，您需要调整其他设置吗？\n\n请告诉我用户的实际需求！"
+        },
+        {
+            "timestamp": "2025-06-05T01:10:46.460413",
+            "source": "system",
+            "system_info": "挂断电话,视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】1629  \n【decision】挂断当前正在进行的电话呼叫。  \n【feedback】电话已成功挂断。如有需要，您可以重新拨打或接听其他来电。"
+        },
+        {
+            "timestamp": "2025-06-05T01:10:55.727274",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】激活紧急操作，提醒驾驶员注意行车安全，并建议休息或停车。如果疲劳状态持续，可考虑启动自动靠边停车功能。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶，建议适当休息。需要帮助时，我可以为您找到最近的休息点。"
+        },
+        {
+            "timestamp": "2025-06-05T01:11:53.483295",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员分心/疲劳]\n\n【decision】触发紧急操作，提醒驾驶员注意行车安全，必要时建议停车休息。\n\n【feedback】检测到您可能处于分心或疲劳状态，为了您的行车安全，请集中注意力驾驶。如果感到疲劳，建议尽快寻找合适地点停车休息。您的安全是我们最大的关注！"
+        },
+        {
+            "timestamp": "2025-06-05T01:12:54.138628",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】激活紧急操作，提醒驾驶员注意安全，并建议休息或停车。如果持续分心或疲劳状态未改善，可考虑自动减速并打开危险警示灯。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶或选择合适地点休息。需要进一步帮助吗？"
+        },
+        {
+            "timestamp": "2025-06-05T01:14:37.420594",
+            "source": "system",
+            "system_info": "挂断电话,视觉数据为空",
+            "command": "",
+            "response": "用户指令: \"挂断电话\"  \n【instruction_code】1629  \n【decision】系统将执行挂断当前通话的操作。  \n【feedback】电话已成功挂断。如有其他需求，请随时告诉我。"
+        },
+        {
+            "timestamp": "2025-06-05T01:14:51.853119",
+            "source": "system",
+            "system_info": "None,None",
+            "command": "",
+            "response": "请提供具体的用户指令，我将根据指令内容生成标准指令编码，并给出相应的决策和反馈。如果没有用户提供指令，我无法生成相应的指令编码和决策反馈。\n\n若需要示范，请参考以下格式提供指令：\n- 用户指令: \"把空调温度调到二十二摄氏度\"\n\n等待您的用户指令输入！"
+        },
+        {
+            "timestamp": "2025-06-05T01:14:59.803417",
+            "source": "system",
+            "system_info": "挂断电话,视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】1629  \n【decision】挂断当前正在进行的电话连接。  \n【feedback】电话已成功挂断。如有需要，您可以重新拨打电话或进行其他操作，请告诉我！"
+        },
+        {
+            "timestamp": "2025-06-05T01:15:04.561398",
+            "source": "system",
+            "system_info": "挂断电话,视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】1629  \n【decision】挂断当前正在进行的电话连接。  \n【feedback】电话已成功挂断。如有其他需要，请告诉我！"
+        },
+        {
+            "timestamp": "2025-06-05T01:15:20.293567",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】激活紧急操作，提醒驾驶员注意行车安全，并在必要时启动紧急停车辅助。  \n【feedback】检测到您可能分心或疲劳，请集中注意力驾驶，确保行车安全。如果需要休息，可以考虑就近寻找安全地点停车休息。"
+        },
+        {
+            "timestamp": "2025-06-05T01:15:32.835451",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员分心/疲劳警告]  \n【decision】激活紧急操作，提醒驾驶员注意安全，并建议休息或停车。如果情况持续恶化，准备启动紧急制动或靠边停车功能。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶或考虑适当休息。如果需要帮助，我可以协助寻找附近休息点或启动紧急辅助功能。"
+        },
+        {
+            "timestamp": "2025-06-05T01:15:52.101289",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】触发紧急操作，提醒驾驶员注意安全，并建议休息或停车。如果疲劳状态持续，可激活自动驾驶辅助系统将车辆停靠在安全区域。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶或考虑适当休息。需要帮助时，我可以协助联系紧急服务或寻找最近的休息区。"
+        },
+        {
+            "timestamp": "2025-06-05T01:16:03.603040",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员持续分心或疲劳]  \n【decision】系统将触发紧急操作，包括提醒驾驶员注意驾驶状态，并在必要时激活自动驾驶辅助功能以确保安全。  \n【feedback】检测到您可能处于分心或疲劳状态，请集中注意力驾驶，如需帮助可启用自动驾驶辅助功能。您的安全是我们最大的关注！"
+        },
+        {
+            "timestamp": "2025-06-05T01:17:16.203320",
+            "source": "system",
+            "system_info": "None,None",
+            "command": "",
+            "response": "请提供具体的用户指令，以便我根据指令内容生成标准指令编码、决策和反馈。如果没有用户提供指令，我将无法生成相应的编码和决策。\n\n例如，如果用户说：“把空调温度调到22摄氏度”，我会生成如下内容：\n\n【instruction_code】0201[22]  \n【decision】将空调目标温度设置为22摄氏度。  \n【feedback】好的，已将空调温度设置为22摄氏度。\n\n请告诉我用户的实际需求！"
+        },
+        {
+            "timestamp": "2025-06-05T01:17:18.372417",
+            "source": "system",
+            "system_info": "挂断电话,视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】1629  \n【decision】挂断当前正在进行的电话呼叫。  \n【feedback】电话已成功挂断。如有需要，您可以重新拨打电话或进行其他操作，请告诉我！"
+        },
+        {
+            "timestamp": "2025-06-05T01:17:51.515663",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】激活紧急操作，提醒驾驶员注意行车安全，并在必要时启动紧急制动或车道保持辅助。  \n【feedback】检测到您可能分心或疲劳，请集中注意力驾驶，确保行车安全！如果需要休息，建议尽快找合适地点停车休息。"
+        },
+        {
+            "timestamp": "2025-06-05T01:18:54.044296",
+            "source": "system",
+            "system_info": "None,None",
+            "command": "",
+            "response": "请提供具体的用户指令，以便我根据指令内容生成标准指令编码、决策和反馈。如果没有用户提供指令，我将无法生成相应的编码和决策。\n\n格式示例：\n用户指令: \"把空调温度调到二十二摄氏度\"  \n【instruction_code】0201[22]  \n【decision】将空调目标温度设置为22℃  \n【feedback】已将空调温度设置为22℃，请问还需要其他帮助吗？  \n\n请告诉我您的需求！"
+        },
+        {
+            "timestamp": "2025-06-05T01:19:20.735132",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】触发紧急操作，包括发出警报声、提醒驾驶员注意驾驶，并在必要时准备启动紧急制动系统。  \n【feedback】检测到您可能处于分心或疲劳状态，请集中注意力驾驶，确保行车安全！如果需要休息，建议尽快找个安全的地方停车休息。"
+        },
+        {
+            "timestamp": "2025-06-05T01:19:42.705020",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】1026  \n【decision】激活碰撞避免系统，监控前方障碍物并准备自动紧急制动。同时，通过车内音响系统发出警报声提醒驾驶员注意集中，并在仪表盘上显示警告信息。  \n【feedback】检测到您可能分心或疲劳，请保持注意力集中在驾驶上！系统已启动碰撞预警功能以确保安全。如果需要休息，建议尽快寻找合适地点停车休息。"
+        },
+        {
+            "timestamp": "2025-06-05T01:19:49.629012",
+            "source": "system",
+            "system_info": "None,None",
+            "command": "",
+            "response": "请提供具体的用户指令，我将根据指令内容生成标准指令编码，并给出相应的决策和反馈。如果没有用户指令，我无法生成具体的编码和决策。您可以告诉我任何关于车辆控制的需求或命令，例如空调、导航、车窗等操作。"
+        },
+        {
+            "timestamp": "2025-06-05T01:19:55.121585",
+            "source": "system",
+            "system_info": "挂断电话,视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】1629  \n【decision】挂断当前正在进行的电话连接  \n【feedback】电话已成功挂断。如有其他需求，请随时告诉我！"
+        },
+        {
+            "timestamp": "2025-06-05T01:20:10.156411",
+            "source": "system",
+            "system_info": "挂断电话,视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】1629  \n【decision】挂断当前正在进行的电话连接  \n【feedback】电话已成功挂断。如有其他需求，请随时告诉我。"
+        },
+        {
+            "timestamp": "2025-06-05T01:20:18.860702",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】触发紧急操作，提醒驾驶员注意安全，并在必要时启动紧急制动或靠边停车功能。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶。如果需要休息，建议尽快找合适的地方停车休息。"
+        },
+        {
+            "timestamp": "2025-06-05T01:20:50.646353",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】触发紧急操作，包括发出警报声、提示驾驶员休息，并在必要时准备自动靠边停车。  \n【feedback】检测到您可能处于分心或疲劳状态，建议立即休息！正在为您启动安全警示系统，请注意行车安全。"
+        },
+        {
+            "timestamp": "2025-06-05T01:21:04.589758",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员分心/疲劳]\n\n【decision】启动紧急操作程序，包括发出警报声提醒驾驶员，同时激活注意力辅助系统，必要时减速或停车。\n\n【feedback】检测到您可能处于分心或疲劳状态，系统已启动安全警报并激活注意力辅助功能，请集中注意力驾驶，如需要休息，请尽快找个安全的地方停车休息。"
+        },
+        {
+            "timestamp": "2025-06-05T01:21:22.175025",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员分心/疲劳]  \n【decision】触发紧急操作，提醒驾驶员注意行车安全，并建议休息或停车。如果持续分心或疲劳状态超过预设时间，激活紧急靠边停车功能。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶或选择安全地点休息。如需帮助，我可以协助您找到最近的休息区。"
+        },
+        {
+            "timestamp": "2025-06-05T01:21:49.558659",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】激活紧急操作，提醒驾驶员注意行车安全，并建议休息或停车。如果持续分心或疲劳状态未改善，准备启动紧急制动或靠边停车功能。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶，建议适当休息。如果状态没有改善，系统将采取进一步的安全措施。"
+        },
+        {
+            "timestamp": "2025-06-05T01:22:10.445230",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】触发紧急操作，提醒驾驶员注意安全，并在必要时启动紧急制动或靠边停车功能。  \n【feedback】检测到您可能分心或感到疲劳，请集中注意力驾驶，确保行车安全！如果需要休息，建议尽快找个安全的地方停车休息。"
+        },
+        {
+            "timestamp": "2025-06-05T01:22:26.282110",
+            "source": "system",
+            "system_info": "None,None",
+            "command": "",
+            "response": "请提供具体的用户指令，我将根据指令内容生成标准指令编码、决策和反馈。如果没有用户提供指令，我无法生成相应的编码和决策。  \n\n例如：  \n用户指令：“把空调温度调到22摄氏度”。  \n\n分析后输出：  \n【instruction_code】0201[22]  \n【decision】将空调目标温度设置为22摄氏度。  \n【feedback】已将空调温度调整为22摄氏度，您可享受舒适的驾乘环境。  \n\n请告诉我您的需求！"
+        },
+        {
+            "timestamp": "2025-06-05T01:22:33.792783",
+            "source": "system",
+            "system_info": "挂断电话,视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】1629  \n【decision】挂断当前正在进行的电话连接  \n【feedback】电话已成功挂断。如有其他需要，请随时告诉我！"
+        },
+        {
+            "timestamp": "2025-06-05T01:22:39.735078",
+            "source": "system",
+            "system_info": "挂断电话,视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】1629  \n【decision】断开当前正在进行的电话连接。  \n【feedback】电话已成功挂断。如果有其他需要，请随时告诉我！"
+        },
+        {
+            "timestamp": "2025-06-05T01:22:45.733688",
+            "source": "system",
+            "system_info": "挂断电话,视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】1629  \n【decision】挂断当前正在进行的电话连接  \n【feedback】电话已成功挂断。如有其他需要，请随时告诉我！"
+        },
+        {
+            "timestamp": "2025-06-05T01:23:00.344996",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】系统将触发紧急操作，包括发出警报声提醒驾驶员，并在持续分心或疲劳的情况下准备启动紧急制动。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶。如果需要休息，建议尽快找个安全的地方停车休息。"
+        },
+        {
+            "timestamp": "2025-06-05T01:23:24.328233",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】系统应触发紧急操作，例如发出警报声、提示驾驶员休息或激活自动驾驶辅助功能以确保安全。  \n【feedback】检测到您可能处于分心或疲劳状态，建议您立即休息或专注于驾驶。如果需要，我可以帮您寻找附近的休息区域。您的安全是最重要的！"
+        },
+        {
+            "timestamp": "2025-06-05T01:23:32.853542",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】触发紧急操作，提醒驾驶员注意安全，并建议休息或停车。如果疲劳状态持续，可激活自动驾驶辅助系统将车辆停靠在安全区域。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶，建议适当休息。如果需要帮助，我可以协助联系紧急服务或引导您找到最近的休息点。"
+        },
+        {
+            "timestamp": "2025-06-05T01:23:45.481009",
+            "source": "system",
+            "system_info": "挂断电话,视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】1629  \n【decision】挂断当前正在进行的电话呼叫。  \n【feedback】电话已成功挂断。如有需要，请重新拨打电话。"
+        },
+        {
+            "timestamp": "2025-06-05T01:23:49.877784",
+            "source": "system",
+            "system_info": "挂断电话,视觉数据为空",
+            "command": "",
+            "response": "【instruction_code】1629  \n【decision】挂断当前正在进行的电话连接。  \n【feedback】电话已成功挂断。如果有其他需要，请告诉我！"
+        },
+        {
+            "timestamp": "2025-06-05T01:23:58.100090",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员持续分心或疲劳]\n\n【decision】激活紧急操作，提醒驾驶员注意行车安全，并建议休息或停车。\n\n【feedback】检测到您可能处于分心或疲劳状态，为了您的行车安全，请集中注意力驾驶，必要时请就近休息。我已为您启动了紧急提醒模式，如需进一步帮助，请告诉我。"
+        },
+        {
+            "timestamp": "2025-06-05T01:25:04.088818",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300  \n【decision】触发紧急操作，提醒驾驶员注意行车安全，并在必要时启动紧急制动或靠边停车功能。  \n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请集中注意力驾驶。如果需要休息，建议尽快找个安全的地方停车休息。"
+        },
+        {
+            "timestamp": "2025-06-05T01:25:09.236015",
+            "source": "system",
+            "system_info": "无手势,驾驶员持续分心或疲劳！",
+            "command": "",
+            "response": "【instruction_code】2300[驾驶员持续分心或疲劳]\n\n【decision】激活紧急操作，提醒驾驶员注意休息，并建议开启驾驶辅助功能以提高行车安全。\n\n【feedback】检测到您可能处于分心或疲劳状态，为了您的安全，请及时休息。建议您开启驾驶辅助功能，需要我帮您设置吗？"
+        }
+    ]
+}

@@ -276,45 +276,6 @@ body {
     height: 100%;
 }
 
-.control-card {
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    padding: 30px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.control-card:hover {
-    background: rgba(255, 255, 255, 0.12);
-    transform: translateY(-5px);
-}
-
-.control-card.active {
-    background: #4a90e2;
-}
-
-.control-card .icon {
-    font-size: 36px;
-    margin-bottom: 15px;
-}
-
-.control-card .title {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-.control-card .subtitle {
-    font-size: 14px;
-    opacity: 0.7;
-}
-
 /* 能源界面样式 */
 .energy-content {
     padding: 40px;

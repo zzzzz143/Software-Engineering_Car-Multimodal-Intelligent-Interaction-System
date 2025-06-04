@@ -1,6 +1,27 @@
+let isAwake = false;
+let wakeWord = "小艺小艺"; // 默认唤醒词
+
 export function initMultimodalRecognition() {
     const video = document.getElementById('recognitionView');
     let socket = null;
+
+    // 初始化唤醒词
+    async function initializeWakeWord(){
+        try {
+            const response = await fetch('/api/publicUser/account', {
+                headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}
+            });
+            if (response.ok) {
+                const data = response.json();
+                wakeWord = data.wake_word; // 更新唤醒词
+            }
+            else {
+                console.error('获取唤醒词失败:', response.statusText);
+            }
+        } catch (error) {
+            console.error('获取唤醒词失败:', error);
+        }
+    };
 
     function connectWebSocket() {
         socket = new WebSocket(`ws://127.0.0.1:5000/ws/multimodal`);
@@ -29,17 +50,61 @@ export function initMultimodalRecognition() {
                 console.log('收到心跳响应');
                 return;
             }
-            else if (data.type === 'response') {
-                const gesture = data.result.gesture;
-                const video = data.result.video;
-                // const audio = data.result.audio;
-
-                if (gesture && video && 
-                    (gesture !== "无手势" || video !== "无视觉检测结果")) {
-                    // 打印手势识别、视觉识别
-                    console.log('响应结果:', data.result);
-                    const command = JSON.stringify(data.result);
-                    handleMultiModalResponse(command);
+            else if (data.type === 'wake_response') {
+                // data = {
+                //     type: 'wake_response',
+                //     image = {
+                //         instruction_code: xx,
+                //         decision: 文本,
+                //         feedback: 文本
+                //     },
+                //     is_wake: 布尔值
+                // }
+                const image = data.image;
+                console.log('唤醒响应:', image);
+                const imageResponseData = typeof image === 'string' ? JSON.parse(image) : image;
+                console.log('imageResponseData:', imageResponseData);
+                if(data.is_wake){
+                    displayResponse('我在');
+                    speakResponse('我在'); 
+                    isAwake = true;                  
+                }
+                if(imageResponseData){
+                    const imageResponseText = JSON.stringify(imageResponseData.feedback);
+                    displayResponse(imageResponseText);
+                    speakResponse(imageResponseText);
+                }
+            }
+            else if (data.type === 'command_response') {
+                // data = {
+                //     type: 'command_response',
+                //     command: processed_command = {
+                //         image = {
+                //             instruction_code: xx,
+                //             decision: 文本,
+                //             feedback: 文本
+                //         },
+                //         audio = {
+                //             instruction_code: xx,
+                //             decision: 文本,
+                //             feedback: 文本
+                //         }
+                //     }
+                // }
+                const command = data.command;
+                console.log('命令响应:', command);
+                const imageResponseData = typeof command.image ==='string'? JSON.parse(command.image) : command.image;
+                const audioResponseData = typeof command.audio ==='string'? JSON.parse(command.audio) : command.audio;
+                if(imageResponseData){
+                    const imageResponseText = JSON.stringify(imageResponseData.feedback);
+                    displayResponse(imageResponseText);
+                    speakResponse(imageResponseText);
+                }
+                if(audioResponseData){
+                    const audioResponseText = JSON.stringify(audioResponseData.feedback);
+                    displayResponse(audioResponseText);
+                    speakResponse(audioResponseText);
+                    isAwake = false;
                 }
             }
             else if (data.error) {
@@ -67,6 +132,7 @@ export function initMultimodalRecognition() {
         audio: true
     }).then(stream => {
         video.srcObject = stream;
+        initializeWakeWord();
         connectWebSocket();
     }).catch(err => {
         console.error('摄像头访问失败:', err);
@@ -85,16 +151,19 @@ async function startProcessVideoaAudio(video, socket) {
             const imageData = await getVideoFrame(video);
             
             // // 捕获音频
-            // const audioData = await getAudioChunk();
+            const audioData = await getAudioChunk();
             
             // 通过WebSocket发送多模态请求
-            socket.send(JSON.stringify({
-                type: 'request',
-                user_id: localStorage.getItem('username'),
+            const payload = {
+                type: isAwake ? 'command' : 'wake_check',
+                user_id: localStorage.getItem('user_id'),
                 image: imageData,
-                // audio: audioData,
+                audio: audioData,
+                wake_word: wakeWord,
                 timestamp: Date.now()
-            }));
+            };
+            
+            socket.send(JSON.stringify(payload));
             
             isProcessing = false;
         }
@@ -117,66 +186,94 @@ async function startProcessVideoaAudio(video, socket) {
     }
 
     async function getAudioChunk() {
-        return new Promise(async (resolve) => {
+        return new Promise((resolve, reject) => {
             try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)({
-                  sampleRate: 16000
-                });
-                await audioContext.resume(); // 确保上下文处于活动状态
-                
-                const mediaStream = video.srcObject;
-                const audioTrack = mediaStream.getAudioTracks()[0];
-                const mediaStreamSource = new MediaStreamAudioSourceNode(audioContext, {
-                    mediaStream: new MediaStream([audioTrack])
-                });
-                
-                const analyser = audioContext.createAnalyser();
-                analyser.fftSize = 2048;
-                mediaStreamSource.connect(analyser);
-                
-                const bufferLength = analyser.frequencyBinCount;
-                const dataArray = new Uint8Array(bufferLength);
-                
-                const checkAudio = () => {
-                    analyser.getByteTimeDomainData(dataArray);
-                    // 将Uint8Array转换为ArrayBuffer
-                    const audioBuffer = dataArray.buffer;
-                    // 转换为Base64字符串
-                    const base64String = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
-                    resolve(base64String);
-                };
-
-                setTimeout(checkAudio, 100); // 每100ms采集一次
+                const constraints = { audio: true };
+                navigator.mediaDevices.getUserMedia(constraints)
+                    .then(stream => {
+                        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        const mediaStreamSource = audioContext.createMediaStreamSource(stream);
+                        
+                        // 创建脚本处理器收集音频数据
+                        const processor = audioContext.createScriptProcessor(4096, 1, 1);
+                        let audioData = [];
+                        
+                        processor.onaudioprocess = (e) => {
+                            const channelData = e.inputBuffer.getChannelData(0);
+                            audioData.push(...channelData);
+                        };
+                        
+                        mediaStreamSource.connect(processor);
+                        processor.connect(audioContext.destination);
+                        
+                        setTimeout(() => {
+                            processor.disconnect();
+                            
+                            // 将音频数据转换为WAV格式
+                            const wavData = convertToWav(audioData, audioContext.sampleRate);
+                            const wavBlob = new Blob([wavData], { type: 'audio/wav' });
+                            
+                            // 转换为Base64
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                                const base64String = reader.result.split(',')[1];
+                                resolve(base64String);
+                            };
+                            reader.readAsDataURL(wavBlob);
+                        }, 2000); // 录制2秒
+                    })
+                    .catch(error => {
+                        console.error('获取音频流失败:', error);
+                        reject(error);
+                    });
             } catch (error) {
                 console.error('音频上下文初始化失败:', error);
-                resolve(new Int16Array());
+                reject(error);
             }
         });
     }
+    
+    // 将PCM数据转换为WAV格式
+    function convertToWav(pcmData, sampleRate) {
+        const buffer = new ArrayBuffer(44 + pcmData.length * 2);
+        const view = new DataView(buffer);
+        
+        // RIFF 头
+        writeString(view, 0, 'RIFF');
+        view.setUint32(4, 36 + pcmData.length * 2, true);
+        writeString(view, 8, 'WAVE');
+        
+        // 格式块
+        writeString(view, 12, 'fmt ');
+        view.setUint32(16, 16, true); // 格式块大小
+        view.setUint16(20, 1, true);  // 音频格式: PCM
+        view.setUint16(22, 1, true);  // 声道数
+        view.setUint32(24, sampleRate, true); // 采样率
+        view.setUint32(28, sampleRate * 2, true); // 字节率
+        view.setUint16(32, 2, true);  // 块对齐
+        view.setUint16(34, 16, true); // 位深度
+        
+        // 数据块
+        writeString(view, 36, 'data');
+        view.setUint32(40, pcmData.length * 2, true);
+        
+        // 写入PCM数据（16位有符号整数）
+        const dataView = new DataView(buffer, 44);
+        for (let i = 0; i < pcmData.length; i++) {
+            const value = Math.max(-1, Math.min(1, pcmData[i]));
+            dataView.setInt16(i * 2, value < 0 ? value * 0x8000 : value * 0x7FFF, true);
+        }
+        
+        return buffer;
+    }
+    
+    function writeString(view, offset, string) {
+        for (let i = 0; i < string.length; i++) {
+            view.setUint8(offset + i, string.charCodeAt(i));
+        }
+    }
 
     processVideoaAudio();
-}
-
-export async function handleMultiModalResponse(responseText) {
-    try {
-        const response = await fetch('/api/chat', {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify({ input: responseText })
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            console.log("阿里云大模型API响应:", data);
-            displayResponse(data.choices[0].message.content);
-            speakResponse(data.choices[0].message.content);
-        }
-    } catch (error) {
-        console.error("阿里云大模型API请求失败:", error);
-    }
 }
 
 // 响应显示模块

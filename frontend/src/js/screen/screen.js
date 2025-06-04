@@ -27,16 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // 控制卡片点击效果
-    const controlCards = document.querySelectorAll('.control-card');
-    controlCards.forEach(card => {
-        card.addEventListener('click', function() {
-            // 移除其他卡片的active状态（可选）
-            // controlCards.forEach(c => c.classList.remove('active'));
-            // 切换当前卡片的active状态
-            this.classList.toggle('active');
-        });
-    });
 
     // 控制项点击效果
     const controlItems = document.querySelectorAll('.control-item');

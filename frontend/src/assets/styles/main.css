@@ -30,13 +30,6 @@ body, html {
     padding: 16px 12px;
     overflow-y: auto;
 }
-.header {
-    margin-bottom: 8px;
-}
-#userStatus {
-    font-size: 16px;
-    color: #3a72c9;
-}
 .face-container {
     position: relative;
     transition: transform 0.1s ease;

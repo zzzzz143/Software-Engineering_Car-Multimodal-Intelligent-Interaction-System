@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>车载系统 - 设置</title>
+    <link rel="stylesheet" href="../../../src/assets/styles/screen.css">
+    <link rel="stylesheet" href="../../../src/assets/styles/screen_setting.css">
+</head>
+<body>
+    <div class="car-system">
+        <!-- 左侧导航栏 -->
+        <div class="sidebar">
+            <div class="time-display">
+                <span class="hour">09</span>
+                <span class="separator">:</span>
+                <span class="minute">35</span>
+            </div>
+            <div class="nav-buttons">
+                <a href="screen_player.html" class="nav-btn">🎵</a>
+                <a href="screen_vedio.html" class="nav-btn">🎞️</a>
+                <a href="screen_setting.html" class="nav-btn active">⚙️</a>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <!-- 账号信息板块 -->
+            <div class="swiper-slide" style="width: 100%;">
+                <div class="settings-panel account-panel">
+                    <div class="panel-header">
+                        <div class="panel-icon">
+                            <div class="icon-bg">👤</div>
+                        </div>
+                        <div class="panel-title">账号信息</div>
+                        <div class="panel-badge premium">高级会员</div>
+                    </div>
+
+                    <!-- 用户资料 -->
+                    <div class="account-section profile-section">
+                        <div class="user-profile">
+                            <div class="user-avatar">
+                                <div class="avatar-icon">👨‍💼</div>
+                                <div class="avatar-status">
+                                    <div class="status-dot online"></div>
+                                </div>
+                            </div>
+                            <div class="user-info">
+                                <div class="user-name">--</div>
+                                <div class="user-email">--</div>
+                                <div class="user-member">
+                                    <span class="member-badge">高级会员</span>
+                                    <span class="member-duration">2年</span>
+                                </div>
+                            </div>
+                            <button class="edit-profile-btn">
+                                <span>编辑</span>
+                                <div class="btn-icon">✏️</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 账号设置 -->
+                    <div class="account-section">
+                        <div class="section-title">
+                            <span>账号设置</span>
+                            <div class="title-line"></div>
+                        </div>
+                        <div class="account-settings">
+                            <div class="setting-item">
+                                <div class="setting-icon security">🔐</div>
+                                <div class="setting-text">
+                                    <div class="setting-name">修改密码</div>
+                                    <div class="setting-desc">更改登录密码</div>
+                                </div>
+                                <div class="setting-arrow">›</div>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <div class="setting-icon notification">🔔</div>
+                                <div class="setting-text">
+                                    <div class="setting-name">通知设置</div>
+                                    <div class="setting-desc">管理推送通知</div>
+                                </div>
+                                <div class="setting-arrow">›</div>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <div class="setting-icon privacy">🛡️</div>
+                                <div class="setting-text">
+                                    <div class="setting-name">隐私设置</div>
+                                    <div class="setting-desc">数据使用权限</div>
+                                </div>
+                                <div class="setting-arrow">›</div>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <div class="setting-icon payment">💳</div>
+                                <div class="setting-text">
+                                    <div class="setting-name">支付方式</div>
+                                    <div class="setting-desc">管理付款信息</div>
+                                </div>
+                                <div class="setting-arrow">›</div>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <div class="setting-icon quick-nav">⚡</div>
+                                <div class="setting-text">
+                                    <div class="setting-name">快捷导航设置</div>
+                                    <div class="setting-desc">设置常用地址</div>
+                                </div>
+                                <div class="setting-arrow">›</div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-icon voice-assistant">🎤</div>
+                                <div class="setting-text">
+                                    <div class="setting-name">语音助手设置</div>
+                                    <div class="setting-desc">设置唤醒词</div>
+                                </div>
+                                <div class="setting-arrow">›</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 服务信息 -->
+                    <div class="account-section">
+                        <div class="section-title">
+                            <span>服务信息</span>
+                            <div class="title-line"></div>
+                        </div>
+                        <div class="service-info">
+                            <div class="service-item">
+                                <div class="service-icon">👑</div>
+                                <div class="service-label">会员等级</div>
+                                <div class="service-value">高级会员</div>
+                                <div class="service-status premium">有效</div>
+                            </div>
+                            
+                            <div class="service-item">
+                                <div class="service-icon">📅</div>
+                                <div class="service-label">服务到期</div>
+                                <div class="service-value">2025-06-15</div>
+                                <div class="service-status">356天</div>
+                            </div>
+                            
+                            <div class="service-item">
+                                <div class="service-icon">📊</div>
+                                <div class="service-label">流量套餐</div>
+                                <div class="service-value">无限流量</div>
+                                <div class="service-status active">使用中</div>
+                            </div>
+                            
+                            <div class="service-item">
+                                <div class="service-icon">☁️</div>
+                                <div class="service-label">云存储</div>
+                                <div class="service-value">500GB</div>
+                                <div class="service-status">65%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 操作按钮 -->
+                    <div class="account-actions">
+                        <button class="action-btn secondary">
+                            <span class="btn-icon">🔄</span>
+                            <span>同步数据</span>
+                        </button>
+                        <button class="action-btn secondary">
+                            <span class="btn-icon">💾</span>
+                            <span>备份设置</span>
+                        </button>
+                        <button class="action-btn danger">
+                            <span class="btn-icon">🚪</span>
+                            <span>退出登录</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../../../src/js/screen/screen.js"></script>
+    <script src="../../../src/js/screen/screen_setting_passage.js"></script>
+</body>
+</html>

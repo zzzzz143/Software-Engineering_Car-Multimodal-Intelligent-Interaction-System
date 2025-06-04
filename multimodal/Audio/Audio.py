@@ -3,8 +3,7 @@ import numpy as np
 import pyaudio
 from funasr import AutoModel
 from funasr.utils.postprocess_utils import rich_transcription_postprocess
-
-from multimodal.command_process import process_command,generate_speech,extract_feedback
+# from command_process import process_command, extract_decision, extract_instruction_code, extract_feedback, generate_speech
 
 # 音频参数
 CHUNK = 8012  # 每个缓冲区的帧数
@@ -49,7 +48,7 @@ class AudioRecognition():
             return None
 
     def recognize_speech(self, audio_data):
-        if not audio_data:
+        if isinstance(audio_data, np.ndarray) and audio_data.size == 0:
             return "音频数据为空"
 
         # 使用 SenseVoice 模型进行识别
@@ -99,25 +98,25 @@ class AudioRecognition():
                     # 调用语音识别模型进行处理
                     audio_recognized_text = self.recognize_speech(audio_segment, RATE)
                     # print(f"语音识别: {audio_recognized_text}")
-                    if not audio_recognized_text=="音频数据为空":
-                        result = process_command(audio_recognized_text, self.user_id, user_history_file_path)
-                        print(result)
-                        # 提取系统决策
-                        decision = extract_decision(result)
-                        print(f"系统决策:{decision}")
-                        # 提取指令编码
-                        instruction_code = extract_instruction_code(result)
-                        print(f"指令编码: {instruction_code}")
-                        # 提取反馈
-                        feedback = extract_feedback(result)
-                        print(f"用户反馈:{feedback}")
-                        # 语音合成
-                        try:
-                            speech_data = generate_speech(feedback, voice_index=2)  # 第二个参数为音色索引
-                            with open("multimodal/TTS/test_submit.mp3", "wb") as file_to_save:
-                                file_to_save.write(speech_data)
-                        except Exception as e:
-                            print(f"Error: {e}")
+                    # if not audio_recognized_text=="音频数据为空":
+                    #     result = process_command(audio_recognized_text, self.user_id, user_history_file_path)
+                    #     print(result)
+                    #     # 提取系统决策
+                    #     decision = extract_decision(result)
+                    #     print(f"系统决策:{decision}")
+                    #     # 提取指令编码
+                    #     instruction_code = extract_instruction_code(result)
+                    #     print(f"指令编码: {instruction_code}")
+                    #     # 提取反馈
+                    #     feedback = extract_feedback(result)
+                    #     print(f"用户反馈:{feedback}")
+                    #     # 语音合成
+                    #     try:
+                    #         speech_data = generate_speech(feedback, voice_index=2)  # 第二个参数为音色索引
+                    #         with open("../TTS/test_submit.mp3", "wb") as file_to_save:
+                    #             file_to_save.write(speech_data)
+                    #     except Exception as e:
+                    #         print(f"Error: {e}")
                     # 清空缓冲区
                     self.audio_buffer = []
                     self.silence_start_time = None
