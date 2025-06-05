@@ -3,4 +3,5 @@
 backend/.env
 multimodal/gesture/model/
 multimodal/audio/SenseVoiceSmall/model.pt
+multimodal/.env
 **/node_modules/

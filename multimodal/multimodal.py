@@ -6,6 +6,7 @@ from video.video import VisualRecognition
 from audio.audio import AudioRecognition
 import pvporcupine
 import os
+import wave
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -87,7 +88,7 @@ class MultimodalProcessor:
         self.porcupine = None  # 唤醒词检测器
         self.initialized = False
         self.wake_word = "hey siri"
-        
+    
     def initialize(self):
         """初始化所有模块"""
         self.initialized = True
@@ -103,7 +104,6 @@ class MultimodalProcessor:
         except Exception as e:
             print(f"唤醒词检测器初始化失败: {e}")
     
-
     def process_request(self, data, is_wake=False):
         """处理多模态请求"""
         print("多模态大模型接收请求")
@@ -163,14 +163,15 @@ class MultimodalProcessor:
                 # 解码 Base64 字符串为字节流
                 audio_bytes = base64.b64decode(base64_audio)
                 
-                try:
-                    with open("output_audio.wav", "wb") as audio_file:
-                        audio_file.write(audio_bytes)
-                        print("Audio data saved to output_audio.wav")
-                except Exception as e:
-                    print(f"Error saving audio to file: {e}")
-                    return audio_recognized_text
-        
+                # 保存字节流为临时 WAV 文件
+                temp_wav_path = "multimodal/audio/output_audio.wav"
+                with wave.open(temp_wav_path, "wb") as wav_file:
+                    wav_file.setnchannels(1)
+                    wav_file.setsampwidth(2)
+                    wav_file.setframerate(16000)
+                    wav_file.writeframes(audio_bytes)
+                    
+
                 # 转换为NumPy数组
                 audio_np = np.frombuffer(audio_bytes, dtype=np.int16)
             except Exception as e:
@@ -217,16 +218,15 @@ class MultimodalProcessor:
             
             print("检测是否无意义")
             
-            # # 如果语音比例过低，认为是无意义内容
-            # if not is_speech or speech_ratio < (1 - max_silence_ratio):
-            #     # print("No meaningful speech detected")
-            #     raise ValueError("No meaningful speech detected")
-            
+            # 如果语音比例过低，认为是无意义内容
+            if not is_speech or speech_ratio < (1 - max_silence_ratio):
+                # print("No meaningful speech detected")
+                raise ValueError("No meaningful speech detected")
             
             print("多模态大模型处理音频识别")
             
             # 将音频数据传递给 AudioRecognition 实例进行处理
-            audio_recognized_text = self.audio.recognize_speech(audio_np)
+            audio_recognized_text = self.audio.recognize_speech(temp_wav_path)
             
             return {
                 'gesture': gesture_recognized_text,

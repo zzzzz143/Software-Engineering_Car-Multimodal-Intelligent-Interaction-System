@@ -71,14 +71,9 @@
 │   └── server.js                               # 前端服务器
 ├── multimodal
 │   ├── audio/                                  # 语音识别
-│   │   ├── SenseVoiceSmall/
-│   │   │   ├── utils
-│   │   │   ├── chn_jpn_yue_eng_ko_spectok.bpe.model
-│   │   │   ├── config.yaml
-│   │   │   ├── configuration.json
-│   │   │   ├── model.pt
-│   │   │   └── model.py
-│   │   └── audio.py                            # 语音识别
+│   │   ├── SenseVoiceSmall/                    # 模型
+│   │   ├── audio.py                            # 语音识别
+│   │   └── output_audio.wav                    # 用于识别的音频
 │   ├── gesture/                                # 手势识别
 │   │   ├── model/                              # 模型文件
 │   │   │   ├── gesture_recognizer.task
@@ -89,6 +84,7 @@
 │   ├── video/                                  # 语音识别
 │   │   └── video.py                            # 视觉识别
 │   ├── .env                                    # 环境变量配置
+│   ├── detecte_wakeword.py                     # 检测唤醒词
 │   └── multimodal.py                           # 多模态识别
 ├── conda-environment.yml                       # 环境配置文件
 └── README.md                                   # 项目文档
@@ -121,17 +117,6 @@ SECRET_KEY = your_secret_key # 安全密钥(32位随机字符串)
 PERMISSION_CODE = your_permission_code # 权限码
 AMAP_API_KEY = your_amap_web_key # 高德地图API KEY
 AMAP_SECURITY_CODE = your_amap_security_code # 高德地图安全密钥
-```
-
-
-在multimodal文件夹下创建.env文件，内容如下：
-```plaintext
-PORCUPINE_ACCESS_KEY = your_porcupine_access_key # Porcupine访问密钥
-```
-config.py 会优先使用.env文件中的配置，如果不存在则使用默认值
-在multimodal文件夹下创建.env文件，内容如下：
-```plaintext
-PORCUPINE_ACCESS_KEY = your_porcupine_access_key # Porcupine访问密钥
 ```
 
 在multimodal文件夹下创建.env文件，内容如下：

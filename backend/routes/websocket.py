@@ -80,7 +80,7 @@ def handle_command(ws, data):
             audio_info = audio or '音频数据为空'
         print("音频信息:", audio_info)
         
-        if audio_info != '音频数据为空' and audio_info!= wake_word:
+        if audio_info != '音频数据为空' and audio_info != wake_word:
             audio_info = process_user_command(audio_info, user_id)
         print("后端处理后的音频信息:", audio_info)
         

@@ -123,7 +123,7 @@ export function initMultimodalRecognition() {
                     wake_word: wakeWord,
                     timestamp: Date.now()
                 };
-                console.log('前端发送请求:', payload);
+                // console.log('前端发送请求:', payload);
                 socket.send(JSON.stringify(payload));
                 
                 isProcessing = false;
@@ -192,13 +192,16 @@ export function initMultimodalRecognition() {
                 source.connect(workletNode).connect(audioContext.destination);
             }
         
-            // 采样率16000Hz, 采样时间320ms, 一共5120个样本点
-            // 后端的Porcupine需要每次处理512个样本的帧，刚好是10倍
-            await new Promise(resolve => setTimeout(resolve, 3200));
+            // 采样率16000Hz, 采样时间4800ms, 一共76800个样本点
+            // 后端的Porcupine需要每次处理512个样本的帧，刚好是150倍
+            await new Promise(resolve => setTimeout(resolve, 4800));
         
             const float32Chunk = audioBufferQueue.splice(0, audioBufferQueue.length);
             const int16Chunk = convertFloat32ToInt16(float32Chunk);
-            const binaryString = String.fromCharCode(...new Uint8Array(int16Chunk.buffer)); 
+            const uint8Array = new Uint8Array(int16Chunk.buffer);
+            const binaryString = Array.from(uint8Array)
+                .map(byte => String.fromCharCode(byte))
+                .join('');
             return btoa(binaryString);
         }
         

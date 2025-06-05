@@ -209,7 +209,7 @@ def add_to_history(user_id, command, system_info, output, file_path, file_prefix
         "command": command,
         "response": output 
     }
-    history_data["history"].append(new_dialogue)
+    history_data.append(new_dialogue)
     # 保存更新后的历史记录
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(history_data, f, ensure_ascii=False, indent=4)
@@ -382,6 +382,8 @@ def process_user_command(command, user_id=None):
 def process_system_info(system_info, user_id=None):
     """系统信息处理入口"""
     return process_command_generic(system_info, user_id, 'system')
+
+process_user_command("打开空调。", 1)
 
 # ## 语音合成部分
 # from TTS.tts_http_demo import generate_speech

@@ -1,10 +1,6 @@
 import time
 import cv2
 import numpy as np
-# from command_process import process_system_info, extract_decision, extract_instruction_code, extract_feedback, generate_speech
-
-# user_history_file_path = "../user_history.json"
-# system_history_file_path = "../system_history.json"
 
 class VisualRecognition:
     def __init__(self,user_id=None):
@@ -56,15 +52,6 @@ class VisualRecognition:
                         # print("视觉识别：检测到驾驶员持续分心或疲劳！")
                         visual_recognized_text = "驾驶员持续分心或疲劳！"
                         # result = process_system_info("警告：检测到驾驶员持续分心或疲劳！", self.user_id, system_history_file_path)
-                        # # 提取系统决策
-                        # decision = extract_decision(result)
-                        # print(f"系统决策:{decision}")
-                        # # 提取指令编码
-                        # instruction_code = extract_instruction_code(result)
-                        # print(f"指令编码: {instruction_code}")
-                        # # 提取反馈
-                        # feedback = extract_feedback(result)
-                        # print(f"用户反馈:{feedback}")
                         # # 语音合成
                         # try:
                         #     speech_data = generate_speech(feedback, voice_index=2)  # 第二个参数为音色索引
