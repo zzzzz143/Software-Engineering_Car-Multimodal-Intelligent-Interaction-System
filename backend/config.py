@@ -1,7 +1,6 @@
 import os
 from dotenv import load_dotenv
 load_dotenv()
-basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     MODEL_API_URL = os.getenv('MODEL_API_URL', 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions')

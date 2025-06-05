@@ -287,10 +287,11 @@ def extract_feedback(response_text):
     return "无法提取feedback"
 
 def process_command_generic(input_data, user_id, process_type):
-    """命令处理"""
-    # input_data: command(语音指令)/ system_info(手势和视觉信息)
-    # process_type: user / system
+    """命令处理
     
+    input_data: command(语音指令)/ system_info(手势和视觉信息)
+    process_type: user / system
+    """
     try:
         # 创建历史文件
         history_file_path = create_history_file(user_id, process_type)
@@ -372,7 +373,7 @@ def process_command_generic(input_data, user_id, process_type):
         datetime.datetime.now()
     )
     
-    return json.dumps(structured_output, ensure_ascii=False)
+    return structured_output
 
 def process_user_command(command, user_id=None):
     """语音指令处理入口"""

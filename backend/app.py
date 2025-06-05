@@ -6,10 +6,7 @@ import signal
 from flask import Flask
 from .config import Config
 from .extensions import db, init_app
-from.routes import auth, admin, map, account, websocket
-
-
-
+from .routes import auth, admin, map, account, websocket
 import sys
 
 app = Flask(__name__)

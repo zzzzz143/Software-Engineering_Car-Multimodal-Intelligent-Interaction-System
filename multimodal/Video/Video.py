@@ -3,8 +3,8 @@ import cv2
 import numpy as np
 # from command_process import process_system_info, extract_decision, extract_instruction_code, extract_feedback, generate_speech
 
-user_history_file_path = "../user_history.json"
-system_history_file_path = "../system_history.json"
+# user_history_file_path = "../user_history.json"
+# system_history_file_path = "../system_history.json"
 
 class VisualRecognition:
     def __init__(self,user_id=None):

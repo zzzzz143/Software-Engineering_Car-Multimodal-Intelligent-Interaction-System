@@ -1,38 +1,60 @@
 //--------------------------------------音乐播放器控制类----------------------------------------------
 class MusicPlayer {
     constructor() {
-        this.isPlaying = false;
-        this.currentTime = 0;
-        this.duration = 240; 
-        this.volume = 0.7;
+        this.isPlaying = false; // 播放状态
+        this.currentSongIndex = 0; // 当前播放的歌曲索引
+        this.currentTime = 0; // 当前播放时间
+        this.duration = 0; // 歌曲时长
+        this.volume = 0.75; // 音量
         this.currentSong = {
             title: "普通朋友",
             artist: "陶喆",
         };
         this.playlist = [
-            { title: "普通朋友", artist: "陶喆", duration: 255 },
-            { title: "阴天快乐", artist: "陈奕迅", duration: 264 },
-            { title: "执迷不悟", artist: "小乐哥（王唯乐）", duration: 234 }
+            { 
+                title: "普通朋友", 
+                artist: "陶喆", 
+                duration: 255,
+                audioSrc: "../../../src/assets/music/普通朋友.mp3",
+            },
+            { 
+                title: "阴天快乐", 
+                artist: "陈奕迅", 
+                duration: 264,
+                audioSrc: "../../../src/assets/music/阴天快乐.mp3",
+            },
+            { 
+                title: "执迷不悟", 
+                artist: "小乐哥（王唯乐）", 
+                duration: 234,
+                audioSrc: "../../../src/assets/music/执迷不悟.mp3",
+            }
         ];
-        this.currentIndex = 0;
         this.progressInterval = null;
         
-        this.init();
+        this.initializeElements(); // 初始化DOM元素引用
+        this.createAudioElement(); // 创建音频元素
     }
 
     // 初始化事件监听
-    init() {
-        const playBtn = document.querySelector('.play-btn');
-        const prevBtn = document.querySelector('.music-btn:first-child');
-        const nextBtn = document.querySelector('.music-btn:last-child');
-        const progressBar = document.querySelector('.progress-bar');
+    initializeElements() {
+        const playBtn = document.getElementById('playBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressBar = document.querySelector('.progress-fill');
 
         playBtn?.addEventListener('click', () => this.togglePlay());
         prevBtn?.addEventListener('click', () => this.previousSong());
         nextBtn?.addEventListener('click', () => this.nextSong());
         progressBar?.addEventListener('click', (e) => this.seekTo(e));
 
-        this.loadSong(this.playlist[this.currentIndex]);
+        this.loadSong(this.playlist[this.currentSongIndex]);
+    }
+
+    createAudioElement() {
+        this.audio = new Audio();
+        this.audio.volume = this.volume;
+        this.audio.preload = 'metadata';
     }
 
     // 播放/暂停切换
@@ -47,6 +69,9 @@ class MusicPlayer {
     // 播放
     play() {
         this.isPlaying = true;
+        this.audio.src = this.currentSong.audioSrc;
+        this.audio.currentTime = this.currentTime;
+        this.audio.play();
         this.updatePlayButton();
         this.startProgress();
         this.showNotification(`正在播放: ${this.currentSong.title}`);
@@ -55,6 +80,7 @@ class MusicPlayer {
     // 暂停
     pause() {
         this.isPlaying = false;
+        this.audio.pause();
         this.updatePlayButton();
         this.stopProgress();
         this.showNotification('音乐已暂停');
@@ -62,14 +88,12 @@ class MusicPlayer {
 
     // 更新播放按钮状态
     updatePlayButton() {
-        const playBtn = document.querySelector('.play-btn');
+        const playBtn = document.getElementById('playBtn');
         if (playBtn) {
             if (this.isPlaying) {
                 playBtn.textContent = '⏸';
-                playBtn.classList.add('playing');
             } else {
                 playBtn.textContent = '▶';
-                playBtn.classList.remove('playing');
             }
         }
     }
@@ -86,7 +110,7 @@ class MusicPlayer {
                 return;
             }
             
-            this.currentTime += 1;
+            this.currentTime = this.audio.currentTime;
             if (this.currentTime >= this.duration) {
                 this.nextSong();
             } else {
@@ -105,8 +129,8 @@ class MusicPlayer {
 
     // 上一首
     previousSong() {
-        this.currentIndex = this.currentIndex > 0 ? this.currentIndex - 1 : this.playlist.length - 1;
-        this.loadSong(this.playlist[this.currentIndex]);
+        this.currentSongIndex = this.currentSongIndex > 0 ? this.currentSongIndex - 1 : this.playlist.length - 1;
+        this.loadSong(this.playlist[this.currentSongIndex]);
         if (this.isPlaying) {
             this.play();
         }
@@ -114,8 +138,8 @@ class MusicPlayer {
 
     // 下一首
     nextSong() {
-        this.currentIndex = (this.currentIndex + 1) % this.playlist.length;
-        this.loadSong(this.playlist[this.currentIndex]);
+        this.currentSongIndex = (this.currentSongIndex + 1) % this.playlist.length;
+        this.loadSong(this.playlist[this.currentSongIndex]);
         if (this.isPlaying) {
             this.play();
         }
@@ -150,22 +174,11 @@ class MusicPlayer {
 
     // 更新显示信息
     updateDisplay() {
-        const songTitle = document.querySelector('.song-title');
-        const artist = document.querySelector('.artist');
+        const songTitle = document.getElementById('songTitle');
+        const artist = document.getElementById('artistName');
         
         if (songTitle) songTitle.textContent = this.currentSong.title;
         if (artist) artist.textContent = this.currentSong.artist;
-    }
-
-    // 获取播放状态
-    getStatus() {
-        return {
-            isPlaying: this.isPlaying,
-            currentSong: this.currentSong,
-            currentTime: this.currentTime,
-            duration: this.duration,
-            volume: this.volume
-        };
     }
 
     // 显示通知
@@ -194,11 +207,11 @@ class WeatherWidget {
         this.forecast = [];
         this.lastUpdate = new Date();
         
-        this.init();
+        this.initializeElements();
     }
 
     // 初始化
-    init() {
+    initializeElements() {
         this.updateDisplay();
         // 每30分钟自动更新一次
         setInterval(() => this.autoUpdate(), 30 * 60 * 1000);
@@ -306,11 +319,11 @@ class VehicleStatus {
         this.battery = 85;  // 电池电量百分比
         this.speed = 420;   // 速度
         
-        this.init();
+        this.initializeElements();
     }
 
     // 初始化
-    init() {
+    initializeElements() {
         this.updateDisplay();
     }
 
@@ -340,9 +353,10 @@ class VehicleStatus {
 
     // 更新速度显示
     updateSpeedDisplay() {
-        const rangeElement = document.querySelector('.status-item:last-child span:last-child');
-        if (rangeElement) {
-            rangeElement.textContent = `${this.speed}km/h`;
+        const percent = Math.min((this.currentTime / this.duration) * 100, 100);
+        const progressElement = document.getElementById('progressFill');
+        if (progressElement) {
+            progressElement.style.width = `${percent}%`;
         }
     }
 
@@ -372,7 +386,9 @@ class VehicleStatus {
 // 初始化所有组件
 document.addEventListener('DOMContentLoaded', function() {
     // 创建全局实例
-    // window.musicPlayer = new MusicPlayer();
+    if(!window.musicPlayer) {
+        window.musicPlayer = new MusicPlayer();
+    }
     if(!window.weatherWidget) {
         window.weatherWidget = new WeatherWidget();
     }

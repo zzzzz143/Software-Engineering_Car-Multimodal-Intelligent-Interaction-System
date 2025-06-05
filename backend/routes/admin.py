@@ -58,7 +58,7 @@ def admin_users(current_user):
                 )
                 publicUser = PublicUser(
                     id=user.id, 
-                    wake_word='小艺小艺'
+                    wake_word='hey siri'
                 )
                 db.session.add_all([user, publicUser])
                 db.session.commit()

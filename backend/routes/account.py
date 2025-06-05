@@ -20,7 +20,7 @@ def account_info(current_user):
                     'school_address': publicUser.school_address if publicUser else '',
                     'company_address': publicUser.company_address if publicUser else ''
                 },
-                'wake_word': publicUser.wake_word if publicUser else '小艺小艺'
+                'wake_word': publicUser.wake_word if publicUser else 'hey siri'
             })
         except Exception as e:
             return jsonify({'error': str(e)}), 500

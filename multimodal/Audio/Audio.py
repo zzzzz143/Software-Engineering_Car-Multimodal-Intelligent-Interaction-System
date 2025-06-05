@@ -6,15 +6,15 @@ from funasr.utils.postprocess_utils import rich_transcription_postprocess
 # from command_process import process_command, extract_decision, extract_instruction_code, extract_feedback, generate_speech
 
 # 音频参数
-CHUNK = 8012  # 每个缓冲区的帧数
+CHUNK = 512  # 每个缓冲区的帧数
 FORMAT = pyaudio.paInt16  # 音频格式
 CHANNELS = 1  # 单声道
-RATE = 6500  # 采样率
+RATE = 16000  # 采样率
 THRESHOLD = 300  # 能量阈值
 SILENCE_LIMIT = 2.5  # 无声时间阈值
 
-user_history_file_path = "../user_history.json"
-system_history_file_path = "../system_history.json"
+# user_history_file_path = "../user_history.json"
+# system_history_file_path = "../system_history.json"
 
 
 class AudioRecognition():
@@ -50,23 +50,34 @@ class AudioRecognition():
     def recognize_speech(self, audio_data):
         if isinstance(audio_data, np.ndarray) and audio_data.size == 0:
             return "音频数据为空"
+        
+        print("1")
+        try:
 
-        # 使用 SenseVoice 模型进行识别
-        if self.model:
-            res = self.model.generate(
-                input=audio_data,
-                cache={},
-                language="auto",  # "zh", "en", "yue", "ja", "ko", "nospeech"
-                use_itn=True,
-                batch_size_s=60,
-                merge_vad=True,  #
-                merge_length_s=15,
-            )
+            # 使用 SenseVoice 模型进行识别
+            if self.model:
+                res = self.model.generate(
+                    input=audio_data,
+                    cache={},
+                    language="auto",  # "zh", "en", "yue", "ja", "ko", "nospeech"
+                    use_itn=True,
+                    batch_size_s=60,
+                    merge_vad=True,  #
+                    merge_length_s=15,
+                )
+                
+                print("2")
+                
 
-            # 后处理
-            text = rich_transcription_postprocess(res[0]["text"])
-            return text
-        return "模型加载失败，无法识别"
+                # 后处理
+                text = rich_transcription_postprocess(res[0]["text"])
+                
+                print("3")
+                return text
+            return "模型加载失败，无法识别"
+        except Exception as e:
+            print(f"识别失败: {str(e)}")
+            return "识别失败"
 
     def process_audio(self, data):
         # 读取音频数据

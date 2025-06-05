@@ -3,12 +3,12 @@ from pathlib import Path
 import sys
 from ..command_process import process_system_info, process_user_command
 
-# 初始化多模态处理器
 multimodal_path = Path(__file__).parent.parent.parent.absolute().joinpath('multimodal')
 sys.path.append(str(multimodal_path))
 from multimodal import MultimodalProcessor
-multimodal_processor = MultimodalProcessor()
 
+# 初始化多模态处理器
+multimodal_processor = MultimodalProcessor()
 
 def websocket_handler(environ, start_response):
     ws = environ.get('wsgi.websocket')
@@ -22,75 +22,8 @@ def websocket_handler(environ, start_response):
             if message:
                 try:
                     data = json.loads(message)
-                    if data.get('type') == 'heartbeat':
-                        # 心跳处理
-                        ws.send(json.dumps({'type':'heartbeat','status':'alive'}))
-                        continue
-                    elif data.get('type') == 'wake_check':
-                        user_id = data.get('user_id')                      
-                        # 唤醒词检测处理
-                        result = multimodal_processor.process_request(data)
-                        print("wake_check响应请求:", result)
-                        
-                        gesture = result.get('gesture') or '无手势'
-                        video = result.get('video') or '视觉数据为空'
-                        audio = result.get('audio') or '音频数据为空'
-                        is_wake = result.get('is_wake') or False
-                        # 只处理手势和视觉识别信息
-                        if gesture != '无手势' or video != '视觉数据为空' or audio!= '音频数据为空':
-                            print("wake_check响应请求:", result)
-                            # 手势和视觉识别处理
-                            image_info = f"{gesture},{video}"
-                            print("wake_check手势和视觉信息:", image_info)
-                            
-                            if image_info != '无手势,视觉数据为空':
-                                image_info = process_system_info(image_info, user_id)
-                            print("wake_check处理后的手势和视觉信息:", image_info)
-                            
-                            ws.send(json.dumps({
-                                'type': 'wake_response',
-                                'image': image_info,
-                                'is_wake': is_wake
-                            }))
-
-                    elif data.get('type') == 'command':
-                        user_id = data.get('user_id')
-                        # 正常指令处理
-                        command = multimodal_processor.process_request(data)
-                        print("command响应请求:", command)
-                        
-                        gesture = command.get('gesture') or '无手势'
-                        video = command.get('video') or '视觉数据为空'
-                        audio = command.get('audio') or '音频数据为空'
-                        # 处理手势、视觉、语音识别信息
-                        if gesture != '无手势' or video != '视觉数据为空' or audio!= '音频数据为空':
-                            print("command响应请求:", command)
-                            # 手势和视觉识别处理
-                            image_info = f"{gesture},{video}"
-                            print("command手势和视觉信息:", image_info)
-                            
-                            if image_info != '无手势,视觉数据为空':
-                                image_info = process_system_info(image_info, user_id)
-                            print("command处理后的手势和视觉信息:", image_info)
-                            
-                            # 语音识别处理
-                            audio_info = audio
-                            print("command语音信息:", audio_info)
-                            if not audio_info == '音频数据为空':
-                                audio_info = process_user_command(audio_info, user_id)
-                            print("command处理后的语音信息:", audio_info)
-                            
-                            processed_command = {
-                                'image': image_info,
-                                'audio': audio_info
-                            }
-                            print("command处理后的命令:", processed_command)
-                            ws.send(json.dumps({
-                                'type': 'command_response', 
-                                'command': processed_command
-                            }))
-                    else:
-                        ws.send(json.dumps({'error': '未知响应类型'}))
+                    # print("接收到消息:", data)
+                    handle_message(ws, data)
                 except json.JSONDecodeError:
                     ws.send(json.dumps({'error': 'JSON解析错误'}))
                 except Exception as e:
@@ -100,3 +33,59 @@ def websocket_handler(environ, start_response):
     finally:
         print("WebSocket连接断开!")
     return []
+
+def handle_message(ws, data):
+    """统一消息分发处理"""
+    msg_type = data.get('type')
+    handler = {
+        'heartbeat': handle_heartbeat,
+        'command': handle_command
+    }.get(msg_type)
+    
+    handler(ws, data)
+
+def handle_heartbeat(ws, data):
+    """心跳处理模块化"""
+    ws.send(json.dumps({'type':'heartbeat','status':'alive'}))
+
+def handle_command(ws, data):
+    """结果处理模块化"""
+    user_id = data.get('user_id')
+    is_wake = data.get('is_wake')
+    wake_word = data.get('wake_word')
+    
+    print("后端接收请求")
+    # print("后端接收请求:", data)
+    result = multimodal_processor.process_request(data, is_wake)
+    print("后端处理请求:", result)
+    
+    if result.get('error'):
+        ws.send(json.dumps({'type':'error','message':result['error']}))
+
+    gesture = result.get('gesture') or '无手势'
+    video = result.get('video') or '视觉数据为空'
+    audio = result.get('audio') or '音频数据为空'
+    
+    if any([gesture != '无手势', video != '视觉数据为空', audio != '音频数据为空']):
+        image_info = f"{gesture or '无手势'},{video or '视觉数据为空'}"
+        print("手势和视觉信息:", image_info)
+        
+        if image_info != '无手势,视觉数据为空':
+            image_info = process_system_info(image_info, user_id)
+        print("后端处理后的手势和视觉信息:", image_info)
+        
+        if audio == wake_word:
+            audio_info = wake_word
+        else:
+            audio_info = audio or '音频数据为空'
+        print("音频信息:", audio_info)
+        
+        if audio_info != '音频数据为空' and audio_info!= wake_word:
+            audio_info = process_user_command(audio_info, user_id)
+        print("后端处理后的音频信息:", audio_info)
+        
+        ws.send(json.dumps({
+            'type':'response',
+            'image_info': image_info,
+            'audio_info': audio_info
+        }))

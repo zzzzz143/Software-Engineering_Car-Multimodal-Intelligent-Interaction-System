@@ -59,7 +59,7 @@ def register():
             
             publicUser = PublicUser(
                 id=user.id,
-                wake_word='小艺小艺'
+                wake_word='hey siri'
             )
             db.session.add(publicUser)
             db.session.commit()

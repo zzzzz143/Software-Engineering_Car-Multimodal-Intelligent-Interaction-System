@@ -12,9 +12,19 @@
 │   │   └── websocket.py                        # WebSocket路由
 │   ├── utils/                                  # 工具模块
 │   │   └── decorators.py                       # JWT验证装饰器
+│   ├── userConfig/                             # 用户配置
+│   │   └── config_{user_id}.json
+│   ├── userHistory/                            # 用户历史
+│   │   ├── history_{user_id}/     
+│   │   │   ├── system_history_{user_id}.json   # 系统历史
+│   │   │   └── user_history_{user_id}.json     # 用户历史
 │   ├── config.py                               # 配置文件
 │   ├── extensions.py                           # 扩展初始化
-│   └── models.py                               # 数据库模型
+│   ├── models.py                               # 数据库模型
+│   ├── command_process.py                      # 命令处理
+│   ├── instruction_processor.py                # 指令处理
+│   ├── instrustions.json                       # 指令集
+│   └── instruction_specification.md            # 指令集规范
 ├── frontend/                                   # 前端界面
 │   ├── node_modules/                           # 依赖库
 │   ├── public/
@@ -68,33 +78,21 @@
 │   │   │   ├── configuration.json
 │   │   │   ├── model.pt
 │   │   │   └── model.py
-│   │   ├── audio_recognition.py                # 语音识别
-│   │   └── audio.py                            # 供外部调用的语音识别接口
+│   │   └── audio.py                            # 语音识别
 │   ├── gesture/                                # 手势识别
 │   │   ├── model/                              # 模型文件
 │   │   │   ├── gesture_recognizer.task
 │   │   │   └── hand_landmarker.task
 │   │   ├── requirements.txt                    # 手势识别依赖库
-│   │   ├── gesture_recognition.py              # 手势识别
-│   │   └── gesture.py                          # 供外部调用的手势识别接口
+│   │   └── gesture.py                          # 手势识别
+│   ├── TTS/                                    # 语音合成
 │   ├── video/                                  # 语音识别
-│   │   ├── test.py
-│   │   ├── video_recognition.py                # 头部姿态检测及视线预测
-│   │   └── video.py                            # 供外部调用的视觉识别接口
-│   ├── multi_recognition.py                    # 多模态识别
-│   └── multi_recognition.py                    # 供外部调用的多模态识别接口
+│   │   └── video.py                            # 视觉识别
+│   ├── .env                                    # 环境变量配置
+│   └── multimodal.py                           # 多模态识别
 ├── conda-environment.yml                       # 环境配置文件
 └── README.md                                   # 项目文档
 ```
-
-# 技术栈
-| 模块    | 技术选型                     |
-| ----- | ------------------------ |
-| 前端    | Vanilla JS + Express静态服务 |
-| 后端    | Flask + SQLAlchemy + JWT |
-| 数据库   | PostgreSQL               |
-| 部署    | Conda环境管理 + 本地双服务运行      |
-| 第三方对接 | 阿里云大模型API                |
 
 # 使用说明
 1. 克隆项目到本地
@@ -124,6 +122,23 @@ PERMISSION_CODE = your_permission_code # 权限码
 AMAP_API_KEY = your_amap_web_key # 高德地图API KEY
 AMAP_SECURITY_CODE = your_amap_security_code # 高德地图安全密钥
 ```
+
+
+在multimodal文件夹下创建.env文件，内容如下：
+```plaintext
+PORCUPINE_ACCESS_KEY = your_porcupine_access_key # Porcupine访问密钥
+```
+config.py 会优先使用.env文件中的配置，如果不存在则使用默认值
+在multimodal文件夹下创建.env文件，内容如下：
+```plaintext
+PORCUPINE_ACCESS_KEY = your_porcupine_access_key # Porcupine访问密钥
+```
+
+在multimodal文件夹下创建.env文件，内容如下：
+```plaintext
+PORCUPINE_ACCESS_KEY = your_porcupine_access_key # Porcupine访问密钥
+```
+
 config.py 会优先使用.env文件中的配置，如果不存在则使用默认值
 7. 启动后端服务
 ```bash
@@ -172,6 +187,32 @@ npm run dev
 基于阿里开源的SenseVoiceSmall模型:https://github.com/FunAudioLLM/SenseVoice
 
 模型可以被应用于中文、粤语、英语、日语、韩语音频识别，并输出带有情感和事件的富文本转写结果。
+
+## 唤醒词识别
+基于Porcupine模型:https://console.picovoice.ai/
+默认支持的关键词列表：
+   - pico clock
+   - jarvis
+   - hey siri
+   - hey google
+   - blueberry
+   - americano
+   - picovoice
+   - porcupine
+   - terminator
+   - alexa
+   - bumblebee
+   - grapefruit
+   - hey barista
+   - ok google
+   - grasshopper
+   - computer
+
+## 对话流程
+1. 用户说出唤醒词"hey siri"，触发唤醒词识别
+2. 唤醒词识别成功后，会响应"我在"，并开始语音识别
+3. 语音识别成功后，将语音转文字
+4. 语音转文字成功后，将文字和自定义指令集发送给大模型，大模型会生成回复
 
 # 注册登录
 1. 访问注册页面：http://localhost:3000

@@ -29,3 +29,4 @@ dependencies:
     - gevent
     - gevent-websocket
     - flask_sock
+    - pvporcupine

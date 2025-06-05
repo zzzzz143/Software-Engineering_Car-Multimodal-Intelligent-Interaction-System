@@ -7,8 +7,8 @@ import { neteaseApi } from '../service/netease_api.js';
 
 class MusicPlayerUI {
     constructor() {
-        this.currentSongIndex = 0; // 当前播放的歌曲索引
         this.isPlaying = false; // 播放状态
+        this.currentSongIndex = 0; // 当前播放的歌曲索引
         this.currentTime = 0; // 当前播放时间
         this.duration = 0; // 歌曲时长
         this.volume = 0.75; // 音量
@@ -556,7 +556,7 @@ class MusicPlayerUI {
         // 更新歌曲信息显示
         this.updateSongInfo(currentSong);
         
-                // 根据登录状态更新歌词显示
+        // 根据登录状态更新歌词显示
         if (this.isLoggedIn) {
             this.updateLyricsWithUserInfo();
         } else {
