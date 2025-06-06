@@ -6,7 +6,7 @@ import signal
 from flask import Flask
 from .config import Config
 from .extensions import db, init_app
-from .routes import auth, admin, map, account, websocket
+from .routes import auth, admin, map, account, websocket, generate_speech
 import sys
 
 app = Flask(__name__)
@@ -20,6 +20,7 @@ app.register_blueprint(auth.auth_bp)
 app.register_blueprint(admin.admin_bp)
 app.register_blueprint(map.map_bp)
 app.register_blueprint(account.account_bp)
+app.register_blueprint(generate_speech.generate_speech_bp)
 
 # WSGI 分发器
 def dispatcher_app(environ, start_response):

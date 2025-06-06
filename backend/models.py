@@ -9,7 +9,7 @@ class User(db.Model):
     role = db.Column(db.String(20), nullable=False, default='driver')  # 用户类型(driver/passenger/maintenance/admin)
     type = db.Column(db.String(10), default='normal')  # 用户权限(normal/privileged)
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))  # 注册时间
-    status = db.Column(db.String(20), default='online')  # 用户状态(online/offline)
+    status = db.Column(db.String(20), default='offline')  # 用户状态(online/offline)
     last_login = db.Column(db.DateTime, default=datetime.now(timezone.utc))  # 最后登录时间
     
     publicUser = db.relationship('PublicUser', backref='user', cascade='all, delete-orphan', uselist=False)

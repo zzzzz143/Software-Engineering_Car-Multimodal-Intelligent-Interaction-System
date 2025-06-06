@@ -1,7 +1,13 @@
+**/.vscode/*
 **/.idea/*
 **/__pycache__/
-backend/.env
-multimodal/gesture/model/
-multimodal/audio/SenseVoiceSmall/model.pt
-multimodal/.env
 **/node_modules/
+
+backend/.env
+backend/userConfig/*
+backend/userHistory/*
+backend/generateSpeech/*
+multimodal/.env
+multimodal/gesture/model/gesture_recognizer.task
+multimodal/audio/SenseVoiceSmall/model.pt
+multimodal/audio/tempAudio/*

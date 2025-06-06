@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>车载系统</title>
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
     <link rel="stylesheet" href="../src/assets/styles/main.css">
 </head>
 <body>
@@ -53,24 +54,6 @@
     </div>
     <script type="module" src="../src/js/hud.js"></script>
     <script type="module" src="../src/js/interaction/interaction.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const role = urlParams.get('role') || 'driver';
-            
-            const iframe = document.getElementById('rightPanelFrame');
-
-            if (role === 'driver') {
-                iframe.src = `./screen/driver/screen_main.html`;
-                // 显示左侧区域(HUD区和交互区)
-                document.querySelector('.left-panel').style.display = 'block';
-            }
-            else {
-                iframe.src = `./screen/passage/screen_player.html`;
-                // 隐藏左侧区域(HUD区和交互区)
-                document.querySelector('.left-panel').style.display = 'none';
-            }
-        });
-    </script>
+    <script type="module" src="../src/js/main.js"></script>
 </body>
 </html>

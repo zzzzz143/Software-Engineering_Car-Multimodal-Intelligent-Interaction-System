@@ -35,7 +35,8 @@ class NavigationDisplayManager {
 
     async initAddress() {
         try {
-            const response = await fetch('/api/publicUser/account', {
+            const response = await fetch('/api/account', {
+                method: 'GET',
                 headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}
             });
             const data = await response.json();
@@ -424,7 +425,11 @@ class NavigationDisplayManager {
                     if (status === 'complete') {
                         this.currentPosition = [result.position.lng, result.position.lat];
                         console.log('当前位置：', this.currentPosition);
-                        localStorage.setItem('currentPosition', JSON.stringify(this.currentPosition));
+                        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+                        if (userInfo) {
+                            userInfo.currentPosition = this.currentPosition;
+                            localStorage.setItem('userInfo', JSON.stringify(userInfo));
+                        }
                         this.map = new AMap.Map('map-container', {
                             viewMode: '3D',
                             zoom: 13,

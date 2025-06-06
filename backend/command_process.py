@@ -173,7 +173,7 @@ def create_history_file(user_id, file_prefix):
     if not user_id:
         raise ValueError("用户ID不能为空")
     
-    # 构建基础路径
+    # 构建路径
     base_dir = os.path.join(os.path.dirname(__file__), 'userHistory')
     user_history_dir = os.path.join(base_dir, f'history_{user_id}')
     
@@ -188,8 +188,7 @@ def create_history_file(user_id, file_prefix):
     # 初始化文件内容
     if not os.path.exists(file_path):
         with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump({"history": []}, f, ensure_ascii=False, indent=4)
-    
+            json.dump([], f)
     return file_path
 
 def add_to_history(user_id, command, system_info, output, file_path, file_prefix, timestamp):
@@ -229,17 +228,13 @@ def create_config_file(user_id):
     # 初始化文件内容
     if not os.path.exists(file_path):
         with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump({"user_id": user_id, "config": {}}, f, ensure_ascii=False, indent=4)
+            json.dump({"用户ID": user_id}, f, ensure_ascii=False, indent=4)
     return file_path
 
-def load_user_config(user_id):
+def load_user_config(config_file_path):
     """加载用户配置"""
-    if not user_id:
-        raise ValueError("用户ID不能为空")
-    # 构建文件路径
-    file_path = create_config_file(user_id)
     # 加载配置
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(config_file_path, 'r', encoding='utf-8') as f:
         config_data = json.load(f)
     return config_data.get("config", {})
 
@@ -296,12 +291,12 @@ def process_command_generic(input_data, user_id, process_type):
         # 创建历史文件
         history_file_path = create_history_file(user_id, process_type)
         # 创建配置文件
-        create_config_file(user_id)
+        config_file_path = create_config_file(user_id)
     except ValueError as e:
         return f"参数错误: {str(e)}"
     
     # 加载用户配置
-    user_config = load_user_config(user_id)
+    user_config = load_user_config(config_file_path)
     
     # 如果是command，检查命令是否有意义
     if process_type == "user" and not is_command_meaningful(input_data):
@@ -309,7 +304,7 @@ def process_command_generic(input_data, user_id, process_type):
     
     # 获取指令集提示
     instruction_prompt = create_instruction_prompt()
-
+    
     # 构建输入字符串
     input_str = (
         f'你是一个车载智能助手。可以参考的用户个性化配置信息如下：{json.dumps(user_config)}。\n\n'
@@ -384,9 +379,6 @@ def process_system_info(system_info, user_id=None):
     return process_command_generic(system_info, user_id, 'system')
 
 process_user_command("打开空调。", 1)
-
-# ## 语音合成部分
-# from TTS.tts_http_demo import generate_speech
 
 # def instruction_code_handler(instruction_code):
 #     """

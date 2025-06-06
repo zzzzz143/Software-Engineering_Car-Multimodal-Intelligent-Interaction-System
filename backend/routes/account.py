@@ -5,8 +5,8 @@ from ..utils.decorators import token_required
 
 account_bp = Blueprint('account', __name__)
 
-# 普通用户账号信息路由
-@account_bp.route('/api/publicUser/account', methods=['GET', 'PUT'])
+# 账号信息路由
+@account_bp.route('/api/account', methods=['GET', 'PUT'])
 @token_required
 def account_info(current_user):
     if request.method == 'GET':
@@ -44,8 +44,8 @@ def account_info(current_user):
             db.session.rollback()
             return jsonify({'error': str(e)}), 500
 
-# 普通用户密码修改路由
-@account_bp.route('/api/publicUser/account/password', methods=['PUT'])
+# 密码修改路由
+@account_bp.route('/api/account/password', methods=['PUT'])
 @token_required
 def change_password(current_user):
     try:
@@ -61,3 +61,15 @@ def change_password(current_user):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+# 登出路由
+@account_bp.route('/api/logout', methods=['POST'])
+@token_required
+def logout(current_user):
+    try:
+        current_user.status = 'offline'
+        db.session.commit()
+        return jsonify({'message': '登出成功'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'登出失败: {str(e)}'}), 500

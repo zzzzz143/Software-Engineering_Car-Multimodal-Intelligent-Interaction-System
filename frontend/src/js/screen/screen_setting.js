@@ -1605,58 +1605,81 @@ class VehicleControlManager {
 // ---------------------------------------账号信息-----------------------------------------
 class AccountManager {
     constructor() {
-        this.username = null;
-        this.email = null;
-        this.home_address = null;
-        this.school_address = null;
-        this.company_address = null;
-        this.wake_word = null;
-        this.initEventListeners();
-        this.loadAccountInfo();
+        this.accountData = this.initializeAccountData();
     }
-    async loadAccountInfo() {
+
+    // 初始化账号信息
+    async initializeAccountData() {
         try {
-            const response = await fetch('/api/publicUser/account', {
-                headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}
+            const response = await fetch('/api/account', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
+            if (!response.ok) {
+                console.error('加载账号信息失败:', response.statusText);
+                return null;
+            }
             const data = await response.json();
             console.log('加载的账号信息:', data);
             document.querySelector('.user-name').textContent = data.username || '--';
             document.querySelector('.user-email').textContent = data.email || '--';
 
-            this.username = data.username;
-            this.email = data.email;
-            this.home_address = data.addresses.home_address;
-            this.school_address = data.addresses.school_address;
-            this.company_address = data.addresses.company_address;
-            this.wake_word = data.wake_word;
+            return {
+                username: data.username || '--',
+                email: data.email || '--',
+                addresses: {
+                    home_address: data.home_address || '--',
+                    school_address: data.school_address || '--',
+                    company_address: data.company_address || '--'
+                },
+                wake_word: data.wake_word || '--'
+            };
         } catch (error) {
             console.error('加载账号信息失败:', error);
         }
     }
 
-    initEventListeners() {
-        // 基础信息编辑
-        document.querySelector('.edit-profile-btn').addEventListener('click', this.handleEditProfile);
-        
-        const settings = {
-            password: document.querySelector('.security'), // 对应🔐图标
-            quicknav: document.querySelector('.quick-nav'), // 对应⚡图标
-            voice: document.querySelector('.voice-assistant') // 对应🎤图标
-        };
-
-        if (settings.password) {
-            settings.password.closest('.setting-item').addEventListener('click', () => this.handlePasswordChange());
-        }
-        if (settings.quicknav) {
-            settings.quicknav.closest('.setting-item').addEventListener('click', () => this.handleQuickNavSettings());
-        }
-        if (settings.voice) {
-            settings.voice.closest('.setting-item').addEventListener('click', () => this.handleVoiceSettings());
-        }
+    // 初始化渲染所有内容
+    initializeAccountListening() {
+        this.setupActionButtons();
+        this.setupActionSettings();
     }
 
-    handleEditProfile = async () => {
+    // 设置操作按钮事件
+    setupActionButtons() {
+        const editBtn = document.querySelector('.edit-profile-btn');
+        const syncBtn = document.querySelectorAll('.action-btn.secondary')[2];
+        const BackupBtn = document.querySelectorAll('.action-btn.secondary')[3];
+        const dangerBtn = document.querySelector('.action-btn.danger');
+
+        if (editBtn) editBtn.addEventListener('click', this.handleEditProfile);
+        if (syncBtn) syncBtn.addEventListener('click', this.handleSyncAccount);
+        if (BackupBtn) BackupBtn.addEventListener('click', this.handleBackupAccount);
+        if (dangerBtn) dangerBtn.addEventListener('click', this.handleLogout);
+    }
+
+    // 设置操作设置项事件
+    setupActionSettings() {
+        const security = document.querySelector('.security');
+        const notification = document.querySelector('.notification');
+        const privacy = document.querySelector('.privacy');
+        const payment = document.querySelector('.payment');
+        const quicknav = document.querySelector('.quick-nav');
+        const voiceassistant = document.querySelector('.voice-assistant');
+
+        if (security) security.closest('.setting-item').addEventListener('click', this.handleSecuritySettings);
+        if (notification) notification.closest('.setting-item').addEventListener('click', this.handleNotificationSettings);
+        if (privacy) privacy.closest('.setting-item').addEventListener('click', this.handlePrivacySettings);
+        if (payment) payment.closest('.setting-item').addEventListener('click', this.handlePaymentSettings);
+        if (quicknav) quicknav.closest('.setting-item').addEventListener('click', this.handleQuickNavSettings);
+        if (voiceassistant) voiceassistant.closest('.setting-item').addEventListener('click', this.handleVoiceSettings);
+    }   
+
+    // 编辑个人信息
+    async handleEditProfile () {
         const currentUsername = this.username || '';
         const currentEmail = this.email || '';
         const newUsername = prompt('请输入新用户名', currentUsername);
@@ -1681,7 +1704,38 @@ class AccountManager {
         }
     }
 
-    handlePasswordChange = async () => {
+    // 同步账号信息
+    async handleSyncAccount () {
+        initializeAccountData();
+    }
+
+    // 备份账号信息
+    async handleBackupAccount () {
+        
+    }
+
+    // 退出登录
+    async handleLogout () {
+        try {
+            const response = await fetch('/api/logout', {
+                method: 'POST',
+                headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}
+            });
+            if (response.ok) {
+                window.parent.location.href = '/login.html'; 
+                // 清空localStorage
+                localStorage.clear();
+                alert('退出登录成功');
+            }
+        }
+        catch (error) {
+            console.error('退出登录失败:', error);
+            alert('退出登录失败');
+        }
+    }
+
+    // 修改密码
+    async handleSecuritySettings () {
         const oldPassword = prompt('请输入旧密码');
         const newPassword = prompt('请输入新密码');
         const confirmPassword = prompt('请再次输入新密码');
@@ -1694,7 +1748,7 @@ class AccountManager {
             return;
         }
         try {
-            const response = await fetch('/api/publicUser/account/password', {
+            const response = await fetch('/api/account/password', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1719,7 +1773,23 @@ class AccountManager {
         }
     }
 
-    handleQuickNavSettings = async () => {
+    // 修改通知设置
+    async handleNotificationSettings () {
+        
+    }
+
+    // 修改隐私设置
+    async handlePrivacySettings () {
+        
+    }
+
+    // 修改支付设置
+    async handlePaymentSettings () {
+        
+    }
+
+    // 修改快速导航设置
+    async handleQuickNavSettings () {
         const currentHomeAddress = this.home_address || '';
         const currentSchoolAddress = this.school_address || '';
         const currentCompanyAddress = this.company_address || '';
@@ -1750,7 +1820,8 @@ class AccountManager {
         }
     }
 
-    handleVoiceSettings = async () => {
+    // 修改语音助手设置
+    async handleVoiceSettings () {
         const currentWakeWord = this.wake_word || '';
         const newWakeWord = prompt('请输入唤醒词', currentWakeWord);
         const finalWakeWord = newWakeWord !== null ? newWakeWord : currentWakeWord;
@@ -1773,7 +1844,7 @@ class AccountManager {
 
     async updateAccountInfo(updateData) {
         try {
-            const response = await fetch('/api/publicUser/account', {
+            const response = await fetch('/api/account', {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -1830,6 +1901,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 初始化账户信息管理器
         accountManager = new AccountManager();
+        accountManager.initializeAccountListening();
         
         // 设置全局引用，便于其他模块访问
         window.vehicleInfoManager = vehicleInfoManager;
@@ -1848,8 +1920,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('初始化车辆管理系统时出错:', error);
     }
 });
-
-
 
 // 页面可见性变化监听,控制界面的操作会影响信息界面的显示，例如空调的开启和关闭
 document.addEventListener('visibilitychange', function() {

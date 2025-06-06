@@ -10,6 +10,32 @@ import wave
 from dotenv import load_dotenv
 load_dotenv()
 
+def create_temp_audio(audio_bytes, user_id):
+    """
+    将 Base64 编码的音频数据解码并保存为临时 WAV 文件
+    """
+    if not user_id:
+        raise ValueError("用户ID不能为空")
+    
+    # 构建路径
+    audio_dir = os.path.join(os.path.dirname(__file__), 'audio')
+    temp_audio_dir = os.path.join(audio_dir, 'tempAudio')
+    
+    # 创建目录结构
+    os.makedirs(temp_audio_dir, exist_ok=True)
+
+    # 构建完整文件路径
+    filename = f'temp_audio_{user_id}.wav'
+    temp_wav_path = os.path.join(temp_audio_dir, filename)
+
+    # 保存临时音频文件
+    with wave.open(temp_wav_path, 'wb') as wf:
+        wf.setnchannels(1)  # 单声道
+        wf.setsampwidth(2)  # 16 位
+        wf.setframerate(16000)  # 采样率
+        wf.writeframes(audio_bytes)
+    return temp_wav_path
+
 def detect_speech(audio_array, sample_rate=16000, threshold=0.1, min_length=0.3):
     """
     检测音频中是否包含有意义的语音内容
@@ -116,9 +142,7 @@ class MultimodalProcessor:
                 self.initialize()
             
             # 处理图像数据
-            image_data = data.get('image')
-            gesture_recognized_text = "无手势"
-            video_recognized_text = "视觉数据为空"            
+            image_data = data.get('image')           
             if not image_data:
                 raise ValueError({'error': 'Image data is missing'})
             
@@ -154,24 +178,14 @@ class MultimodalProcessor:
             # 处理语音识别
             base64_audio = data.get('audio')
 
-            audio_recognized_text = "音频数据为空"
             if not base64_audio:
                 raise ValueError({'error': 'Audio data is missing'})
 
             # 解码 Base64 字符串为 PCM(int16, 16kHz, mono)
             try:
-                # 解码 Base64 字符串为字节流
                 audio_bytes = base64.b64decode(base64_audio)
-                
-                # 保存字节流为临时 WAV 文件
-                temp_wav_path = "multimodal/audio/output_audio.wav"
-                with wave.open(temp_wav_path, "wb") as wav_file:
-                    wav_file.setnchannels(1)
-                    wav_file.setsampwidth(2)
-                    wav_file.setframerate(16000)
-                    wav_file.writeframes(audio_bytes)
-                    
-
+                # 保存为临时 WAV 文件
+                temp_wav_path = create_temp_audio(audio_bytes, self.user_id)
                 # 转换为NumPy数组
                 audio_np = np.frombuffer(audio_bytes, dtype=np.int16)
             except Exception as e:
@@ -209,14 +223,10 @@ class MultimodalProcessor:
             speech_threshold = 0.1    # 语音活动阈值(0.0-1.0)
             max_silence_ratio = 1   # 最大静音比例
             
-            print("多模态大模型过滤内容")
-
             # 内容过滤：检测静音和无意义内容
             is_speech, speech_ratio = detect_speech(audio_np, sample_rate=16000, 
                                                     threshold=speech_threshold, 
                                                     min_length=min_speech_length)
-            
-            print("检测是否无意义")
             
             # 如果语音比例过低，认为是无意义内容
             if not is_speech or speech_ratio < (1 - max_silence_ratio):

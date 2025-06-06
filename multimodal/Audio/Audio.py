@@ -44,9 +44,9 @@ class AudioRecognition():
             return None
 
     def recognize_speech(self, wav_path):
-        # if isinstance(audio_data, np.ndarray) and audio_data.size == 0:
-        #     return "音频数据为空"
-
+        """
+        识别音频中的语音内容
+        """
         # 使用 SenseVoice 模型进行识别
         if self.model:
             res = self.model.generate(
@@ -60,7 +60,7 @@ class AudioRecognition():
             )
 
             # 后处理
-            text = rich_transcription_postprocess(res[0]["text"])
+            text = rich_transcription_postprocess(res[0]["text"]) or "音频数据为空"
             return text
         return "模型加载失败，无法识别"
 

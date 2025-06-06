@@ -9,22 +9,26 @@
 │   │   ├── account.py                          # 账户管理路由
 │   │   ├── map.py                              # 高德地图路由
 │   │   ├── admin.py                            # 管理员路由
-│   │   └── websocket.py                        # WebSocket路由
+│   │   ├── websocket.py                        # WebSocket路由
+│   │   └── generate_speech.py                  # 语音合成路由      
 │   ├── utils/                                  # 工具模块
 │   │   └── decorators.py                       # JWT验证装饰器
-│   ├── userConfig/                             # 用户配置
-│   │   └── config_{user_id}.json
-│   ├── userHistory/                            # 用户历史
-│   │   ├── history_{user_id}/     
-│   │   │   ├── system_history_{user_id}.json   # 系统历史
-│   │   │   └── user_history_{user_id}.json     # 用户历史
 │   ├── config.py                               # 配置文件
 │   ├── extensions.py                           # 扩展初始化
 │   ├── models.py                               # 数据库模型
 │   ├── command_process.py                      # 命令处理
 │   ├── instruction_processor.py                # 指令处理
 │   ├── instrustions.json                       # 指令集
-│   └── instruction_specification.md            # 指令集规范
+│   ├── instruction_specification.md            # 指令集规范
+│   ├── text_to_speech.py                       # TTS 语音合成
+│   ├── userConfig/
+│   │   └── config_{user_id}.json               # 用户配置文件
+│   ├── userHistory/
+│   │   ├── history_{user_id}/     
+│   │   │   ├── system_history_{user_id}.json   # 系统历史
+│   │   │   └── user_history_{user_id}.json     # 用户历史
+│   ├── generateSpeech/
+│   │   │   └── generate_speech_{user_id}.mp3   # TTS 文本转语音
 ├── frontend/                                   # 前端界面
 │   ├── node_modules/                           # 依赖库
 │   ├── public/
@@ -35,13 +39,12 @@
 │   │   │   │   ├── screen_player.html          # 音乐界面
 │   │   │   │   ├── screen_phone.html           # 电话界面
 │   │   │   │   └── screen_setting.html         # 设置界面
-│   │   │   ├── passage/                        # 乘客屏幕
+│   │   │   ├── passenger/                        # 乘客屏幕
 │   │   │   │   ├── screen_vedio.html           # 视频界面
 │   │   │   │   ├── screen_player.html          # 音乐界面
 │   │   │   │   └── screen_setting.html         # 设置界面
-│   │   ├── user/                               # 用户界面
-│   │   │   ├── admin_screen.html               # 管理员界面
-│   │   │   └── maintenance_screen.html         # 维修人员界面
+│   │   │   ├── admin.html               # 管理员界面
+│   │   │   └── maintenance.html         # 维修人员界面
 │   │   ├── hud.html                            # 头部导航栏
 │   │   └── main.html                           # 主页面
 │   ├── src/
@@ -63,24 +66,28 @@
 │   │   │   │   ├── screen_player.js            # 音乐界面
 │   │   │   │   ├── screen_vedio.js             # 视频界面
 │   │   │   │   ├── screen_setting.js           # 设置界面
-│   │   │   │   ├── screen_setting_passage.js   # 乘客设置界面
-│   │   │   │   ├── screen_admin.js             # 管理员界面
-│   │   │   │   └── screen_maintenance.js       # 维修人员界面
+│   │   │   │   ├── screen_setting_passenger.js # 乘客设置界面
+│   │   │   │   ├── admin.js                    # 管理员界面
+│   │   │   │   └── maintenance.js              # 维修人员界面
+│   │   │   ├── service/                        # 服务模块
+│   │   │   │   └── netease_api.js              # 网易云音乐API
+│   │   │   │   ├── hud.js                      # 头部导航栏
+│   │   │   │   └── login.js                    # 登录界面
 │   ├── conda_dev.cmd                           # 启动前端脚本
-│   ├── index.html                              # 登录界面
+│   ├── login.html                              # 登录界面
 │   └── server.js                               # 前端服务器
 ├── multimodal
 │   ├── audio/                                  # 语音识别
-│   │   ├── SenseVoiceSmall/                    # 模型
+│   │   ├── SenseVoiceSmall/
+│   │   │   └── model.pt                        # 语音识别模型
 │   │   ├── audio.py                            # 语音识别
-│   │   └── output_audio.wav                    # 用于识别的音频
+│   │   └── tempAudio
+│   │   │   └── temp_audio_{user_id}.wav        # 临时音频文件
 │   ├── gesture/                                # 手势识别
 │   │   ├── model/                              # 模型文件
-│   │   │   ├── gesture_recognizer.task
-│   │   │   └── hand_landmarker.task
+│   │   │   └── gesture_recognizer.task         # 手势识别模型
 │   │   ├── requirements.txt                    # 手势识别依赖库
 │   │   └── gesture.py                          # 手势识别
-│   ├── TTS/                                    # 语音合成
 │   ├── video/                                  # 语音识别
 │   │   └── video.py                            # 视觉识别
 │   ├── .env                                    # 环境变量配置
@@ -133,6 +140,7 @@ python -m backend.app
 ```bash
 cd frontend
 npm install express # 安装Express框架（只需要运行一次）
+npm install NeteaseCloudMusicApi # 安装网易云音乐API（只需要运行一次）
 npm run dev
 ```
 9. 访问前端界面http://localhost:3000
@@ -194,10 +202,15 @@ npm run dev
    - computer
 
 ## 对话流程
-1. 用户说出唤醒词"hey siri"，触发唤醒词识别
-2. 唤醒词识别成功后，会响应"我在"，并开始语音识别
-3. 语音识别成功后，将语音转文字
-4. 语音转文字成功后，将文字和自定义指令集发送给大模型，大模型会生成回复
+1. 前端每次收集4.8s的音频数据，就通过WebSocket发送到后端，后端会将音频数据保存到multi_modal/multimodal/audio/tempAudio/temp_audio_{user_id}.wav文件中
+2. 用户说出默认唤醒词"hey siri"，后端进行Porcupine唤醒词识别
+3. 后端识别到唤醒词后，会响应"我在"，并在前端设置15秒的超时时间(减去Porcupine唤醒词识别时间4.8s，实际超时时间为10.2s)
+4. 用户继续说出指令，后端进行SenseVoiceSmall语音识别
+5. 后端将识别到的文字和自定义指令集发送给阿里云大模型，生成固定格式的回复
+   - 【instruction_code】：包含符合规范的指令编码
+   - 【decision】：车辆系统应执行的具体决策
+   - 【feedback】：给用户的友好反馈
+6. 后端将生成的回复发送给前端，前端会根据回复中的指令编码，执行对应的操作
 
 # 注册登录
 1. 访问注册页面：http://localhost:3000

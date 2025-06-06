@@ -3,6 +3,7 @@ export function initMultimodalRecognition() {
     let socket = null;
     let isAwake = false;
     let wakeWord = "hey siri"; // 默认唤醒词
+    let wakeTimeout = null; // 唤醒超时定时器
 
     // 初始化摄像头
     navigator.mediaDevices.getUserMedia({ 
@@ -69,28 +70,49 @@ export function initMultimodalRecognition() {
                 // }
                 console.log('多模态响应:', data);
                 console.log('isAwake:', isAwake);
-                let imageData = data.image_info;
-                let audioData = data.audio_info;
-                if (imageData != '无手势,视觉数据为空'){
-                    displayResponse(imageData.feedback);
-                    speakResponse(imageData.feedback);
-                }
-                if (audioData === wakeWord){
-                    isAwake = true;
-                    displayResponse('我在');
-                    speakResponse('我在');
-                }
-                else if (audioData != '音频数据为空'){
-                    isAwake = false;
-                    displayResponse(audioData.feedback);
-                    speakResponse(audioData.feedback);
+                let priority = data.priority;                
+                let image_info = data.image_info;
+                let audio_info = data.audio_info;
+
+                switch (priority) {
+                    case 1: // FATIGUE_DETECTION
+                        console.log('处理疲劳驾驶检测结果');
+                        displayResponse(image_info.feedback);
+                        speakResponse(image_info.feedback);
+                        break;
+                    case 2: // EMERGENCY
+                        console.log('处理紧急命令');
+                        displayResponse(audio_info.feedback);
+                        speakResponse(audio_info.feedback);
+                        break;
+                    case 3: // WAKE_WORD
+                        console.log('处理唤醒词');
+                        isAwake = true;
+                        resetWakeTimeout(); // 重置唤醒超时定时器
+                        displayResponse('我在');
+                        speakResponse('我在');
+                        break;
+                    case 4: // NORMAL_COMMAND
+                    default:
+                        console.log('处理正常命令');
+                        // 优先处理音频，如果音频为空则处理手势和视觉
+                        if (audio_info != '音频数据为空'){
+                            isAwake = true;
+                            resetWakeTimeout(); // 重置唤醒超时定时器
+                            displayResponse(audio_info.feedback);
+                            speakResponse(audio_info.feedback);
+                        } else {
+                            displayResponse(image_info.feedback);
+                            speakResponse(image_info.feedback);
+                        }
+                        break;
                 }
             }
             else if (data.error) {
                 console.log('错误响应:', data.error);
             }
             else {
-                console.log('未知响应类型:');
+                console.log('未知响应类型:', data);
             }
         };
         
@@ -108,17 +130,21 @@ export function initMultimodalRecognition() {
                 isProcessing = true;
                 
                 // 捕获视频帧
-                const imageData = await getVideoFrame(video);
+                const image_info = await getVideoFrame(video);
                 
                 // 捕获音频
-                const audioData = await getAudioChunk(stream);
+                const audio_info = await getAudioChunk(stream);
                 
+                const userInfoStr = localStorage.getItem('userInfo');
+                const userInfo = JSON.parse(userInfoStr);
+                const userId = userInfo.user_id;
+
                 // 发送多模态请求
                 const payload = {
                     type: 'command',
-                    user_id: localStorage.getItem('user_id'),
-                    image: imageData,
-                    audio: audioData,
+                    user_id: userId,
+                    image: image_info,
+                    audio: audio_info,
                     is_wake: isAwake,
                     wake_word: wakeWord,
                     timestamp: Date.now()
@@ -217,6 +243,15 @@ export function initMultimodalRecognition() {
         processVideoaAudio();
     }
     
+    function resetWakeTimeout() {
+        // 清除原有计时器并设置新计时器
+        clearTimeout(wakeTimeout);
+        wakeTimeout = setTimeout(() => {
+            isAwake = false;
+            console.log('唤醒状态已超时');
+        }, 15000); // 15秒有效期
+    }
+
     // 响应显示模块
     function displayResponse(responseText) {
         const speechBubble = document.getElementById("speechBubble");
@@ -235,11 +270,34 @@ export function initMultimodalRecognition() {
     }
     
     // 语音合成模块
-    function speakResponse(responseText) {
-        if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(responseText);
-            utterance.lang = 'zh-CN';
-            window.speechSynthesis.speak(utterance);
+    async function speakResponse(responseText, voiceIndex = 0) {
+        try {
+            const response = await fetch('/api/generate_speech', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({ 
+                    text: responseText,
+                    voice_index: voiceIndex
+                }),
+            });
+    
+            if (!response.ok) {
+                throw new Error(`后端错误：${response.status}`);
+            }
+    
+            const audioBlob = await response.blob();
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
+            
+            // 等待语音播放完成
+            await new Promise((resolve) => audio.onended = resolve);
+            audio.play();
+    
+        } catch (error) {
+            console.error('语音合成失败:', error);
         }
     }
 }

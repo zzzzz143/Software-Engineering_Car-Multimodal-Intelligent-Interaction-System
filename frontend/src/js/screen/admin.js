@@ -136,7 +136,7 @@ class AdminScreenController {
         this.loadUsers();
         this.getRoleIcon = (role) => {
             const icons = { driver: '🚗', 
-                passage: '👤', 
+                passenger: '👤', 
                 admin: '👨‍💼', 
                 maintenance: '🔧'
             }
@@ -146,7 +146,7 @@ class AdminScreenController {
         };
         this.getRoleName = (role) => {
             const names = { driver: '驾驶员',
-                passage: '乘客',
+                passenger: '乘客',
                 admin: '系统管理员',
                 maintenance: '维修人员'
             }
@@ -769,3 +769,22 @@ window.addEventListener('beforeunload', function() {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = AdminScreenController;
 }
+
+window.addEventListener('pagehide', async (event) => {
+    // 检查页面是否不会被缓存（即完全关闭）
+    if (!event.persisted) {
+        try {
+            const response = await fetch('/api/logout', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                keepalive: true // 确保请求在页面卸载期间完成
+            });
+            if (!response.ok) {
+                localStorage.clear();
+            }
+        } catch (error) {
+            console.error('退出登录失败:', error);
+            alert('退出登录失败！');
+        }
+    }
+});

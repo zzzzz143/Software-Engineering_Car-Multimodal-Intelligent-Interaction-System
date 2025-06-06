@@ -5,7 +5,6 @@ from datetime import datetime, timedelta, timezone
 from ..extensions import db
 from ..models import User, PublicUser
 from ..config import Config
-from ..utils.decorators import token_required
 
 auth_bp = Blueprint('auth', __name__)
 
