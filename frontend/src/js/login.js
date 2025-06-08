@@ -20,10 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ username, password, role})
             });
-
+            
+            const data = await response.json();
             
             if (response.ok) {
-                const data = await response.json();
                 console.log('登录成功:', data);
                 localStorage.setItem('token', data.token);
                 const userInfo = {
@@ -37,16 +37,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 let redirectUrl;
                 switch(role) {
                     case 'admin':
-                        redirectUrl = '../../public/screen/admin.html';
+                        redirectUrl = `../../public/screen/admin.html?user_id=${data.user_info.user_id}`;
                         window.location.href = `${redirectUrl}`;
                         break;
                     case 'maintenance':
-                        redirectUrl = '../../public/screen/maintenance.html';
+                        redirectUrl = `../../public/screen/maintenance.html?user_id=${data.user_info.user_id}`;
                         window.location.href = `${redirectUrl}`;
                         break;
                     default:
-                        redirectUrl = '../../public/main.html';
-                        window.location.href = `${redirectUrl}?role=${role}`;
+                        redirectUrl = `../../public/main.html?user_id=${data.user_info.user_id}&role=${role}`;
+                        window.location.href = `${redirectUrl}`;
                         break;
                 }
             } else {

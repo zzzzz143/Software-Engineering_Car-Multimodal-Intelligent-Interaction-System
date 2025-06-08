@@ -20,46 +20,111 @@ body {
 /* 车载系统主容器 - 适配iframe */
 .car-system {
     display: flex;
-    width: 100%;
-    height: 100%;
-    min-height: 400px; /* 设置最小高度 */
+    height: 100vh;
+    width: 100vw;
 }
 
 /* 左侧边栏 */
 .sidebar {
-    width: 52px;
+    width: 200px;
     background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
     border-right: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 12px 0;
-    flex-shrink: 0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
 }
 
 /* 时间显示 */
 .time-display {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 18px;
-    font-size: 11px;
+    font-size: 2.5rem;
     font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px;
     color: #00d4aa;
-}
-
-.hour, .minute {
-    font-size: 13px;
+    text-shadow: 0 0 10px rgba(100, 181, 246, 0.5);
 }
 
 .separator {
-    margin: 0 3px;
     animation: blink 1s infinite;
 }
 
 @keyframes blink {
     0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0; }
+    51%, 100% { opacity: 0.3; } 
+}
+
+.maintenance-profile {
+    text-align: center;
+    padding: 20px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.avatar {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.maintenance-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.maintenance-level {
+    font-size: 0.9rem;
+    color: #ffd700;
+    background: rgba(255, 215, 0, 0.2);
+    padding: 2px 8px;
+    border-radius: 10px;
+    display: inline-block;
+    position: relative;
+}
+
+.actions {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-top: auto;
+    padding: 15px 0;
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(180deg, transparent 0%, #16213e 100%);
+    z-index: 1;
+}
+
+.btn-icon {
+    font-size: 1.2rem;
+    margin-bottom: 4px;
+}
+
+.btn-text {
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.action-btn {
+    padding: 3px 6px;
+    border: none;
+    border-radius: 5px;
+    font-size: 9px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.action-btn.logout {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+}
+
+.action-btn.logout:hover {
+    background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
 }
 
 /* 主内容区域 */
@@ -510,16 +575,6 @@ body {
     justify-content: center;
     margin-top: 12px;
     flex-shrink: 0;
-}
-
-.action-btn {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 5px;
-    font-size: 9px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
 }
 
 .action-btn.primary {

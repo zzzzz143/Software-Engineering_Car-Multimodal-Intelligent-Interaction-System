@@ -19,8 +19,9 @@ def admin_users(current_user):
             'id': u.id,
             'username': u.username,
             'role': u.role,
-            'last_login': u.last_login.isoformat() if u.last_login else None,
-            'status': u.status
+            'type': u.type,
+            'status': u.status,
+            'last_login': u.last_login.isoformat() if u.last_login else None
         } for u in users])
     
     if request.method == 'POST':
@@ -56,11 +57,13 @@ def admin_users(current_user):
                     role=role, 
                     type=user_type
                 )
+                db.session.add(user)
+                db.session.commit()
+                
                 publicUser = PublicUser(
-                    id=user.id, 
-                    wake_word='hey siri'
+                    id=user.id
                 )
-                db.session.add_all([user, publicUser])
+                db.session.add(publicUser)
                 db.session.commit()
                 return jsonify({'message': '用户添加成功'}), 201
             except Exception as e:

@@ -1,3 +1,5 @@
+import * as InstoUi_Utils from './instruction_to_ui.js';
+
 export function initMultimodalRecognition() {
     const video = document.getElementById('recognitionView');
     let socket = null;
@@ -23,6 +25,7 @@ export function initMultimodalRecognition() {
         }
     }).then(stream => {
         video.srcObject = stream;
+        video.muted = true;
         connectWebSocket();
         startProcessVideoaAudio(video, socket, stream);
     }).catch(err => {
@@ -73,39 +76,57 @@ export function initMultimodalRecognition() {
                 let priority = data.priority;                
                 let image_info = data.image_info;
                 let audio_info = data.audio_info;
+                let instruction_code = null;
+                let decision = null;
+                let feedback = null
 
                 switch (priority) {
-                    case 1: // FATIGUE_DETECTION
-                        console.log('处理疲劳驾驶检测结果');
-                        displayResponse(image_info.feedback);
-                        speakResponse(image_info.feedback);
+                    case 1: // EMERGENCY
+                        console.log('处理安全事件');
+                        if (audio_info != '音频数据为空'){
+                            instruction_code = audio_info.instruction_code;
+                            decision = audio_info.decision;
+                            feedback = audio_info.feedback;
+                        } else {
+                            instruction_code = image_info.instruction_code;
+                            decision = image_info.decision;
+                            feedback = image_info.feedback;
+                        }
+
+                        displayResponse(feedback);
+                        speakResponse(feedback);
+                        InstoUi_Utils.processInstructionCode(instruction_code, 'system');
                         break;
-                    case 2: // EMERGENCY
-                        console.log('处理紧急命令');
-                        displayResponse(audio_info.feedback);
-                        speakResponse(audio_info.feedback);
-                        break;
-                    case 3: // WAKE_WORD
+                    case 2: // WAKE_WORD
                         console.log('处理唤醒词');
                         isAwake = true;
                         resetWakeTimeout(); // 重置唤醒超时定时器
                         displayResponse('我在');
                         speakResponse('我在');
                         break;
-                    case 4: // NORMAL_COMMAND
-                    default:
+                    case 3: // NORMAL_COMMAND
                         console.log('处理正常命令');
                         // 优先处理音频，如果音频为空则处理手势和视觉
                         if (audio_info != '音频数据为空'){
                             isAwake = true;
                             resetWakeTimeout(); // 重置唤醒超时定时器
-                            displayResponse(audio_info.feedback);
-                            speakResponse(audio_info.feedback);
+                            instruction_code = audio_info.instruction_code;
+                            decision = audio_info.decision;
+                            feedback = audio_info.feedback;
+                            InstoUi_Utils.processInstructionCode(instruction_code, 'user');
+                            displayResponse(feedback);
+                            speakResponse(feedback);
                         } else {
-                            displayResponse(image_info.feedback);
-                            speakResponse(image_info.feedback);
+                            instruction_code = image_info.instruction_code;
+                            decision = image_info.decision;
+                            feedback = image_info.feedback;
+                            InstoUi_Utils.processInstructionCode(instruction_code, 'system');
+                            displayResponse(feedback);
+                            speakResponse(feedback);
                         }
                         break;
+                    default:
+                        console.log('未知优先级:', priority);
                 }
             }
             else if (data.error) {
@@ -141,6 +162,7 @@ export function initMultimodalRecognition() {
 
                 // 发送多模态请求
                 const payload = {
+                    is_emergency: InstoUi_Utils.isEmergency,
                     type: 'command',
                     user_id: userId,
                     image: image_info,
@@ -254,19 +276,20 @@ export function initMultimodalRecognition() {
 
     // 响应显示模块
     function displayResponse(responseText) {
-        const speechBubble = document.getElementById("speechBubble");
-        speechBubble.style.visibility = 'visible';
-        speechBubble.textContent = '';
-        
-        let i = 0;
-        const interval = setInterval(() => {
-            if (i < responseText.length) {
-                speechBubble.textContent += responseText.charAt(i);
-                i++;
-            } else {
-                clearInterval(interval);
-            }
-        }, 100);
+        if (typeof responseText === 'string') {
+            let speechBubble = document.getElementById("speechBubble");
+            speechBubble.style.visibility = 'visible';
+            speechBubble.textContent = ''; // 清空之前的文本
+            let i = 0;
+            let interval = setInterval(function () {
+                if (i < responseText.length) {
+                    speechBubble.textContent += responseText.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 100); // 每100毫秒显示一个字符
+        }
     }
     
     // 语音合成模块
@@ -287,13 +310,18 @@ export function initMultimodalRecognition() {
             if (!response.ok) {
                 throw new Error(`后端错误：${response.status}`);
             }
-    
+            
+            console.log('语音合成成功');
             const audioBlob = await response.blob();
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
             
-            // 等待语音播放完成
-            await new Promise((resolve) => audio.onended = resolve);
+            audio.onended = () => {
+                console.log('语音播放完成');
+                URL.revokeObjectURL(audioUrl); // 释放内存
+            };
+            
+            console.log('开始播放语音');
             audio.play();
     
         } catch (error) {

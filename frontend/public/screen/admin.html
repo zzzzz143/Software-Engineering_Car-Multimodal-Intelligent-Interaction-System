@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>车载系统 - 系统管理员界面</title>
-    <link rel="stylesheet" href="../../src/assets/styles/admin_screen.css">
+    <link rel="stylesheet" href="../../src/assets/styles/admin.css">
 </head>
 <body>
     <div class="car-system">
@@ -16,9 +16,15 @@
                 <span class="minute">25</span>
             </div>
             <div class="admin-profile">
-                <div class="avatar">🧙‍♀️</div>
+                <div class="avatar">🧙</div>
                 <div class="admin-name">系统管理员</div>
                 <div class="admin-level">root</div>
+            </div>
+            <div class="actions">
+                <button class="action-btn logout">
+                    <span class="btn-icon">🚪</span>
+                    <span>退出登录</span>
+                </button>
             </div>
         </div>
 
@@ -38,32 +44,32 @@
                             <div class="status-grid">
                                 <div class="status-item">
                                     <div class="status-label">在线用户</div>
-                                    <div class="status-value">1,247</div>
+                                    <div class="status-value"></div>
                                     <div class="status-trend up">↗ +5.2%</div>
                                 </div>
                                 <div class="status-item">
                                     <div class="status-label">系统负载</div>
-                                    <div class="status-value">68%</div>
+                                    <div class="status-value"></div>
                                     <div class="status-trend stable">→ 稳定</div>
                                 </div>
                                 <div class="status-item">
                                     <div class="status-label">连接车辆</div>
-                                    <div class="status-value">892</div>
+                                    <div class="status-value"></div>
                                     <div class="status-trend up">↗ +12</div>
                                 </div>
                                 <div class="status-item">
                                     <div class="status-label">数据吞吐</div>
-                                    <div class="status-value">2.4GB/s</div>
+                                    <div class="status-value"></div>
                                     <div class="status-trend down">↘ -0.3%</div>
                                 </div>
                                 <div class="status-item">
                                     <div class="status-label">响应时间</div>
-                                    <div class="status-value">12ms</div>
+                                    <div class="status-value"></div>
                                     <div class="status-trend up">↗ 优秀</div>
                                 </div>
                                 <div class="status-item">
                                     <div class="status-label">错误率</div>
-                                    <div class="status-value">0.02%</div>
+                                    <div class="status-value"></div>
                                     <div class="status-trend down">↘ -0.01%</div>
                                 </div>
                             </div>
@@ -233,7 +239,7 @@
                                     <span class="btn-icon">🛡️</span>
                                     <span class="btn-text">安全模式</span>
                                 </button>
-                                <button class="control-btn danger">
+                                <button class="control-btn logout">
                                     <span class="btn-icon">🚨</span>
                                     <span class="btn-text">紧急停机</span>
                                 </button>

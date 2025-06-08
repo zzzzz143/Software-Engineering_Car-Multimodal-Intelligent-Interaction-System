@@ -32,14 +32,13 @@ class GestureRecognition():
             "Victory": "接听电话",
             "Thumb_Left": "播放上一首音乐",
             "Thumb_Right": "播放下一首音乐",
-            "Thumb_Up": "确认操作",
             "Closed_Fist_To_Victory": "音量增加",
-            "Victory_To_Closed_Fist": "音量减少",
+            "Victory_To_Closed_Fist": "音量减小",
             "Closed_Fist_To_Open_Palm": "放大地图",
             "Open_Palm_To_Closed_Fist": "缩小地图",
-            "Shake": "拒绝",
+            "Thumb_Up": "确认",            
+            "Shake": "拒绝"
         }
-        self.font = ImageFont.truetype("simhei.ttf", 24)  # 加载中文字体
 
         self.potential_static_gesture = None  # 当前正在跟踪稳定性的手势
         self.potential_static_gesture_start_time = None  # 跟踪开始时间戳
@@ -206,10 +205,6 @@ class GestureRecognition():
                             dynamic_gesture = "Shake"
                             self.shake_history.clear()
 
-        # 转换为PIL格式
-        pil_img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-        draw = ImageDraw.Draw(pil_img)
-
         # 优先显示动态手势
         if dynamic_gesture:
             display_gesture = dynamic_gesture
@@ -222,12 +217,11 @@ class GestureRecognition():
         gesture_name = "无手势"
         if display_gesture:
             gesture_name = self.gesture_map.get(display_gesture, "无手势")
-        score_text = f" ({current_raw_score:.2f})" if current_raw_score and not dynamic_gesture else ""
         
         # 检查手势是否连续出现2秒
         if gesture_name != "无手势":
             # 动态手势不要求出现2秒
-            if gesture_name =="音量增加" or gesture_name =="音量减少" or gesture_name =="放大地图" or gesture_name =="缩小地图" or gesture_name =="拒绝":
+            if gesture_name =="音量增加" or gesture_name =="音量减小" or gesture_name =="放大地图" or gesture_name =="缩小地图" or gesture_name =="拒绝":
                 if gesture_name != self.last_displayed_gesture:
                     # print(f"手势识别: {gesture_name}")
                     self.last_displayed_gesture = None
@@ -246,14 +240,6 @@ class GestureRecognition():
         else:
             self.last_displayed_gesture = None
             self.gesture_start_time = None
-
-        draw.text((10, 30),
-                  f"手势: {gesture_name}{score_text}",
-                  font=self.font,
-                  fill=(0, 255, 0, 255))
-
-        # 转换回OpenCV格式
-        frame = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
         
         return {
             'frame': frame,

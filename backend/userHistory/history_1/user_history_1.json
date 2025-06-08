@@ -390,5 +390,166 @@
         "system_info": "",
         "command": "打开空调。",
         "response": "【instruction_code】0001  \n【decision】开启空调系统。  \n【feedback】空调已为您打开，是否需要调整温度或风速？"
+    },
+    {
+        "timestamp": "2025-06-07T19:24:25.175648",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】开启空调系统。  \n【feedback】空调已为您打开，是否需要调整温度或风量呢？"
+    },
+    {
+        "timestamp": "2025-06-07T19:28:05.786439",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】启动空调系统。  \n【feedback】好的，正在为您打开空调。请享受舒适的车内环境！"
+    },
+    {
+        "timestamp": "2025-06-07T23:28:00.499255",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】启动空调系统。  \n【feedback】好的，正在为您打开空调。请告诉我需要设置的具体温度吗？"
+    },
+    {
+        "timestamp": "2025-06-08T01:50:15.188216",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】开启空调系统。  \n【feedback】空调已为您打开，是否需要调整温度或风速？"
+    },
+    {
+        "timestamp": "2025-06-08T01:55:13.739399",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】启动空调系统。  \n【feedback】好的，正在为您打开空调。请享受舒适的车内环境！"
+    },
+    {
+        "timestamp": "2025-06-08T02:02:28.664528",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】开启空调系统。  \n【feedback】空调已为您打开，当前温度设置为默认值，请问是否需要调整温度？"
+    },
+    {
+        "timestamp": "2025-06-08T02:39:46.526080",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】启动空调系统。  \n【feedback】好的，正在为您打开空调。请享受舒适的车内环境！"
+    },
+    {
+        "timestamp": "2025-06-08T02:49:58.904468",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】开启空调系统。  \n【feedback】空调已为您打开。"
+    },
+    {
+        "timestamp": "2025-06-08T15:01:55.595201",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】开启空调系统。  \n【feedback】好的，空调已为您打开。请问需要调整温度吗？"
+    },
+    {
+        "timestamp": "2025-06-08T17:38:42.593007",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】启动空调系统。  \n【feedback】好的，正在为您打开空调。请享受舒适的车内环境！"
+    },
+    {
+        "timestamp": "2025-06-08T17:47:25.420085",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】开启空调系统。  \n【feedback】好的，正在为您打开空调。请享受舒适的驾乘环境！"
+    },
+    {
+        "timestamp": "2025-06-08T17:59:43.130126",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】启动空调系统。  \n【feedback】好的，正在为您打开空调。请享受舒适的车内环境！"
+    },
+    {
+        "timestamp": "2025-06-08T18:47:28.374645",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】开启空调系统。  \n【feedback】好的，空调已为您打开。请问需要调整温度吗？"
+    },
+    {
+        "timestamp": "2025-06-08T18:57:41.625542",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】开启空调系统。  \n【feedback】好的，空调已为您打开。"
+    },
+    {
+        "timestamp": "2025-06-08T19:03:47.276590",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】开启空调系统。  \n【feedback】空调已为您打开，是否需要调整温度或风速？"
+    },
+    {
+        "timestamp": "2025-06-08T19:16:10.090018",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】开启空调系统。  \n【feedback】好的，正在为您打开空调。请享受舒适的车内环境！"
+    },
+    {
+        "timestamp": "2025-06-08T20:07:25.202306",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】开启空调系统。  \n【feedback】空调已为您打开，是否需要调整温度？您可以告诉我具体的温度值哦！"
+    },
+    {
+        "timestamp": "2025-06-08T20:47:20.713616",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】开启空调系统。  \n【feedback】空调已为您打开。"
+    },
+    {
+        "timestamp": "2025-06-08T23:11:41.613645",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】开启空调系统。  \n【feedback】空调已为您打开，是否需要调整温度或风速？"
+    },
+    {
+        "timestamp": "2025-06-08T23:18:22.255579",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】启动空调系统。  \n【feedback】空调已打开，正在为您调节至适宜温度。"
+    },
+    {
+        "timestamp": "2025-06-08T23:35:52.090502",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】开启空调系统。  \n【feedback】空调已为您打开，当前温度设置为默认值，请问需要调整温度吗？"
+    },
+    {
+        "timestamp": "2025-06-08T23:39:00.514965",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】开启空调系统。  \n【feedback】空调已为您打开，是否需要调整温度或风量？"
+    },
+    {
+        "timestamp": "2025-06-09T00:51:57.453452",
+        "source": "user",
+        "system_info": "",
+        "command": "打开空调。",
+        "response": "【instruction_code】0001  \n【decision】启动空调系统。  \n【feedback】空调已打开，正在为您调节到适宜的温度。"
     }
 ]

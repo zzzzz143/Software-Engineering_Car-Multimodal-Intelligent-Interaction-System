@@ -26,6 +26,7 @@ def create_instruction_prompt():
         # 选择一些有代表性的示例（不同类型的操作）
         sample_instructions = []
         categories = {
+            "安全": ["分心", "疲劳", "确认", "拒绝", "注意道路"],
             "温度控制": ["空调", "温度"],
             "导航": ["导航", "目的地"],
             "媒体控制": ["音乐", "音量"],
@@ -90,6 +91,11 @@ def create_instruction_prompt():
     23: EMERGENCY - 紧急操作 - 用于紧急呼叫、紧急制动等
     24: STATUS_UPDATE - 状态更新 - 用于更新系统状态信息
     25: CALCULATE - 计算 - 用于计算油耗、行程距离等
+    26: PREVIOUS - 上一首 - 用于切换至上一首曲目
+    27: NEXT - 下一首 - 用于切换至下一首曲目
+    28: CONFIRM - 确认 - 用于确认操作
+    29: REJECT - 拒绝 - 用于拒绝操作
+    30: CANCEL_EMERGENCY - 取消紧急操作 - 用于取消紧急呼叫、紧急制动等
 
     ## 完整操作数列表(2位十进制)
     01: AC - 空调 - 控制温度、空调模式等
@@ -240,25 +246,43 @@ def load_user_config(config_file_path):
 
 def is_command_meaningful(command):
     """检查命令是否有意义"""
-    payload = {
-        "model": "qwen-plus",
-        "messages": [
-            {
-                "role": "system",
-                "content": f'你是一个车载智能助手。'
-            },
-            {
-                "role": "user",
-                "content": f'请判断以下命令是否有意义：{command}。回复格式为“有”或“无”。'
-            }
-        ]
-    }
+    # 1. 加载本地指令集
+    instruction_set = load_instruction_set()
+    valid_keywords = set()
     
-    response = send_to_api(payload)
-    if response:
-        content = response.get('choices', [{}])[0].get('message', {}).get('content', '')
-        return content.lower().strip() == '有'
-    return False
+    # 2. 提取指令集中的有效关键词（支持模糊匹配）
+    for instr in instruction_set.get("instructions", []):
+        # 拆分用户输入中的关键词（按空格、逗号分割）
+        keywords = re.split(r'[,\s]+', instr["input"].lower())
+        valid_keywords.update(keywords)
+    
+    # 3. 检查用户命令是否包含有效关键词
+    command_lower = command.lower()
+    has_valid_keyword = any(keyword in command_lower for keyword in valid_keywords)
+    
+    # 4. 若本地校验通过，返回True；否则调用大模型二次校验
+    if has_valid_keyword:
+        return True
+    else:
+        payload = {
+            "model": "qwen-plus",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": f'你是一个车载智能助手。'
+                },
+                {
+                    "role": "user",
+                    "content": f'请判断以下命令是否有意义：{command}。回复格式为“有”或“无”。'
+                }
+            ]
+        }
+        
+        response = send_to_api(payload)
+        if response:
+            content = response.get('choices', [{}])[0].get('message', {}).get('content', '')
+            return content.lower().strip() == '有'
+        return False
 
 def extract_instruction_code(response_text):
     """从API响应中提取指令编码"""
@@ -288,9 +312,9 @@ def process_command_generic(input_data, user_id, process_type):
     process_type: user / system
     """
     try:
-        # 创建历史文件
+        # 创建用户历史文件
         history_file_path = create_history_file(user_id, process_type)
-        # 创建配置文件
+        # 创建用户配置文件
         config_file_path = create_config_file(user_id)
     except ValueError as e:
         return f"参数错误: {str(e)}"
@@ -300,7 +324,7 @@ def process_command_generic(input_data, user_id, process_type):
     
     # 如果是command，检查命令是否有意义
     if process_type == "user" and not is_command_meaningful(input_data):
-        return f"命令:{input_data} 无意义，已忽略"
+        return f"音频数据为空"
     
     # 获取指令集提示
     instruction_prompt = create_instruction_prompt()
@@ -335,27 +359,19 @@ def process_command_generic(input_data, user_id, process_type):
     # 解析响应
     output = response.get('choices', [{}])[0].get('message', {}).get('content', '')
     
-    structured_output = {
-        "instruction_code": extract_instruction_code(output),
-        "decision": extract_decision(output),
-        "feedback": extract_feedback(output)
-    }
-    
-    if process_type == "user":
-        # 提取指令编码
-        instruction_code = extract_instruction_code(output)
-
-        # 指令编码匹配逻辑
-        if not instruction_code:
-            instruction_set = load_instruction_set()
-            for instr in instruction_set.get("instructions", []):
-                input_key = instr["input"].lower()
-                if (input_key in input_data.lower() or 
-                    input_data.lower() in input_key):
-                    instruction_code = instr["response"]
-                    if "【instruction_code】" not in output:
-                        output = f"【instruction_code】{instruction_code}\n{output}"
-                    break
+    # 提取指令编码
+    instruction_code = extract_instruction_code(output)
+    # 指令编码匹配逻辑
+    if not instruction_code:
+        instruction_set = load_instruction_set()
+        for instr in instruction_set.get("instructions", []):
+            input_key = instr["input"].lower()
+            if (input_key in input_data.lower() or 
+                input_data.lower() in input_key):
+                instruction_code = instr["response"]
+                if "【instruction_code】" not in output:
+                    output = f"【instruction_code】{instruction_code}\n{output}"
+                break
 
     # 记录历史
     add_to_history(
@@ -368,7 +384,11 @@ def process_command_generic(input_data, user_id, process_type):
         datetime.datetime.now()
     )
     
-    return structured_output
+    return {
+        'instruction_code': instruction_code,
+        'decision': extract_decision(output),
+        'feedback': extract_feedback(output),
+    }
 
 def process_user_command(command, user_id=None):
     """语音指令处理入口"""
@@ -377,356 +397,3 @@ def process_user_command(command, user_id=None):
 def process_system_info(system_info, user_id=None):
     """系统信息处理入口"""
     return process_command_generic(system_info, user_id, 'system')
-
-process_user_command("打开空调。", 1)
-
-# def instruction_code_handler(instruction_code):
-#     """
-#     指令编码处理函数，根据指令编码来控制系统对应部分/模拟输出
-#     :param instruction_code: 指令编码，格式为 AABB[文字描述]
-#     :return: 模拟的系统响应
-#     """
-#     # 解析指令编码
-#     if len(instruction_code) < 4:
-#         return "指令编码格式不正确"
-
-#     opcode = instruction_code[:2]
-#     operand = instruction_code[2:4]
-#     description = instruction_code[4:].strip("[]") if len(instruction_code) > 4 else ""
-
-#     # 模拟系统响应
-#     response = ""
-
-#     # 操作码 00: TURN_ON
-#     if opcode == "00":
-#         if operand == "01":
-#             response = "空调已开启"
-#         elif operand == "04":
-#             response = "驾驶员车窗已开启"
-#         elif operand == "08":
-#             response = "天窗已开启"
-#         elif operand == "12":
-#             response = "大灯已开启"
-#         elif operand == "14":
-#             response = "车内灯已开启"
-#         elif operand == "15":
-#             response = "车门锁已解锁"
-#         elif operand == "16":
-#             response = "后备箱已开启"
-#         elif operand == "17":
-#             response = "发动机已启动"
-#         elif operand == "27":
-#             response = "蓝牙已连接"
-#         elif operand == "28":
-#             response = "无线网络已开启"
-#         elif operand == "29":
-#             response = "电话已接听"
-#         elif operand == "32":
-#             response = "充电系统已启动"
-#         elif operand == "47":
-#             response = "语音助手已激活"
-#         elif operand == "48":
-#             response = "摄像头系统已启动"
-#         elif operand == "49":
-#             response = "泊车辅助已激活"
-#         else:
-#             response = f"未知设备 {operand} 已开启"
-
-#     # 操作码 01: TURN_OFF
-#     elif opcode == "01":
-#         if operand == "01":
-#             response = "空调已关闭"
-#         elif operand == "04":
-#             response = "驾驶员车窗已关闭"
-#         elif operand == "08":
-#             response = "天窗已关闭"
-#         elif operand == "12":
-#             response = "大灯已关闭"
-#         elif operand == "14":
-#             response = "车内灯已关闭"
-#         elif operand == "15":
-#             response = "车门锁已锁定"
-#         elif operand == "16":
-#             response = "后备箱已关闭"
-#         elif operand == "17":
-#             response = "发动机已关闭"
-#         elif operand == "27":
-#             response = "蓝牙已断开"
-#         elif operand == "28":
-#             response = "无线网络已关闭"
-#         elif operand == "29":
-#             response = "电话已挂断"
-#         elif operand == "32":
-#             response = "充电系统已停止"
-#         elif operand == "47":
-#             response = "语音助手已停用"
-#         elif operand == "48":
-#             response = "摄像头系统已关闭"
-#         elif operand == "49":
-#             response = "泊车辅助已停用"
-#         else:
-#             response = f"未知设备 {operand} 已关闭"
-
-#     # 操作码 02: SET_VALUE
-#     elif opcode == "02":
-#         if operand == "01":
-#             response = f"空调温度已设置为 {description} 度"
-#         elif operand == "03":
-#             response = f"媒体播放器音量已设置为 {description}"
-#         elif operand == "33":
-#             response = f"胎压已设置为 {description} 巴"
-#         elif operand == "34":
-#             response = f"机油液位已设置为 {description}"
-#         elif operand == "35":
-#             response = f"燃油液位已设置为 {description}"
-#         elif operand == "36":
-#             response = f"空气悬挂高度已设置为 {description}"
-#         elif operand == "43":
-#             response = f"驾驶员座椅位置已设置为 {description}"
-#         elif operand == "44":
-#             response = f"乘客座椅位置已设置为 {description}"
-#         else:
-#             response = f"未知设备 {operand} 的值已设置为 {description}"
-
-#     # 操作码 03: START
-#     elif opcode == "03":
-#         if operand == "02":
-#             response = f"导航已启动，目的地为 {description}"
-#         elif operand == "03":
-#             response = "媒体播放器已启动"
-#         elif operand == "17":
-#             response = "发动机已启动"
-#         elif operand == "32":
-#             response = "充电系统已启动"
-#         else:
-#             response = f"未知设备 {operand} 已启动"
-
-#     # 操作码 04: STOP
-#     elif opcode == "04":
-#         if operand == "02":
-#             response = "导航已停止"
-#         elif operand == "03":
-#             response = "媒体播放器已停止"
-#         elif operand == "17":
-#             response = "发动机已停止"
-#         elif operand == "32":
-#             response = "充电系统已停止"
-#         else:
-#             response = f"未知设备 {operand} 已停止"
-
-#     # 操作码 05: INCREASE
-#     elif opcode == "05":
-#         if operand == "01":
-#             response = "空调温度已升高"
-#         elif operand == "03":
-#             response = "媒体播放器音量已增大"
-#         elif operand == "36":
-#             response = "空气悬挂高度已升高"
-#         else:
-#             response = f"未知设备 {operand} 的值已增加"
-
-#     # 操作码 06: DECREASE
-#     elif opcode == "06":
-#         if operand == "01":
-#             response = "空调温度已降低"
-#         elif operand == "03":
-#             response = "媒体播放器音量已减小"
-#         elif operand == "36":
-#             response = "空气悬挂高度已降低"
-#         else:
-#             response = f"未知设备 {operand} 的值已减少"
-
-#     # 操作码 07: TOGGLE
-#     elif opcode == "07":
-#         if operand == "12":
-#             response = "大灯已切换"
-#         elif operand == "14":
-#             response = "车内灯已切换"
-#         elif operand == "09":
-#             response = "驾驶员座椅加热已切换"
-#         elif operand == "10":
-#             response = "乘客座椅加热已切换"
-#         elif operand == "11":
-#             response = "方向盘加热已切换"
-#         else:
-#             response = f"未知设备 {operand} 已切换"
-
-#     # 操作码 08: QUERY
-#     elif opcode == "08":
-#         if operand == "33":
-#             response = "当前胎压为 2.5 巴"
-#         elif operand == "34":
-#             response = "机油液位为正常"
-#         elif operand == "35":
-#             response = "燃油剩余量为 50%"
-#         elif operand == "31":
-#             response = "电池电量为 80%"
-#         elif operand == "41":
-#             response = "车内空气质量为良好"
-#         else:
-#             response = f"未知设备 {operand} 的状态已查询"
-
-#     # 操作码 09: ADJUST
-#     elif opcode == "09":
-#         if operand == "43":
-#             response = "驾驶员座椅位置已调整"
-#         elif operand == "44":
-#             response = "乘客座椅位置已调整"
-#         elif operand == "36":
-#             response = "空气悬挂高度已调整"
-#         else:
-#             response = f"未知设备 {operand} 已调整"
-
-#     # 操作码 10: ACTIVATE
-#     elif opcode == "10":
-#         if operand == "49":
-#             response = "泊车辅助已激活"
-#         elif operand == "25":
-#             response = "车道辅助已激活"
-#         elif operand == "26":
-#             response = "碰撞避免系统已激活"
-#         else:
-#             response = f"未知设备 {operand} 已激活"
-
-#     # 操作码 11: DEACTIVATE
-#     elif opcode == "11":
-#         if operand == "49":
-#             response = "泊车辅助已停用"
-#         elif operand == "25":
-#             response = "车道辅助已停用"
-#         elif operand == "26":
-#             response = "碰撞避免系统已停用"
-#         else:
-#             response = f"未知设备 {operand} 已停用"
-
-#     # 操作码 12: SCHEDULE
-#     elif opcode == "12":
-#         if operand == "01":
-#             response = f"空调已预约在 {description} 启动"
-#         elif operand == "32":
-#             response = f"充电系统已预约在 {description} 启动"
-#         else:
-#             response = f"未知设备 {operand} 已预约"
-
-#     # 操作码 13: CANCEL_SCHEDULE
-#     elif opcode == "13":
-#         if operand == "01":
-#             response = "空调预约已取消"
-#         elif operand == "32":
-#             response = "充电系统预约已取消"
-#         else:
-#             response = f"未知设备 {operand} 的预约已取消"
-
-#     # 操作码 14: LOCATE
-#     elif opcode == "14":
-#         response = "车辆位置已定位"
-
-#     # 操作码 15: CONNECT
-#     elif opcode == "15":
-#         if operand == "27":
-#             response = "蓝牙已连接"
-#         elif operand == "28":
-#             response = "无线网络已连接"
-#         else:
-#             response = f"未知设备 {operand} 已连接"
-
-#     # 操作码 16: DISCONNECT
-#     elif opcode == "16":
-#         if operand == "27":
-#             response = "蓝牙已断开"
-#         elif operand == "28":
-#             response = "无线网络已断开"
-#         else:
-#             response = f"未知设备 {operand} 已断开"
-
-#     # 操作码 17: SYNC
-#     elif opcode == "17":
-#         response = "设备数据已同步"
-
-#     # 操作码 18: RESET
-#     elif opcode == "18":
-#         response = "系统设置已重置"
-
-#     # 操作码 19: MODE_CHANGE
-#     elif opcode == "19":
-#         if operand == "37":
-#             response = "驾驶模式已切换"
-#         elif operand == "38":
-#             response = "经济模式已开启"
-#         elif operand == "39":
-#             response = "运动模式已开启"
-#         elif operand == "40":
-#             response = "舒适模式已开启"
-#         else:
-#             response = f"未知模式 {operand} 已切换"
-
-#     # 操作码 20: CUSTOM_SETTING
-#     elif opcode == "20":
-#         response = "个性化偏好已设置"
-
-#     # 操作码 21: SAVE_SETTING
-#     elif opcode == "21":
-#         response = "当前配置已保存"
-
-#     # 操作码 22: LOAD_SETTING
-#     elif opcode == "22":
-#         response = "已保存的配置已加载"
-
-#     # 操作码 23: EMERGENCY
-#     elif opcode == "23":
-#         response = "紧急操作已执行"
-
-#     # 操作码 24: STATUS_UPDATE
-#     elif opcode == "24":
-#         response = "系统状态信息已更新"
-
-#     # 操作码 25: CALCULATE
-#     elif opcode == "25":
-#         if operand == "35":
-#             response = "油耗已计算"
-#         elif operand == "34":
-#             response = "行程距离已计算"
-#         else:
-#             response = f"未知计算 {operand} 已完成"
-
-#     else:
-#         response = "未知指令"
-
-#     return response
-
-# # 测试示例
-# if __name__ == "__main__":
-#     print(instruction_code_handler("0201[22]"))  # 空调温度已设置为 22 度
-#     print(instruction_code_handler("0302[北京市朝阳区]"))  # 导航已启动，目的地为 北京市朝阳区
-#     print(instruction_code_handler("0001"))  # 空调已开启
-#     print(instruction_code_handler("0108"))  # 天窗已关闭
-#     print(instruction_code_handler("0503"))  # 媒体播放器音量已增大
-#     print(instruction_code_handler("1049"))  # 泊车辅助已激活
-#     print(instruction_code_handler("1939"))  # 未知指令
-#     print(instruction_code_handler("1527"))  # 蓝牙已连接
-#     print(instruction_code_handler("0833"))  # 当前胎压为 2.5 巴
-#     print(instruction_code_handler("1201[07:00]"))  # 空调已预约在 07:00 启动
-#     print(instruction_code_handler("1301"))  # 空调预约已取消
-
-
-#     # command = ["把空调温度调到24度","导航到南开大学津南校区","播放一些轻音乐","打开天窗","关闭车窗"]
-#     # user_id = "user123"
-#     # user_history_file_path = "user_history.json"
-#     # system_history_file_path = "system_history.json"
-    
-    
-#     # for cmd in command:
-#     #     print("===测试用户指令处理===")
-#     #     result = process_command(cmd, user_id, user_history_file_path)
-#     #     print(f"用户指令: {cmd}")
-#     #     print(f"指令编码: {extract_instruction_code(result)}")
-#     #     print(f"系统决策: {extract_decision(result)}")
-#     #     feedback = extract_feedback(result)
-#     #     print(f"用户反馈: {feedback}")
-#     #     try:
-#     #         speech_data = generate_speech(feedback, voice_index=2)  # 第二个参数为音色索引
-#     #         with open("TTS/test_submit.mp3", "wb") as file_to_save:
-#     #             file_to_save.write(speech_data)
-#     #     except Exception as e:
-#     #         print(f"Error: {e}")
-#     #     print(f"\n")

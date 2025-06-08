@@ -1,6 +1,22 @@
 {
     "instructions": [
         {
+            "input": "驾驶员持续分心或疲劳！",
+            "response": "2300"
+        },
+        {
+            "input": "确认",
+            "response": "2800"
+        },
+        {
+            "input": "拒绝",
+            "response": "2900"
+        },
+        {
+            "input": "已注意道路",
+            "response": "3000"
+        },
+        {
             "input": "把空调温度调到二十二摄氏度",
             "response": "0201[22]"
         },

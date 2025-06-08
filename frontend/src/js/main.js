@@ -20,22 +20,3 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('.left-panel').style.display = 'block';
     }
 });
-
-window.addEventListener('pagehide', async (event) => {
-    // 检查页面是否不会被缓存（即完全关闭）
-    if (!event.persisted) {
-        try {
-            const response = await fetch('/api/logout', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-                keepalive: true // 确保请求在页面卸载期间完成
-            });
-            if (!response.ok) {
-                localStorage.clear();
-            }
-        } catch (error) {
-            console.error('退出登录失败:', error);
-            alert('退出登录失败！');
-        }
-    }
-});

@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 from .extensions import db
 from datetime import datetime, timezone
 
@@ -10,7 +11,7 @@ class User(db.Model):
     type = db.Column(db.String(10), default='normal')  # 用户权限(normal/privileged)
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))  # 注册时间
     status = db.Column(db.String(20), default='offline')  # 用户状态(online/offline)
-    last_login = db.Column(db.DateTime, default=datetime.now(timezone.utc))  # 最后登录时间
+    last_login = db.Column(db.DateTime)  # 最后登录时间
     
     publicUser = db.relationship('PublicUser', backref='user', cascade='all, delete-orphan', uselist=False)
 

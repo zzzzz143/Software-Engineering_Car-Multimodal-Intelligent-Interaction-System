@@ -29,13 +29,32 @@ def account_info(current_user):
         try:
             data = request.get_json()
             publicUser = current_user.publicUser
-            if 'email' in data:
-                publicUser.email = data['email']
-            if 'addresses' in data:
+            if 'username' in data:
+                username = data.get('username')
+                if username != current_user.username:
+                    existing_user = User.query.filter_by(username=username).first()
+                    if existing_user:
+                        return jsonify({'error': '用户名已存在'}), 400
+                    current_user.username = username
+            elif 'email' in data:
+                email = data.get('email')
+                if email!= publicUser.email:
+                    existing_email = publicUser.query.filter_by(email=email).first()
+                    if existing_email:
+                        return jsonify({'error': '邮箱已存在'}), 400
+                    publicUser.email = email
+            elif 'old_password' and 'new_password' in data:
+                old_password = data.get('oldPassword')
+                new_password = data.get('newPassword')
+
+                if not check_password_hash(current_user.password_hash, old_password):
+                    return jsonify({'error': '旧密码错误'}), 400
+                current_user.password_hash = generate_password_hash(new_password)
+            elif 'addresses' in data:
                 publicUser.home_address = data['addresses'].get('home_address', publicUser.home_address)
                 publicUser.school_address = data['addresses'].get('school_address', publicUser.school_address)
                 publicUser.company_address = data['addresses'].get('company_address', publicUser.company_address)
-            if 'wake_word' in data:
+            elif 'wake_word' in data:
                 publicUser.wake_word = data['wake_word']
             
             db.session.commit()
@@ -43,24 +62,6 @@ def account_info(current_user):
         except Exception as e:
             db.session.rollback()
             return jsonify({'error': str(e)}), 500
-
-# 密码修改路由
-@account_bp.route('/api/account/password', methods=['PUT'])
-@token_required
-def change_password(current_user):
-    try:
-        data = request.get_json()
-        old_password = data.get('oldPassword')
-        new_password = data.get('newPassword')
-
-        if not check_password_hash(current_user.password_hash, old_password):
-            return jsonify({'error': '旧密码错误'}), 400
-        current_user.password_hash = generate_password_hash(new_password)
-        db.session.commit()
-        return jsonify({'message': '密码修改成功'}), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
 
 # 登出路由
 @account_bp.route('/api/logout', methods=['POST'])

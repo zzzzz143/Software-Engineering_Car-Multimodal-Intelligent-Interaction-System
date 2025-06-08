@@ -18,21 +18,40 @@ class MaintenanceScreen {
     }
 
     init() {
-        this.initEventListeners();
-        this.initSystemMonitoring();
-        this.initDiagnosticSystem();
-        this.loadMaintenanceLogs();
-        this.initVehicleInteraction();
+        this.initEventListeners(); // 初始化事件监听器
+        this.initSystemMonitoring(); // 初始化系统监控
+        this.initDiagnosticSystem(); // 初始化诊断系统
+        this.loadMaintenanceLogs(); // 加载维修日志
+        this.initVehicleInteraction(); // 初始化车辆交互
         console.log('维修界面初始化完成');
     }
 
     // 初始化事件监听器
     initEventListeners() {
-        // 新增日志按钮
+        // 退出登录按钮
+        const logoutBtn = document.querySelector('.action-btn.logout');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => this.handleLogout());
+        }
+
+        // 日志按钮
         const addLogBtn = document.querySelector('.add-log-btn');
         if (addLogBtn) {
             addLogBtn.addEventListener('click', () => this.showAddLogModal());
         }
+
+        // 日志条目点击事件
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.log-entry')) {
+                this.showLogDetails(e.target.closest('.log-entry'));
+            }
+        });
+
+        // 部件指示器点击事件
+        const partIndicators = document.querySelectorAll('.part-indicator');
+        partIndicators.forEach(indicator => {
+            indicator.addEventListener('click', (e) => this.showPartDetails(e.target.closest('.part-indicator')));
+        });
 
         // 快速操作按钮
         const startDiagnosticBtn = document.querySelector('.action-btn.primary');
@@ -49,19 +68,26 @@ class MaintenanceScreen {
         if (reportBtn) {
             reportBtn.addEventListener('click', () => this.generateReport());
         }
+    }
 
-        // 部件指示器点击事件
-        const partIndicators = document.querySelectorAll('.part-indicator');
-        partIndicators.forEach(indicator => {
-            indicator.addEventListener('click', (e) => this.showPartDetails(e.target.closest('.part-indicator')));
-        });
-
-        // 日志条目点击事件
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('.log-entry')) {
-                this.showLogDetails(e.target.closest('.log-entry'));
+        //  退出登录
+    async handleLogout() {
+        try {
+            const response = await fetch('/api/logout', {
+                method: 'POST',
+                headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}
+            });
+            if (response.ok) {
+                window.parent.location.href = '/login.html'; 
+                // 清空localStorage
+                localStorage.clear();
+                alert('退出登录成功');
             }
-        });
+        }
+        catch (error) {
+            console.error('退出登录失败:', error);
+            alert('退出登录失败');
+        }
     }
 
     // 初始化系统监控
@@ -488,33 +514,17 @@ ${reportData.recommendations.map(rec => `- ${rec}`).join('\n')}
     }
 }
 
+// 全局变量
+let maintenanceScreen;
+
 // 页面加载完成后初始化
-document.addEventListener('DOMContentLoaded', () => {
-    window.maintenanceScreen = new MaintenanceScreen();
+document.addEventListener('DOMContentLoaded', function() {
+    maintenanceScreen = new MaintenanceScreen();
 });
 
 // 页面卸载时清理资源
-window.addEventListener('beforeunload', () => {
-    if (window.maintenanceScreen) {
-        window.maintenanceScreen.destroy();
-    }
-});
-
-window.addEventListener('pagehide', async (event) => {
-    // 检查页面是否不会被缓存（即完全关闭）
-    if (!event.persisted) {
-        try {
-            const response = await fetch('/api/logout', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-                keepalive: true // 确保请求在页面卸载期间完成
-            });
-            if (!response.ok) {
-                localStorage.clear();
-            }
-        } catch (error) {
-            console.error('退出登录失败:', error);
-            alert('退出登录失败！');
-        }
+window.addEventListener('beforeunload', function() {
+    if (maintenanceScreen) {
+        maintenanceScreen.destroy();
     }
 });

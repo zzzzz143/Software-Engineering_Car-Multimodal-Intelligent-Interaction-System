@@ -487,3 +487,99 @@ button {
     filter: brightness(1);
     transition: filter 0.5s ease;
 }
+
+.screen-bezel {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.warning-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 0, 0, 0.15);
+    z-index: 1000;
+    display: none;
+    animation: warningPulse 2s infinite ease-in-out;
+}
+
+/* 通知模式：背景透明 */
+.warning-overlay.notification-mode {
+    background-color: transparent;
+    animation: none;
+}
+
+.warning-message {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #ff4444, #cc0000);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(255, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 400px;
+    min-width: 200px;
+    font-weight: bold;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 通知模式：绿色样式 */
+.warning-overlay.notification-mode .warning-message {
+    background: linear-gradient(135deg, #44ff44, #00cc00);
+    box-shadow: 0 4px 20px rgba(0, 255, 0, 0.4);
+}
+
+.warning-icon {
+    font-size: 20px;
+    animation: shake 1s infinite;
+}
+
+/* 通知模式：停止抖动动画 */
+.warning-overlay.notification-mode .warning-icon {
+    animation: none;
+}
+
+.warning-text {
+    flex: 1;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.warning-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.warning-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+@keyframes warningPulse {
+    0%, 100% { background-color: rgba(255, 0, 0, 0.1); }
+    50% { background-color: rgba(255, 0, 0, 0.2); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
+}

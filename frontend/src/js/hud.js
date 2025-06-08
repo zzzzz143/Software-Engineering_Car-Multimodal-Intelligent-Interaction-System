@@ -1,4 +1,4 @@
-function drawHUD(speed = 49, fuel = 78, rpm = 3500, gear = 3, temp = 85) {
+function drawHUD(speed = 49, fuel = 78, rpm = 3500, gear = 3, temp = 85, warningLight = false, warningFrequency = 1000) {
     const canvas = document.getElementById('hudCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -10,9 +10,17 @@ function drawHUD(speed = 49, fuel = 78, rpm = 3500, gear = 3, temp = 85) {
     
     // 外圈 
     ctx.beginPath();
-    ctx.arc(190, 110, 75, Math.PI, 2 * Math.PI, false);
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = '#ff6699';
+    ctx.arc(190, 110, 85, 0, 2 * Math.PI, false); // 增大半径，使边框更宽
+    ctx.lineWidth = 8; // 增加边框宽度
+
+    // 如果警告灯开启，动态调整边框透明度
+    if (warningLight) {
+        const warningAlpha = 0.5 + Math.abs(Math.sin(Date.now() / warningFrequency));
+        ctx.strokeStyle = `rgba(139, 0, 0, ${warningAlpha})`; // 深红色
+    } else {
+        ctx.strokeStyle = '#ff6699';
+    }
+
     ctx.shadowBlur = 20;
     ctx.shadowColor = '#ff6699';
     ctx.stroke();
@@ -121,4 +129,12 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
-drawHUD();
+
+// 定时调用drawHUD函数以实现闪烁效果
+export function startHUD(speed, fuel, rpm, gear, temp, warningLight, warningFrequency) {
+    setInterval(() => {
+        drawHUD(speed, fuel, rpm, gear, temp, warningLight, warningFrequency);
+    }, 1000 / 60); // 每秒60帧
+}
+
+startHUD(49, 78, 3500, 3, 85, true, 50); // 初始调用

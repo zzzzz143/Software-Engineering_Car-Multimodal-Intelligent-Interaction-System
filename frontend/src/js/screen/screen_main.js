@@ -317,7 +317,7 @@ class ChatAssistant {
 class VehicleStatus {
     constructor() {
         this.battery = 85;  // 电池电量百分比
-        this.speed = 420;   // 速度
+        this.speed = 80;   // 速度
         
         this.initializeElements();
     }
@@ -353,10 +353,9 @@ class VehicleStatus {
 
     // 更新速度显示
     updateSpeedDisplay() {
-        const percent = Math.min((this.currentTime / this.duration) * 100, 100);
-        const progressElement = document.getElementById('progressFill');
-        if (progressElement) {
-            progressElement.style.width = `${percent}%`;
+        const speedElement = document.querySelector('.status-item:last-child span:last-child');
+        if (speedElement) {
+            speedElement.textContent = `${this.speed} km/h`;
         }
     }
 

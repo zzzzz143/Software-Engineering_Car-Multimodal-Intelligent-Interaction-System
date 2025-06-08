@@ -1,48 +1,55 @@
-//车载系统管理员界面交互脚本
-
 class AdminScreenController {
     constructor() {
-        this.isInitialized = false;
         this.updateInterval = null;
         this.chartInstances = {};
-        this.systemData = {
-            users: 1247,
-            systemLoad: 68,
-            connectedVehicles: 892,
-            dataThroughput: 2.4,
-            responseTime: 12,
-            errorRate: 0.02
-        };
         this.init();
     }
 
     init() {
-        if (this.isInitialized) return;
+        this.loadUserData(); //  加载用户数据
+        this.initTimeDisplay(); //  初始化时间显示
+        this.initLogout(); //  初始化退出登录功能
+        this.initSystemStatus(); //  初始化系统状态
+        this.initUserManagement(); //  初始化用户管理
+        this.initSystemLogs(); //  初始化系统日志
+        this.initControlPanel(); //  初始化控制面板
+        this.initResourceCharts(); //  初始化资源图表
+        this.startDataUpdates(); // 启动数据更新
         
-        console.log('初始化车载系统管理员界面...');
-        
-        // 等待DOM加载完成
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.setupInterface());
-        } else {
-            this.setupInterface();
-        }
-    }
-
-    setupInterface() {
-        this.initTimeDisplay();
-        this.initSystemStatus();
-        this.initUserManagement();
-        this.initSystemLogs();
-        this.initControlPanel();
-        this.initResourceCharts();
-        this.startDataUpdates();
-        
-        this.isInitialized = true;
         console.log('车载系统管理员界面初始化完成');
     }
 
-    // 时间显示初始化
+    async loadUserData() {
+        try {
+            const response = await fetch('/api/admin/users', {
+                headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}
+            });
+            const users = await response.json();
+            
+            const totaluserCount = users.length;
+            const userCount = users.filter(user => user.status === 'online').length;
+            const driverCount = users.filter(user => user.role === 'driver').length;
+            const decayFactor = 0.2; // 衰减系数设为0.2
+            const currentLoad = (userCount / totaluserCount * 100) || 0;
+            
+            this.systemData.users = userCount;
+            this.systemData.systemLoad = this.systemData.systemLoad * decayFactor + currentLoad * (1 - decayFactor);;
+            this.systemData.connectedVehicles = driverCount;
+            this.systemData.dataThroughput = (this.systemData.dataThroughput * decayFactor) + (userCount * 0.3 * (1 - decayFactor));
+            this.systemData.responseTime = (this.systemData.responseTime * decayFactor) + (userCount * 2 * (1 - decayFactor));
+            this.systemData.errorRate = (this.systemData.errorRate * decayFactor) + (userCount * 0.0005 * (1 - decayFactor));
+            if (response.ok) {
+                this.renderUserList(users);
+                console.log('用户加载成功');
+            } else {
+                console.error('用户加载失败:', users.error);
+            }
+        } catch (error) {
+            console.error('用户加载失败:', error);
+        }
+    }
+
+    //  初始化时间显示
     initTimeDisplay() {
         this.updateTimeDisplay();
         setInterval(() => this.updateTimeDisplay(), 1000);
@@ -74,16 +81,53 @@ class AdminScreenController {
         }
     }
 
-    // 系统状态初始化
+    //  初始化系统状态
     initSystemStatus() {
+        this.systemData = {
+            users: 0,
+            systemLoad: 0,
+            connectedVehicles: 0,
+            dataThroughput: 0,
+            responseTime: 0,
+            errorRate: 0
+        };
+        this.updateSystemStatus();        
         this.updateSystemHealthIndicator();
-        this.updateSystemStatus();
         
         // 每5秒更新一次系统状态
         setInterval(() => {
+            this.loadUserData();
             this.updateSystemStatus();
             this.updateSystemHealthIndicator();
         }, 5000);
+    }
+
+    //  初始化退出登录功能
+    async initLogout() {
+        const logoutBtn = document.querySelector('.action-btn.logout');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => this.handleLogout());
+        }
+    }
+
+    //  退出登录
+    async handleLogout() {
+        try {
+            const response = await fetch('/api/logout', {
+                method: 'POST',
+                headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}
+            });
+            if (response.ok) {
+                window.parent.location.href = '/login.html'; 
+                // 清空localStorage
+                localStorage.clear();
+                alert('退出登录成功');
+            }
+        }
+        catch (error) {
+            console.error('退出登录失败:', error);
+            alert('退出登录失败');
+        }
     }
 
     updateSystemHealthIndicator() {
@@ -103,47 +147,50 @@ class AdminScreenController {
     }
 
     updateSystemStatus() {
-        // 模拟数据变化
-        this.systemData.users += Math.floor(Math.random() * 10 - 5);
-        this.systemData.systemLoad += Math.floor(Math.random() * 10 - 5);
-        this.systemData.connectedVehicles += Math.floor(Math.random() * 6 - 3);
-        this.systemData.dataThroughput += (Math.random() * 0.2 - 0.1);
-        this.systemData.responseTime += Math.floor(Math.random() * 4 - 2);
-        this.systemData.errorRate += (Math.random() * 0.01 - 0.005);
+        // // 模拟数据变化
+        // this.systemData.users += Math.floor(Math.random() * 10 - 5);
+        // this.systemData.systemLoad += Math.floor(Math.random() * 10 - 5);
+        // this.systemData.connectedVehicles += Math.floor(Math.random() * 6 - 3);
+        // this.systemData.dataThroughput += (Math.random() * 0.2 - 0.1);
+        // this.systemData.responseTime += Math.floor(Math.random() * 4 - 2);
+        // this.systemData.errorRate += (Math.random() * 0.01 - 0.005);
 
-        // 确保数据在合理范围内
-        this.systemData.users = Math.max(1000, Math.min(2000, this.systemData.users));
-        this.systemData.systemLoad = Math.max(30, Math.min(100, this.systemData.systemLoad));
-        this.systemData.connectedVehicles = Math.max(500, Math.min(1500, this.systemData.connectedVehicles));
-        this.systemData.dataThroughput = Math.max(1.0, Math.min(5.0, this.systemData.dataThroughput));
-        this.systemData.responseTime = Math.max(5, Math.min(50, this.systemData.responseTime));
-        this.systemData.errorRate = Math.max(0.001, Math.min(0.1, this.systemData.errorRate));
+        // // 确保数据在合理范围内
+        // this.systemData.users = Math.max(1000, Math.min(2000, this.systemData.users));
+        // this.systemData.systemLoad = Math.max(30, Math.min(100, this.systemData.systemLoad));
+        // this.systemData.connectedVehicles = Math.max(500, Math.min(1500, this.systemData.connectedVehicles));
+        // this.systemData.dataThroughput = Math.max(1.0, Math.min(5.0, this.systemData.dataThroughput));
+        // this.systemData.responseTime = Math.max(5, Math.min(50, this.systemData.responseTime));
+        // this.systemData.errorRate = Math.max(0.001, Math.min(0.1, this.systemData.errorRate));
 
+        console.log('系统状态更新:', this.systemData);
         // 更新显示
         const statusItems = document.querySelectorAll('.status-item');
         if (statusItems.length >= 6) {
             statusItems[0].querySelector('.status-value').textContent = this.systemData.users.toLocaleString();
-            statusItems[1].querySelector('.status-value').textContent = `${this.systemData.systemLoad}%`;
+            statusItems[1].querySelector('.status-value').textContent = `${this.systemData.systemLoad.toFixed(2)}%`;
             statusItems[2].querySelector('.status-value').textContent = this.systemData.connectedVehicles.toLocaleString();
             statusItems[3].querySelector('.status-value').textContent = `${this.systemData.dataThroughput.toFixed(1)}GB/s`;
-            statusItems[4].querySelector('.status-value').textContent = `${this.systemData.responseTime}ms`;
+            statusItems[4].querySelector('.status-value').textContent = `${this.systemData.responseTime.toFixed(2)}ms`;
             statusItems[5].querySelector('.status-value').textContent = `${(this.systemData.errorRate * 100).toFixed(3)}%`;
         }
     }
 
-    // 用户管理初始化
+    //  初始化用户管理
     initUserManagement() {
-        this.loadUsers();
+        this.initEventListeners();
+
         this.getRoleIcon = (role) => {
-            const icons = { driver: '🚗', 
-                passenger: '👤', 
-                admin: '👨‍💼', 
+            const icons = { driver: '🚗',
+                passenger: '👤',
+                admin: '👨‍💼',
                 maintenance: '🔧'
             }
             if (role in icons) {
                 return icons[role];
             }
-        };
+        }
+    
         this.getRoleName = (role) => {
             const names = { driver: '驾驶员',
                 passenger: '乘客',
@@ -162,48 +209,12 @@ class AdminScreenController {
                 return names[status];
             }
         }
-        const addUserBtn = document.querySelector('.add-user-btn');
-        if (addUserBtn) {
-            addUserBtn.addEventListener('click', () => this.showAddUserDialog());
-        }
-
-        document.querySelector('.user-list').addEventListener('click', (e) => {
-            if (e.target.closest('.action-btn.delete')) {
-                this.deleteUser(e);
-            }
-            if (e.target.closest('.action-btn.edit')) {
-                this.showEditUserDialog(e);
-            }
-        });
-        
-        // 模拟用户状态更新
-        setInterval(() => this.updateUserStatus(), 30000);
     }
-
-    async loadUsers() {
-        try {
-            const response = await fetch('/api/admin/users', {
-                headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}
-            });
-            const users = await response.json();
-            if (response.ok) {
-                this.renderUserList(users);
-                console.log('用户加载成功');
-                this.showNotification(`用户加载成功`,'success');
-            } else {
-                console.error('用户加载失败:', users.error);
-                this.showNotification(`用户加载失败: ${users.error}`, 'error');
-            }
-        } catch (error) {
-            console.error('用户加载失败:', error);
-            this.showNotification('用户加载失败', 'error');
-        }
-    }
-
+    
     renderUserList(users) {
         const userList = document.querySelector('.user-list');
         userList.innerHTML = users.map(user => `
-            <div class="user-item ${user.role}">
+            <div class="user-item ${user.role}" data-id="${user.id}">
                 <div class="user-avatar">${this.getRoleIcon(user.role)}</div>
                 <div class="user-info">
                     <div class="user-name">${user.username}</div>
@@ -212,11 +223,29 @@ class AdminScreenController {
                 </div>
                 <div class="user-status ${user.status}">${this.getStatusName(user.status)}</div>
                 <div class="user-actions">
-                    <button class="action-btn edit" data-id="${user.id}">编辑</button>
-                    <button class="action-btn delete" data-id="${user.id}">删除</button>
+                    <button class="action-btn edit"">编辑</button>
+                    <button class="action-btn delete"">删除</button>
                 </div>
             </div>
         `).join('');
+    }
+
+    initEventListeners() {
+        const addUserBtn = document.querySelector('.add-user-btn');
+
+        if (addUserBtn) {
+            addUserBtn.addEventListener('click', () => this.showAddUserDialog());
+        }
+
+        // 动态生成编辑、删除按钮，使用事件委托监听点击事件
+        document.querySelector('.user-list').addEventListener('click', (e) => {
+            if (e.target.closest('.action-btn.edit')) {
+                this.showEditUserDialog(e);
+            }
+            if (e.target.closest('.action-btn.delete')) {
+                this.deleteUser(e);
+            }
+        });
     }
 
     showAddUserDialog() {
@@ -231,6 +260,7 @@ class AdminScreenController {
 
     async addNewUser(name, roleNum) {
         try {
+            const role = ['driver', 'passenger', 'admin', 'maintenance'][roleNum-1];
             const response = await fetch('/api/admin/users', {
                 method: 'POST',
                 headers: {
@@ -239,12 +269,12 @@ class AdminScreenController {
                 },
                 body: JSON.stringify({
                     username: name,
-                    role: ['admin', 'maintenance', 'driver', 'operator'][roleNum-1]
+                    role: role
                 })
             });
             const data = await response.json();
             if (response.ok) {
-                this.loadUsers(); // 重新加载用户列表
+                await this.loadUserData();
                 console.log('用户添加成功');
                 this.showNotification('用户添加成功', 'success');
             } else {
@@ -258,7 +288,7 @@ class AdminScreenController {
     }
 
     showEditUserDialog(event) {
-        const userId = event.target.dataset.id;
+        const userId = event.target.closest('.user-item').dataset.id;
         const userName = prompt('请输入新的用户名:');
         if (userName) {
             const userType = prompt('请选择用户权限:\n1. 普通用户\n2. 特权用户\n请输入数字:');
@@ -284,7 +314,10 @@ class AdminScreenController {
                 })
                 const data = await response.json();
                 if (response.ok) {
-                    this.loadUsers(); // 重新加载用户列表
+                    const userItem = document.querySelector(`.user-item[data-id="${userId}"]`);
+                    if (userItem) {
+                        userItem.querySelector('.user-name').textContent = userName;
+                    }
                     console.log('用户更新成功');
                     this.showNotification('用户更新成功','success');
                 } else {
@@ -300,7 +333,11 @@ class AdminScreenController {
     }
 
     async deleteUser(event) {
-        const userId = event.target.dataset.id;
+        const userId = event.target.closest('.user-item').dataset.id;
+        if (!userId) {
+            console.error('无法找到用户ID');
+            return;
+        }
         if (confirm('确定要删除用户吗？')) {
             try {
                 const response = await fetch(`/api/admin/manage_user/${userId}`, {
@@ -341,7 +378,7 @@ class AdminScreenController {
         });
     }
 
-    // 系统日志初始化
+    //  初始化系统日志
     initSystemLogs() {
         const logFilter = document.querySelector('.log-level-filter');
         if (logFilter) {
@@ -415,7 +452,7 @@ class AdminScreenController {
         }
     }
 
-    // 控制面板初始化
+    //  初始化控制面板
     initControlPanel() {
         // 系统操作按钮
         document.querySelectorAll('.control-btn').forEach(btn => {
@@ -533,7 +570,7 @@ class AdminScreenController {
         }, 500);
     }
 
-    // 资源图表初始化
+    // 初始化资源图表
     initResourceCharts() {
         this.createCPUChart();
         this.createMemoryChart();
@@ -745,7 +782,6 @@ class AdminScreenController {
             }
         });
         
-        this.isInitialized = false;
         console.log('车载系统管理员界面已销毁');
     }
 }
@@ -769,22 +805,3 @@ window.addEventListener('beforeunload', function() {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = AdminScreenController;
 }
-
-window.addEventListener('pagehide', async (event) => {
-    // 检查页面是否不会被缓存（即完全关闭）
-    if (!event.persisted) {
-        try {
-            const response = await fetch('/api/logout', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-                keepalive: true // 确保请求在页面卸载期间完成
-            });
-            if (!response.ok) {
-                localStorage.clear();
-            }
-        } catch (error) {
-            console.error('退出登录失败:', error);
-            alert('退出登录失败！');
-        }
-    }
-});
