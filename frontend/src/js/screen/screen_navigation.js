@@ -4,7 +4,7 @@
  * 后续工作：1. 接入数据库获取车辆信息，家庭地址，公司地址等
  *          2. 接入地图API，获取实时路况信息（目前未找到合适的路况信息，不够详细，考虑将该模块替换为天气）
  */
-class NavigationDisplayManager {
+export class NavigationDisplayManager {
     constructor() {
         this.currentData = {
             navigation: {}, // 导航数据
@@ -21,16 +21,23 @@ class NavigationDisplayManager {
         this.realTimeNavigationInterval = null; // 实时导航定时器
         this.isNavigating = false; // 导航状态
 
+        this.savedMapState = null;
+        this.savedMarkersState = null;
+        this.savedRouteState = null;
+        this.savedNavigationState = null;
+
         this.home_address = null;
         this.school_address = null;
         this.company_address = null;
         this.initAddress();
+        this.setupAutoSave();
+        console.log('🚗 导航显示管理器构造完成');
+    }
 
+    init() {
         // 缓存DOM元素
         this.navigationToggleBtn = document.getElementById('navigation-toggle-btn');
         this.distanceIndicator = document.querySelector('.distance-indicator');
-        
-        console.log('🚗 导航显示管理器初始化完成');
     }
 
     async initAddress() {
@@ -420,56 +427,36 @@ class NavigationDisplayManager {
                     enableHighAccuracy: true,
                     timeout: 8000,
                 });
-                geolocation.getCurrentPosition((status, result) => {
-                    const mapContainer = document.getElementById('map-container');
-                    if (status === 'complete') {
-                        this.currentPosition = [result.position.lng, result.position.lat];
-                        console.log('当前位置：', this.currentPosition);
-                        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-                        if (userInfo) {
-                            userInfo.currentPosition = this.currentPosition;
-                            localStorage.setItem('userInfo', JSON.stringify(userInfo));
+                
+                // 如果有保存的位置，优先使用保存的位置
+                if (this.currentPosition) {
+                    this.initializeMapWithPosition(this.currentPosition);
+                } else {
+                    geolocation.getCurrentPosition((status, result) => {
+                        const mapContainer = document.getElementById('map-container');
+                        if (status === 'complete') {
+                            this.currentPosition = [result.position.lng, result.position.lat];
+                            console.log('当前位置：', this.currentPosition);
+                            const userInfo = JSON.parse(localStorage.getItem('userInfo'));Add commentMore actions
+                            if (userInfo) {
+                                userInfo.currentPosition = this.currentPosition;
+                                localStorage.setItem('userInfo', JSON.stringify(userInfo));
+                            }
+                            this.initializeMapWithPosition(this.currentPosition);
+                        } else {
+                            console.error('定位失败：', result);
+                            // 使用默认位置
+                            this.initializeMapWithPosition([116.397428, 39.90923]);
                         }
-                        this.map = new AMap.Map('map-container', {
-                            viewMode: '3D',
-                            zoom: 13,
-                            center: this.currentPosition
-                        });
-                        this.marker = new AMap.Marker({
-                            position: this.currentPosition,
-                            title: '当前位置',
-                            map: this.map
-                        });
-                        this.bindMapClickEvent();
-                        this.updateVehicleInfo({
-                            name: '当前车辆',
-                            plate: '沪A·12345'
-                        });
-                        this.updateVehicleMetrics({
-                            range: { value: 300, unit: 'km', percentage: 80 },
-                            temperature: { value: 22, unit: '°C', percentage: 50 },
-                            mileage: { value: 12000, unit: 'km', percentage: 20 }
-                        });
+                        
                         if (mapContainer) {
                             mapContainer.classList.remove('hidden');
                             mapContainer.style.setProperty('--map-loaded', 'true');
                         }
-                    } else {
-                        console.error('定位失败：', result);
-                        this.map = new AMap.Map('map-container', {
-                            viewMode: '3D',
-                            zoom: 13,
-                            center: [116.397428, 39.90923] 
-                        });
-                        this.bindMapClickEvent(); 
-                        if (mapContainer) {
-                            mapContainer.classList.remove('hidden');
-                            mapContainer.style.setProperty('--map-loaded', 'true');
-                        }
-                    }
-                });
+                    });
+                }
             });
-        })
+        });
     }
 
     bindMapClickEvent() {
@@ -658,22 +645,401 @@ class NavigationDisplayManager {
         if (this.realTimeNavigationInterval) clearInterval(this.realTimeNavigationInterval); 
         this.realTimeNavigationInterval = setInterval(updateNavigation, 5000); 
     }
+
+    // 保存当前状态到 localStorage
+    saveToLocalStorage() {
+        try {
+            // 保存地图状态信息
+            const mapState = this.map ? {
+                center: this.map.getCenter().toArray(),
+                zoom: this.map.getZoom(),
+                pitch: this.map.getPitch(),
+                features: this.map.getFeatures()
+            } : null;
+
+            // 保存标记点信息
+            const markersState = {
+                currentMarker: this.marker ? this.marker.getPosition().toArray() : null,
+                destinationMarker: this.destinationMarker ? {
+                    position: this.destinationMarker.getPosition().toArray(),
+                    title: this.destinationMarker.getTitle()
+                } : null
+            };
+
+            // 保存路线信息
+            const routeState = this.driving && this.currentData.navigation.details ? {
+                hasRoute: true,
+                startPoint: this.currentPosition,
+                endAddress: this.currentData.navigation.details.address
+            } : null;
+
+            const stateToSave = {
+                currentData: this.currentData,
+                isNavigating: this.isNavigating,
+                currentPosition: this.currentPosition,
+                mapState: mapState,
+                markersState: markersState,
+                routeState: routeState,
+                addresses: {
+                    home_address: this.home_address,
+                    school_address: this.school_address,
+                    company_address: this.company_address
+                },
+                timestamp: Date.now()
+            };
+            
+            localStorage.setItem('navigationDisplayState', JSON.stringify(stateToSave));
+            console.log('📱 导航状态已保存到 localStorage');
+        } catch (error) {
+            console.error('保存导航状态失败:', error);
+        }
+    }
+
+    // 从 localStorage 恢复状态
+    restoreFromLocalStorage() {
+        try {
+            const savedState = localStorage.getItem('navigationDisplayState');
+            if (!savedState) {
+                console.log('📱 未找到保存的导航状态');
+                return false;
+            }
+
+            const state = JSON.parse(savedState);
+            
+            // 检查数据是否过期
+            const maxAge = 24 * 60 * 60 * 1000; // 24小时
+            if (state.timestamp && (Date.now() - state.timestamp) > maxAge) {
+                console.log('📱 保存的导航状态已过期，将清除');
+                this.clearLocalStorage();
+                return false;
+            }
+
+            // 恢复基本数据
+            if (state.currentData) {
+                this.currentData = { ...this.currentData, ...state.currentData };
+            }
+            
+            if (state.currentPosition) {
+                this.currentPosition = state.currentPosition;
+            }
+            
+            if (state.addresses) {
+                this.home_address = state.addresses.home_address;
+                this.school_address = state.addresses.school_address;
+                this.company_address = state.addresses.company_address;
+            }
+            
+            // 保存地图状态和路线状态，稍后恢复
+            this.savedMapState = state.mapState;
+            this.savedMarkersState = state.markersState;
+            this.savedRouteState = state.routeState;
+            this.savedNavigationState = state.isNavigating;
+            
+            console.log('📱 导航状态已从 localStorage 恢复');
+            return true;
+        } catch (error) {
+            console.error('恢复导航状态失败:', error);
+            this.clearLocalStorage();
+            return false;
+        }
+    }
+
+    // 清除 localStorage 中的状态
+    clearLocalStorage() {
+        try {
+            localStorage.removeItem('navigationDisplayState');
+            console.log('📱 已清除 localStorage 中的导航状态');
+        } catch (error) {
+            console.error('清除导航状态失败:', error);
+        }
+    }
+
+    // 恢复 UI 显示
+    restoreUIFromData() {
+        // 恢复车辆信息
+        if (this.currentData.vehicle.info) {
+            this.updateVehicleInfo(this.currentData.vehicle.info);
+        }
+        
+        // 恢复车辆指标
+        if (this.currentData.vehicle.metrics) {
+            this.updateVehicleMetrics(this.currentData.vehicle.metrics);
+        }
+        
+        // 恢复导航详情
+        if (this.currentData.navigation.details) {
+            this.updateNavigationDetails(this.currentData.navigation.details);
+        }
+        
+        // 恢复距离指示器
+        if (this.currentData.navigation.distance) {
+            this.updateDistanceIndicator(this.currentData.navigation.distance);
+        }
+        
+        // 恢复路况信息
+        if (this.currentData.traffic.alerts) {
+            this.updateTrafficInfo(this.currentData.traffic.alerts);
+        }
+        
+        console.log('📱 UI 已从保存的数据恢复');
+    }
+
+    // 设置自动保存
+    setupAutoSave() {
+        // 每30秒自动保存一次状态
+        setInterval(() => {
+            this.saveToLocalStorage();
+        }, 30000);
+        
+        // 页面卸载时保存状态
+        window.addEventListener('beforeunload', () => {
+            this.saveToLocalStorage();
+        });
+        
+        // 页面隐藏时保存状态（移动端切换应用）
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                this.saveToLocalStorage();
+            }
+        });
+    }
+
+    // 新增：使用指定位置初始化地图
+    initializeMapWithPosition(position) {
+        // 使用保存的地图状态或默认状态
+        const mapOptions = {
+            viewMode: '3D',
+            zoom: this.savedMapState ? this.savedMapState.zoom : 13,
+            center: this.savedMapState ? this.savedMapState.center : position,
+            pitch: this.savedMapState ? this.savedMapState.pitch : 0
+        };
+        
+        if (this.savedMapState && this.savedMapState.features) {
+            mapOptions.features = this.savedMapState.features;
+        }
+        
+        this.map = new AMap.Map('map-container', mapOptions);
+        
+        // 恢复当前位置标记
+        const markerPosition = this.savedMarkersState && this.savedMarkersState.currentMarker 
+            ? this.savedMarkersState.currentMarker 
+            : position;
+            
+        this.marker = new AMap.Marker({
+            position: markerPosition,
+            title: '当前位置',
+            map: this.map
+        });
+        
+        // 恢复目的地标记
+        if (this.savedMarkersState && this.savedMarkersState.destinationMarker) {
+            this.destinationMarker = new AMap.Marker({
+                position: this.savedMarkersState.destinationMarker.position,
+                title: this.savedMarkersState.destinationMarker.title || '目的地',
+                map: this.map
+            });
+        }
+        
+        // 恢复路线
+        if (this.savedRouteState && this.savedRouteState.hasRoute) {
+            this.restoreRoute();
+        }
+        
+        // 恢复导航状态
+        if (this.savedNavigationState) {
+            this.isNavigating = this.savedNavigationState;
+            if (this.navigationToggleBtn) {
+                this.navigationToggleBtn.textContent = this.isNavigating ? '退出导航' : '开始导航';
+            }
+            
+            // 如果之前在导航中，恢复实时导航
+            if (this.isNavigating && this.currentData.navigation.details) {
+                this.startRealTimeNavigation(this.currentData.navigation.details);
+                if (this.distanceIndicator) {
+                    this.distanceIndicator.classList.remove('hidden');
+                }
+            }
+        }
+        
+        this.bindMapClickEvent();
+        
+        // 更新车辆信息
+        this.updateVehicleInfo({
+            name: '当前车辆',
+            plate: '沪A·12345'
+        });
+        this.updateVehicleMetrics({
+            range: { value: 300, unit: 'km', percentage: 80 },
+            temperature: { value: 22, unit: '°C', percentage: 50 },
+            mileage: { value: 12000, unit: 'km', percentage: 20 }
+        });
+        
+        const mapContainer = document.getElementById('map-container');
+        if (mapContainer) {
+            mapContainer.classList.remove('hidden');
+            mapContainer.style.setProperty('--map-loaded', 'true');
+        }
+        
+        // 清除临时保存的状态
+        this.savedMapState = null;
+        this.savedMarkersState = null;
+        this.savedRouteState = null;
+        this.savedNavigationState = null;
+    }
+
+    // 新增：恢复路线
+    restoreRoute() {
+        if (!this.savedRouteState || !this.savedRouteState.endAddress) {
+            return;
+        }
+        
+        AMap.plugin(['AMap.Geocoder', 'AMap.Driving'], () => {
+            const geocoder = new AMap.Geocoder();
+            geocoder.getLocation(this.savedRouteState.endAddress, (status, result) => {
+                if (status === 'complete' && result.geocodes.length) {
+                    const destLngLat = result.geocodes[0].location;
+                    
+                    if (!this.driving) {
+                        this.driving = new AMap.Driving({
+                            map: this.map,
+                        });
+                    }
+                    
+                    this.driving.search(
+                        new AMap.LngLat(this.currentPosition[0], this.currentPosition[1]),
+                        destLngLat,
+                        (status, result) => {
+                            if (status === 'complete' && result.routes && result.routes.length) {
+                                console.log('🗺️ 路线已恢复');
+                            } else {
+                                console.error('恢复路线失败：', result);
+                            }
+                        }
+                    );
+                }
+            });
+        });
+    }
+
 }
 
+const navigationDisplay = new NavigationDisplayManager();
 // 等待DOM加载完成后初始化
 document.addEventListener('DOMContentLoaded', function () {
-    window.navigationDisplay = new NavigationDisplayManager();
+    const activeNavBtn = document.querySelector('.nav-btn.active');
+    const isNaPage = activeNavBtn && activeNavBtn.textContent.includes('📍');
+    if (isNaPage) {
+        console.log('✅ 通过导航状态确认：这是导航页面');
+        navigationDisplay.init();
 
-    // 同步进行初始数据更新
-    window.navigationDisplay.updateDistanceIndicator();
-    window.navigationDisplay.updateVehicleInfo();
-    window.navigationDisplay.updateVehicleMetrics();
-    window.navigationDisplay.updateNavigationDetails(); 
-    window.navigationDisplay.updateTrafficInfo();
-    window.navigationDisplay.updateQuickActions(); 
+        // 同步进行初始数据更新
+        navigationDisplay.updateDistanceIndicator();
+        navigationDisplay.updateVehicleInfo();
+        navigationDisplay.updateVehicleMetrics();
+        navigationDisplay.updateNavigationDetails(); 
+        navigationDisplay.updateTrafficInfo();
+        navigationDisplay.updateQuickActions(); 
+        navigationDisplay.bindQuickActions(); 
 
-    window.navigationDisplay.bindQuickActions(); 
-    
-    // 初始化地图和导航相关功能
-    window.navigationDisplay.initializeMapAndNavigation();
+        //从 localStorage 恢复状态
+        navigationDisplay.restoreFromLocalStorage();
+        // 初始化地图和导航相关功能
+        navigationDisplay.initializeMapAndNavigation();
+        // 恢复 UI 显示
+        navigationDisplay.restoreUIFromData();
+    }
 });
+
+// 监听localStorage变化
+window.addEventListener('storage', function(event) {
+    if (event.key === 'crossPageMessage' && event.newValue) {
+        try {
+            const message = JSON.parse(event.newValue);
+            console.log('收到跨页面消息:', message);
+            
+            // 处理消息
+            handleCrossPageMessage(message);
+        } catch (error) {
+            console.error('解析跨页面消息失败:', error);
+        }
+    }
+});
+
+// 页面加载时检查是否有待处理的消息
+document.addEventListener('DOMContentLoaded', function() {
+    const pendingMessage = localStorage.getItem('crossPageMessage');
+    if (pendingMessage) {
+        try {
+            const message = JSON.parse(pendingMessage);
+            handleCrossPageMessage(message);
+            localStorage.removeItem('crossPageMessage');
+        } catch (error) {
+            console.error('处理待处理消息失败:', error);
+        }
+    }
+});
+
+// 处理消息的函数
+function handleCrossPageMessage(data) {
+    if (data.type === 'nav') {
+        if (data.content === 'start') {
+            navigationDisplay.toggleNavigation();
+        }
+        else if (data.content === 'stop') {
+            navigationDisplay.toggleNavigation();
+        }
+        else if (data.content === 'nav_to') {
+            let label = data.place;
+            // 如果正在导航中，先退出当前导航
+            if (navigationDisplay.isNavigating && navigationDisplay.navigationToggleBtn) { // 使用 this.isNavigating
+                console.log('快捷操作：检测到正在导航，将先退出当前导航。');
+                navigationDisplay.navigationToggleBtn.click(); 
+            }
+
+            switch (label) {
+                case '家':
+                    const homeAddress = navigationDisplay.home_address;
+                    if (!homeAddress) {
+                        alert('请先设置家庭地址');
+                        return;
+                    }
+                    navigationDisplay.navigateToFixedDestination({
+                        destination: '我的家',
+                        address: homeAddress
+                    });
+                    if (navigationDisplay.navigationToggleBtn) navigationDisplay.navigationToggleBtn.click(); // 开始新的导航
+                    break;
+                case '学校':
+                    const schoolAddress = navigationDisplay.school_address;
+                    if (!schoolAddress) {
+                        alert('请先设置学校地址');
+                        return;
+                    }
+                    navigationDisplay.navigateToFixedDestination({
+                        destination: '我的学校',
+                        address: schoolAddress
+                    });
+                    if (navigationDisplay.navigationToggleBtn) navigationDisplay.navigationToggleBtn.click(); // 开始新的导航
+                    break;
+                case '公司':
+                    const companyAddress = navigationDisplay.company_address;
+                    if (!companyAddress) {
+                        alert('请先设置公司地址');
+                        return;
+                    }
+                    navigationDisplay.navigateToFixedDestination({
+                        destination: '我的公司',
+                        address: companyAddress
+                    });
+                    if (navigationDisplay.navigationToggleBtn) navigationDisplay.navigationToggleBtn.click(); // 开始新的导航
+                    break;
+                case '加油站':
+                    navigationDisplay.searchNearby('加油站'); // 移除 navigationToggleBtn 参数，内部使用 this.navigationToggleBtn
+                    break;
+                case '停车场':
+                    navigationDisplay.searchNearby('停车场'); // 移除 navigationToggleBtn 参数
+                    break;
+            }   
+        }
+    }
+}
