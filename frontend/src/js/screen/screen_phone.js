@@ -3,7 +3,8 @@
  * 实现拨号、来电、通话等功能
  */
 
-class CarPhoneSystem {
+
+export class CarPhoneSystem {
     constructor() {
         this.currentCall = null;
         this.callTimer = null;
@@ -24,14 +25,15 @@ class CarPhoneSystem {
             '120': '急救中心'
         };
         
-        this.init();
+        console.log('车载通话系统已创建');
     }
 
+    // 初始化方法，在页面加载完成后调用
     init() {
         this.bindEvents();
         this.createIncomingCallModal();
         this.createSimulateCallButton();
-        console.log('车载通话系统初始化完成');
+        console.log('车载通话与页面绑定完成');
     }
 
     // 绑定事件监听器
@@ -46,14 +48,20 @@ class CarPhoneSystem {
         });
 
         // 清除号码按钮
-        document.getElementById('clearNumber').addEventListener('click', () => {
-            this.clearNumber();
-        });
+        const clearButton = document.getElementById('clearNumber');
+        if (clearButton) {
+            clearButton.addEventListener('click', () => {
+                this.clearNumber();
+            });
+        }
 
         // 拨打电话按钮
-        document.getElementById('makeCall').addEventListener('click', () => {
-            this.makeCall();
-        });
+        const makeCallButton = document.getElementById('makeCall');
+        if (makeCallButton) {
+            makeCallButton.addEventListener('click', () => {
+                this.makeCall();
+            });
+        }
 
         // 通话控制按钮
         this.bindCallControlEvents();
@@ -317,13 +325,20 @@ class CarPhoneSystem {
         document.body.appendChild(modal);
         
         // 绑定来电弹窗事件
-        document.getElementById('answerCall').addEventListener('click', () => {
-            this.answerIncomingCall();
-        });
+        const answerButton = document.getElementById('answerCall');
+        const declineButton = document.getElementById('declineCall');
         
-        document.getElementById('declineCall').addEventListener('click', () => {
-            this.declineIncomingCall();
-        });
+        if (answerButton) {
+            answerButton.addEventListener('click', () => {
+                this.answerIncomingCall();
+            });
+        }
+        
+        if (declineButton) {
+            declineButton.addEventListener('click', () => {
+                this.declineIncomingCall();
+            });
+        }
     }
 
     // 模拟来电功能
@@ -348,10 +363,11 @@ class CarPhoneSystem {
         const nameElement = document.getElementById('incomingCallerName');
         const numberElement = document.getElementById('incomingCallerNumber');
         
-        nameElement.textContent = name;
-        numberElement.textContent = number;
-        
-        modal.classList.remove('hidden');
+        if (modal && nameElement && numberElement) {
+            nameElement.textContent = name;
+            numberElement.textContent = number;
+            modal.classList.remove('hidden');
+        }
         
         // 存储来电信息
         this.currentCall = { name, number, type: 'incoming' };
@@ -377,12 +393,16 @@ class CarPhoneSystem {
     // 隐藏来电界面
     hideIncomingCall() {
         const modal = document.getElementById('incomingCallModal');
-        modal.classList.add('hidden');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
     }
 
     // 添加数字到号码显示
     addDigit(digit) {
         const phoneNumber = document.getElementById('phoneNumber');
+        if (!phoneNumber) return;
+        
         const currentValue = phoneNumber.value;
         
         // 限制号码长度
@@ -395,6 +415,8 @@ class CarPhoneSystem {
     // 清除号码
     clearNumber() {
         const phoneNumber = document.getElementById('phoneNumber');
+        if (!phoneNumber) return;
+        
         const currentValue = phoneNumber.value;
         
         if (currentValue.length > 0) {
@@ -405,9 +427,12 @@ class CarPhoneSystem {
 
     // 拨打电话
     makeCall() {
-        const phoneNumber = document.getElementById('phoneNumber').value.trim();
+        const phoneNumber = document.getElementById('phoneNumber');
+        if (!phoneNumber) return;
         
-        if (!phoneNumber) {
+        const number = phoneNumber.value.trim();
+        
+        if (!number) {
             this.showNotification('请输入电话号码', 'warning');
             return;
         }
@@ -417,8 +442,8 @@ class CarPhoneSystem {
             return;
         }
         
-        const callerName = this.contacts[phoneNumber] || '未知联系人';
-        this.startCall(callerName, phoneNumber, 'outgoing');
+        const callerName = this.contacts[number] || '未知联系人';
+        this.startCall(callerName, number, 'outgoing');
         this.showNotification(`正在拨打 ${callerName}`, 'info');
     }
 
@@ -430,7 +455,10 @@ class CarPhoneSystem {
         }
         
         const callerName = this.contacts[number] || '未知联系人';
-        document.getElementById('phoneNumber').value = number;
+        const phoneNumber = document.getElementById('phoneNumber');
+        if (phoneNumber) {
+            phoneNumber.value = number;
+        }
         this.startCall(callerName, number, 'outgoing');
         this.showNotification(`正在拨打 ${callerName}`, 'info');
     }
@@ -442,13 +470,20 @@ class CarPhoneSystem {
         this.callStartTime = new Date();
         
         // 隐藏拨号器，显示通话界面
-        document.getElementById('dialerWidget').classList.add('hidden');
-        document.getElementById('callWidget').classList.remove('hidden');
+        const dialerWidget = document.getElementById('dialerWidget');
+        const callWidget = document.getElementById('callWidget');
+        
+        if (dialerWidget) dialerWidget.classList.add('hidden');
+        if (callWidget) callWidget.classList.remove('hidden');
         
         // 更新通话界面信息
-        document.getElementById('callerName').textContent = name;
-        document.getElementById('callerNumber').textContent = number;
-        document.getElementById('callState').textContent = type === 'incoming' ? '通话中...' : '正在连接...';
+        const callerNameElement = document.getElementById('callerName');
+        const callerNumberElement = document.getElementById('callerNumber');
+        const callStateElement = document.getElementById('callState');
+        
+        if (callerNameElement) callerNameElement.textContent = name;
+        if (callerNumberElement) callerNumberElement.textContent = number;
+        if (callStateElement) callStateElement.textContent = type === 'incoming' ? '通话中...' : '正在连接...';
         
         // 启动通话计时器
         this.startCallTimer();
@@ -456,8 +491,8 @@ class CarPhoneSystem {
         // 模拟连接延迟（仅用于拨出电话）
         if (type === 'outgoing') {
             setTimeout(() => {
-                if (this.isInCall) {
-                    document.getElementById('callState').textContent = '通话中...';
+                if (this.isInCall && callStateElement) {
+                    callStateElement.textContent = '通话中...';
                     this.showNotification('通话已接通', 'success');
                 }
             }, 2000);
@@ -475,14 +510,20 @@ class CarPhoneSystem {
         this.stopCallTimer();
         
         // 显示拨号器，隐藏通话界面
-        document.getElementById('callWidget').classList.add('hidden');
-        document.getElementById('dialerWidget').classList.remove('hidden');
+        const callWidget = document.getElementById('callWidget');
+        const dialerWidget = document.getElementById('dialerWidget');
+        
+        if (callWidget) callWidget.classList.add('hidden');
+        if (dialerWidget) dialerWidget.classList.remove('hidden');
         
         // 重置通话状态
         this.resetCallState();
         
         // 清空号码显示
-        document.getElementById('phoneNumber').value = '';
+        const phoneNumber = document.getElementById('phoneNumber');
+        if (phoneNumber) {
+            phoneNumber.value = '';
+        }
         
         this.showNotification('通话已结束', 'info');
         this.currentCall = null;
@@ -496,7 +537,10 @@ class CarPhoneSystem {
                 const minutes = Math.floor(elapsed / 60);
                 const seconds = elapsed % 60;
                 const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                document.getElementById('callTimer').textContent = timeString;
+                const callTimerElement = document.getElementById('callTimer');
+                if (callTimerElement) {
+                    callTimerElement.textContent = timeString;
+                }
             }
         }, 1000);
     }
@@ -513,17 +557,19 @@ class CarPhoneSystem {
     toggleMute() {
         this.isMuted = !this.isMuted;
         const muteBtn = document.getElementById('muteBtn');
+        if (!muteBtn) return;
+        
         const icon = muteBtn.querySelector('.control-icon');
         const label = muteBtn.querySelector('.control-label');
         
         if (this.isMuted) {
-            icon.textContent = '🔇';
-            label.textContent = '取消静音';
+            if (icon) icon.textContent = '🔇';
+            if (label) label.textContent = '取消静音';
             muteBtn.classList.add('active');
             this.showNotification('已静音', 'info');
         } else {
-            icon.textContent = '🎤';
-            label.textContent = '静音';
+            if (icon) icon.textContent = '🎤';
+            if (label) label.textContent = '静音';
             muteBtn.classList.remove('active');
             this.showNotification('已取消静音', 'info');
         }
@@ -535,17 +581,19 @@ class CarPhoneSystem {
     toggleSpeaker() {
         this.isSpeakerOn = !this.isSpeakerOn;
         const speakerBtn = document.getElementById('speakerBtn');
+        if (!speakerBtn) return;
+        
         const icon = speakerBtn.querySelector('.control-icon');
         const label = speakerBtn.querySelector('.control-label');
         
         if (this.isSpeakerOn) {
-            icon.textContent = '🔊';
-            label.textContent = '关闭免提';
+            if (icon) icon.textContent = '🔊';
+            if (label) label.textContent = '关闭免提';
             speakerBtn.classList.add('active');
             this.showNotification('免提已开启', 'info');
         } else {
-            icon.textContent = '🔈';
-            label.textContent = '免提';
+            if (icon) icon.textContent = '🔈';
+            if (label) label.textContent = '免提';
             speakerBtn.classList.remove('active');
             this.showNotification('免提已关闭', 'info');
         }
@@ -557,21 +605,23 @@ class CarPhoneSystem {
     toggleHold() {
         this.isOnHold = !this.isOnHold;
         const holdBtn = document.getElementById('holdBtn');
+        if (!holdBtn) return;
+        
         const icon = holdBtn.querySelector('.control-icon');
         const label = holdBtn.querySelector('.control-label');
         const callState = document.getElementById('callState');
         
         if (this.isOnHold) {
-            icon.textContent = '▶️';
-            label.textContent = '恢复';
+            if (icon) icon.textContent = '▶️';
+            if (label) label.textContent = '恢复';
             holdBtn.classList.add('active');
-            callState.textContent = '通话保持中...';
+            if (callState) callState.textContent = '通话保持中...';
             this.showNotification('通话已保持', 'info');
         } else {
-            icon.textContent = '⏸️';
-            label.textContent = '保持';
+            if (icon) icon.textContent = '⏸️';
+            if (label) label.textContent = '保持';
             holdBtn.classList.remove('active');
-            callState.textContent = '通话中...';
+            if (callState) callState.textContent = '通话中...';
             this.showNotification('通话已恢复', 'info');
         }
         
@@ -626,6 +676,8 @@ class CarPhoneSystem {
     // 添加通话记录
     addCallToHistory(name, number, type) {
         const callHistory = document.getElementById('callHistory');
+        if (!callHistory) return;
+        
         const now = new Date();
         const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
         
@@ -656,10 +708,12 @@ class CarPhoneSystem {
         
         // 绑定快速拨号事件
         const callBtn = callItem.querySelector('.call-btn');
-        callBtn.addEventListener('click', (e) => {
-            const number = e.currentTarget.dataset.number;
-            this.quickDial(number);
-        });
+        if (callBtn) {
+            callBtn.addEventListener('click', (e) => {
+                const number = e.currentTarget.dataset.number;
+                this.quickDial(number);
+            });
+        }
         
         // 限制记录数量
         const items = callHistory.querySelectorAll('.call-item');
@@ -812,6 +866,332 @@ class CarPhoneSystem {
         };
         return colors[type] || colors.info;
     }
+
+
+    // 获取系统配置
+    getConfig() {
+        return {
+            contacts: this.contacts,
+            // 可以添加其他配置项
+            maxCallHistory: 10,
+            keyToneEnabled: true,
+            ringtoneEnabled: true
+        };
+    }
+
+    // 获取当前状态
+    getState() {
+        return {
+            currentCall: this.currentCall,
+            isInCall: this.isInCall,
+            isMuted: this.isMuted,
+            isSpeakerOn: this.isSpeakerOn,
+            isOnHold: this.isOnHold,
+            callStartTime: this.callStartTime,
+            // 保存通话记录（从DOM中获取）
+            callHistory: this.getCallHistoryFromDOM()
+        };
+    }
+
+    // 恢复状态
+    // 在 CarPhoneSystem 类中修改 restoreState 方法
+    restoreState(savedData) {
+        if (!savedData) return;
+        
+        // 如果传入的是完整的保存数据（包含 config 和 state），则提取 state 部分
+        const stateData = savedData.state || savedData;
+        
+        // 恢复基本状态
+        this.currentCall = stateData.currentCall || null;
+        this.isInCall = stateData.isInCall || false;
+        this.isMuted = stateData.isMuted || false;
+        this.isSpeakerOn = stateData.isSpeakerOn || false;
+        this.isOnHold = stateData.isOnHold || false;
+        this.callStartTime = stateData.callStartTime ? new Date(stateData.callStartTime) : null;
+        
+        // 如果有配置数据，也恢复配置
+        if (savedData.config && savedData.config.contacts) {
+            this.contacts = savedData.config.contacts;
+        }
+        
+        // 如果有进行中的通话，恢复通话界面
+        if (this.isInCall && this.currentCall) {
+            this.restoreCallInterface();
+        }
+        
+        // 恢复通话记录
+        if (stateData.callHistory) {
+            this.restoreCallHistory(stateData.callHistory);
+            console.log("通话记录恢复");
+        }
+        
+        console.log('系统状态已恢复');
+    }
+
+    // 从DOM获取通话记录
+    getCallHistoryFromDOM() {
+        const callHistory = document.getElementById('callHistory');
+        if (!callHistory) return [];
+        
+        const items = callHistory.querySelectorAll('.call-item');
+        const history = [];
+        
+        items.forEach(item => {
+            const name = item.querySelector('.call-name')?.textContent || '';
+            const time = item.querySelector('.call-time')?.textContent || '';
+            const type = item.querySelector('.call-type')?.textContent || '';
+            const number = item.querySelector('.call-btn')?.dataset.number || '';
+            const callType = item.classList.contains('incoming') ? 'incoming' : 
+                            item.classList.contains('outgoing') ? 'outgoing' : 'missed';
+            
+            history.push({ name, number, time, type, callType });
+        });
+        
+        return history;
+    }
+
+    // 恢复通话记录
+    restoreCallHistory(historyData) {
+        const callHistory = document.getElementById('callHistory');
+        if (!callHistory || !historyData.length) return;
+        
+        // 清空现有记录
+        callHistory.innerHTML = '';
+        
+        // 重新添加记录
+        historyData.forEach(record => {
+            const callItem = document.createElement('div');
+            callItem.className = `call-item ${record.callType}`;
+            callItem.innerHTML = `
+                <div class="call-info">
+                    <div class="call-name">${record.name}</div>
+                    <div class="call-details">
+                        <span class="call-time">${record.time}</span>
+                        <span class="call-type">${record.type}</span>
+                    </div>
+                </div>
+                <div class="call-actions">
+                    <button class="action-btn call-btn" data-number="${record.number}">📞</button>
+                    <button class="action-btn msg-btn">💬</button>
+                </div>
+            `;
+            
+            callHistory.appendChild(callItem);
+            
+            // 重新绑定事件
+            const callBtn = callItem.querySelector('.call-btn');
+            if (callBtn) {
+                callBtn.addEventListener('click', (e) => {
+                    const number = e.currentTarget.dataset.number;
+                    this.quickDial(number);
+                });
+            }
+        });
+    }
+
+    // 恢复通话界面
+    restoreCallInterface() {
+        // 显示通话界面，隐藏拨号器
+        const dialerWidget = document.getElementById('dialerWidget');
+        const callWidget = document.getElementById('callWidget');
+        
+        if (dialerWidget) dialerWidget.classList.add('hidden');
+        if (callWidget) callWidget.classList.remove('hidden');
+        
+        // 更新通话信息
+        const callerNameElement = document.getElementById('callerName');
+        const callerNumberElement = document.getElementById('callerNumber');
+        const callStateElement = document.getElementById('callState');
+        
+        if (this.currentCall) {
+            if (callerNameElement) callerNameElement.textContent = this.currentCall.name;
+            if (callerNumberElement) callerNumberElement.textContent = this.currentCall.number;
+            if (callStateElement) {
+                callStateElement.textContent = this.isOnHold ? '通话保持中...' : '通话中...';
+            }
+        }
+        
+        // 恢复按钮状态
+        this.restoreButtonStates();
+        
+        // 重新启动计时器
+        if (this.callStartTime) {
+            this.startCallTimer();
+        }
+    }
+
+    // 恢复按钮状态
+    restoreButtonStates() {
+        // 静音按钮
+        const muteBtn = document.getElementById('muteBtn');
+        if (muteBtn) {
+            if (this.isMuted) {
+                muteBtn.classList.add('active');
+                this.updateButtonText('muteBtn', '🔇', '取消静音');
+            } else {
+                muteBtn.classList.remove('active');
+                this.updateButtonText('muteBtn', '🎤', '静音');
+            }
+        }
+        
+        // 免提按钮
+        const speakerBtn = document.getElementById('speakerBtn');
+        if (speakerBtn) {
+            if (this.isSpeakerOn) {
+                speakerBtn.classList.add('active');
+                this.updateButtonText('speakerBtn', '🔊', '关闭免提');
+            } else {
+                speakerBtn.classList.remove('active');
+                this.updateButtonText('speakerBtn', '🔈', '免提');
+            }
+        }
+        
+        // 保持按钮
+        const holdBtn = document.getElementById('holdBtn');
+        if (holdBtn) {
+            if (this.isOnHold) {
+                holdBtn.classList.add('active');
+                this.updateButtonText('holdBtn', '▶️', '恢复');
+            } else {
+                holdBtn.classList.remove('active');
+                this.updateButtonText('holdBtn', '⏸️', '保持');
+            }
+        }
+    }
+
+    // 序列化实例数据（用于其他通信方式）
+    serialize() {
+        return JSON.stringify(this.getState());
+    }
+
+    // 反序列化数据
+    deserialize(data) {
+        try {
+            const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+            this.restoreState(parsedData);
+        } catch (error) {
+            console.error('反序列化失败:', error);
+        }
+    }
+
+    // 更新显示状态
+    updateDisplay() {
+        // 更新号码显示
+        const phoneNumber = document.getElementById('phoneNumber');
+        if (phoneNumber && this.currentCall && !this.isInCall) {
+            phoneNumber.value = this.currentCall.number || '';
+        }
+        
+        // 更新通话界面显示
+        if (this.isInCall && this.currentCall) {
+            this.updateCallDisplay();
+        } else {
+            this.updateDialerDisplay();
+        }
+        
+        // 更新按钮状态
+        this.updateAllButtonStates();
+        
+        // 更新通话记录显示
+        this.updateCallHistoryDisplay();
+        
+        console.log('显示状态已更新');
+    }
+
+    // 更新通话界面显示
+    updateCallDisplay() {
+        const dialerWidget = document.getElementById('dialerWidget');
+        const callWidget = document.getElementById('callWidget');
+        
+        if (dialerWidget) dialerWidget.classList.add('hidden');
+        if (callWidget) callWidget.classList.remove('hidden');
+        
+        // 更新通话信息
+        const callerNameElement = document.getElementById('callerName');
+        const callerNumberElement = document.getElementById('callerNumber');
+        const callStateElement = document.getElementById('callState');
+        
+        if (this.currentCall) {
+            if (callerNameElement) callerNameElement.textContent = this.currentCall.name;
+            if (callerNumberElement) callerNumberElement.textContent = this.currentCall.number;
+            if (callStateElement) {
+                callStateElement.textContent = this.isOnHold ? '通话保持中...' : '通话中...';
+            }
+        }
+        
+        // 重新启动计时器
+        if (this.callStartTime && !this.callTimer) {
+            this.startCallTimer();
+        }
+    }
+
+    // 更新拨号器显示
+    updateDialerDisplay() {
+        const dialerWidget = document.getElementById('dialerWidget');
+        const callWidget = document.getElementById('callWidget');
+        
+        if (dialerWidget) dialerWidget.classList.remove('hidden');
+        if (callWidget) callWidget.classList.add('hidden');
+    }
+
+    // 更新所有按钮状态
+    updateAllButtonStates() {
+        // 静音按钮
+        const muteBtn = document.getElementById('muteBtn');
+        if (muteBtn) {
+            if (this.isMuted) {
+                muteBtn.classList.add('active');
+                this.updateButtonText('muteBtn', '🔇', '取消静音');
+            } else {
+                muteBtn.classList.remove('active');
+                this.updateButtonText('muteBtn', '🎤', '静音');
+            }
+        }
+        
+        // 免提按钮
+        const speakerBtn = document.getElementById('speakerBtn');
+        if (speakerBtn) {
+            if (this.isSpeakerOn) {
+                speakerBtn.classList.add('active');
+                this.updateButtonText('speakerBtn', '🔊', '关闭免提');
+            } else {
+                speakerBtn.classList.remove('active');
+                this.updateButtonText('speakerBtn', '🔈', '免提');
+            }
+        }
+        
+        // 保持按钮
+        const holdBtn = document.getElementById('holdBtn');
+        if (holdBtn) {
+            if (this.isOnHold) {
+                holdBtn.classList.add('active');
+                this.updateButtonText('holdBtn', '▶️', '恢复');
+            } else {
+                holdBtn.classList.remove('active');
+                this.updateButtonText('holdBtn', '⏸️', '保持');
+            }
+        }
+    }
+
+    // 更新通话记录显示
+    updateCallHistoryDisplay() {
+        const callHistory = document.getElementById('callHistory');
+        if (!callHistory) return;
+        
+        // 重新绑定所有通话记录的事件
+        const callBtns = callHistory.querySelectorAll('.call-btn');
+        callBtns.forEach(btn => {
+            // 移除旧的事件监听器，添加新的
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            
+            newBtn.addEventListener('click', (e) => {
+                const number = e.currentTarget.dataset.number;
+                this.quickDial(number);
+            });
+        });
+    }
+
 }
 
 // 添加隐藏类样式
@@ -837,7 +1217,112 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// 初始化系统
+const carPhoneSystem = new CarPhoneSystem();
+// 页面加载完成后初始化系统
 document.addEventListener('DOMContentLoaded', () => {
-    window.carPhoneSystem = new CarPhoneSystem();
+    const activeNavBtn = document.querySelector('.nav-btn.active');
+    const isPhonePage = activeNavBtn && activeNavBtn.textContent.includes('📞');
+    if (isPhonePage) {
+        console.log('✅ 通过导航状态确认：这是电话页面');
+            // 获取保存的数据
+            const savedData = JSON.parse(localStorage.getItem('carPhoneSystemData') || '{}');
+            
+            // 恢复状态
+            carPhoneSystem.init();
+            carPhoneSystem.restoreState(savedData);
+            carPhoneSystem.updateDisplay();
+
+            function saveCarPhoneSystemData() {
+                try {
+                    const systemDataPhone = {
+                        isInitialized: true,
+                        config: carPhoneSystem.getConfig(),
+                        state: carPhoneSystem.getState(),
+                        lastSaved: new Date().toISOString()
+                    };
+                    localStorage.setItem('carPhoneSystemData', JSON.stringify(systemDataPhone));
+                    localStorage.setItem('carPhoneSystemInitialized', 'true');
+                    console.log('📱 电话系统数据已保存 -', new Date().toLocaleTimeString());
+                } catch (error) {
+                    console.error('保存电话系统数据失败:', error);
+                } 
+            }
+
+            setInterval(() => saveCarPhoneSystemData(), 3000);
+    }
 });
+
+// 监听localStorage变化
+window.addEventListener('storage', function(event) {
+    if (event.key === 'crossPageMessage' && event.newValue) {
+        try {
+            const message = JSON.parse(event.newValue);
+            console.log('收到跨页面消息:', message);
+            
+            // 处理消息
+            handleCrossPageMessage(message);
+        } catch (error) {
+            console.error('解析跨页面消息失败:', error);
+        }
+    }
+});
+
+// 页面加载时检查是否有待处理的消息
+document.addEventListener('DOMContentLoaded', function() {
+    const pendingMessage = localStorage.getItem('crossPageMessage');
+    if (pendingMessage) {
+        try {
+            const message = JSON.parse(pendingMessage);
+            handleCrossPageMessage(message);
+            localStorage.removeItem('crossPageMessage');
+        } catch (error) {
+            console.error('处理待处理消息失败:', error);
+        }
+    }
+});
+
+// 处理消息的函数
+function handleCrossPageMessage(data) {
+    if (data.type === 'phone') {
+        if (data.content === 'start') {
+            const savedData = JSON.parse(localStorage.getItem('carPhoneSystemData') || '{}');
+            carPhoneSystem.restoreState(savedData);
+            carPhoneSystem.answerIncomingCall();
+        }
+        else if (data.content === 'end') {
+            const savedData = JSON.parse(localStorage.getItem('carPhoneSystemData') || '{}');
+            carPhoneSystem.restoreState(savedData);
+            carPhoneSystem.declineIncomingCall();
+        }
+        else if (data.content === 'hang_up') {
+            const savedData = JSON.parse(localStorage.getItem('carPhoneSystemData') || '{}');
+            carPhoneSystem.restoreState(savedData);
+            carPhoneSystem.endCall();
+        }
+        else if (data.content === 'make') {
+            const savedData = JSON.parse(localStorage.getItem('carPhoneSystemData') || '{}');
+            carPhoneSystem.restoreState(savedData);
+            if (data.contacts && /^\d/.test(String(data.contacts))) { //数字拨号
+                if (carPhoneSystem.isInCall) {
+                    carPhoneSystem.showNotification('当前正在通话中', 'warning');
+                    return;
+                }
+                let number = data.contacts;
+                const callerName = carPhoneSystem.contacts[number] || '未知联系人';
+                carPhoneSystem.startCall(callerName, number, 'outgoing');
+                carPhoneSystem.showNotification(`正在拨打 ${callerName}`, 'info');
+            }
+            else { //联系人
+                if (carPhoneSystem.isInCall) {
+                    carPhoneSystem.showNotification('当前正在通话中', 'warning');
+                    return;
+                }
+                const entry = Object.entries(carPhoneSystem.contacts).find(([phone, contactName]) => contactName === data.contacts);
+                let number = entry[0];
+                const callerName = carPhoneSystem.contacts[number] || '未知联系人';
+                carPhoneSystem.startCall(callerName, number, 'outgoing');
+                carPhoneSystem.showNotification(`正在拨打 ${callerName}`, 'info');
+            }
+        }
+    }
+}
