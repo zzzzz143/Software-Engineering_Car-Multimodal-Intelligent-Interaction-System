@@ -5,7 +5,7 @@
 
 import { neteaseApi } from '../service/netease_api.js';
 
-class MusicPlayerUI {
+export class MusicPlayerUI {
     constructor() {
         this.isPlaying = false; // 播放状态
         this.currentSongIndex = 0; // 当前播放的歌曲索引
@@ -203,6 +203,10 @@ class MusicPlayerUI {
             }
         ];
 
+        // this.init();
+    }
+
+    init() {
         this.initializeElements(); // 初始化DOM元素引用
         this.createAudioElement(); // 创建音频元素
         this.setupEventListeners(); // 事件监听
@@ -1140,9 +1144,9 @@ class MusicPlayerUI {
     }
 
     /**
-     * 保存播放器状态到sessionStorage
+     * 保存播放器状态到localStorage
      */
-    saveState() {
+    saveStateToLocalStorage() {
         try {
             const state = {
                 currentSongIndex: this.currentSongIndex,
@@ -1150,47 +1154,144 @@ class MusicPlayerUI {
                 currentTime: this.currentTime,
                 volume: this.volume,
                 playMode: this.playMode,
+                isLoggedIn: this.isLoggedIn,
+                userInfo: this.userInfo,
+                songDatabase: this.songDatabase,
+                timestamp: Date.now()
             };
-            sessionStorage.setItem('musicPlayerState', JSON.stringify(state));
+            localStorage.setItem('musicPlayerState', JSON.stringify(state));
+            console.log('✅ 播放器状态已保存到localStorage');
+            return true;
         } catch (error) {
-            console.error('保存播放器状态失败:', error);
+            console.error('保存播放器状态到localStorage失败:', error);
+            return false;
         }
     }
 
     /**
-     * 从sessionStorage恢复播放器状态
+     * 恢复数据后更新界面
+     * 在从localStorage恢复状态后，同步更新所有界面元素
+     */
+    updateUIAfterRestore() {
+        try {
+            // 1. 更新播放模式按钮显示
+            this.updatePlayModeButton();
+            
+            // 2. 加载并显示当前歌曲信息
+            if (this.songDatabase && this.songDatabase.length > 0) {
+                const currentSong = this.songDatabase[this.currentSongIndex];
+                if (currentSong) {
+                    this.updateSongInfo(currentSong);
+                    
+                    // 3. 根据登录状态更新歌词显示
+                    if (this.isLoggedIn && this.userInfo) {
+                        console.log('✅ 恢复登录状态，显示用户信息界面');
+                        this.updateLyricsWithUserInfo();
+                        this.hideNeteaseLoginSection();
+                    } else {
+                        console.log('ℹ️ 未登录状态，显示本地歌词');
+                        this.showLocalSongLyrics();
+                        this.showNeteaseLoginSection();
+                    }
+                    
+                    // 4. 更新时间显示
+                    this.updateTimeDisplay(this.currentTime, this.duration || currentSong.duration);
+                    this.updateProgress(this.currentTime, this.duration || currentSong.duration);
+                    
+                    // 5. 高亮当前歌词
+                    if (currentSong.lyrics) {
+                        setTimeout(() => {
+                            this.highlightCurrentLyric(this.currentTime);
+                        }, 100);
+                    }
+                }
+            }
+            
+            // 6. 更新音量显示
+            this.updateVolumeDisplay(this.volume);
+            
+            // 7. 更新播放按钮状态
+            this.setPlayButtonState(this.isPlaying);
+            
+            console.log('✅ 界面恢复完成 - 当前歌曲索引:', this.currentSongIndex, '登录状态:', this.isLoggedIn);
+            
+        } catch (error) {
+            console.error('更新界面失败:', error);
+        }
+    }
+
+    /**
+     * 更新播放模式按钮显示
+     * 根据当前播放模式更新按钮图标
+     */
+    updatePlayModeButton() {
+        if (!this.elements.playModeBtn) return;
+        
+        switch (this.playMode) {
+            case 'sequential':
+                this.elements.playModeBtn.textContent = '🔁';
+                break;
+            case 'single':
+                this.elements.playModeBtn.textContent = '🔂';
+                break;
+            case 'random':
+                this.elements.playModeBtn.textContent = '🔀';
+                break;
+            default:
+                this.elements.playModeBtn.textContent = '🔁';
+                this.playMode = 'sequential';
+        }
+    }
+
+   /**
+     * 从localStorage恢复播放器状态（修改后的版本）
      */
     restoreState() {
         try {
-            const saved = sessionStorage.getItem('musicPlayerState');
-
-            if (saved) {
-                const state = JSON.parse(saved);
+            // 优先尝试从localStorage恢复
+            const localSaved = localStorage.getItem('musicPlayerState');
+            
+            if (localSaved) {
+                const state = JSON.parse(localSaved);
                 
-                // 恢复状态
+                // 恢复歌曲数据库
+                if (state.songDatabase && Array.isArray(state.songDatabase)) {
+                    this.songDatabase = state.songDatabase;
+                }
+                
+                // 恢复基本状态
                 this.currentSongIndex = state.currentSongIndex || 0;
                 this.volume = state.volume || 0.75;
-                this.playMode = state.playMode || 'none';
+                this.playMode = state.playMode || 'sequential';
                 this.currentTime = state.currentTime || 0;
-                this.isPlaying = state.isPlaying || false;
+                this.isPlaying = false; // 不自动播放
                 
-                // **关键：设置音频时间但不重置**
+                // 恢复登录状态
+                if (state.isLoggedIn && state.userInfo) {
+                    this.isLoggedIn = state.isLoggedIn;
+                    this.userInfo = state.userInfo;
+                }
+                
+                // 应用到音频和界面
                 if (this.audio) {
                     this.audio.currentTime = this.currentTime;
                     this.audio.volume = this.volume;
                 }
                 
-                // 更新界面显示
                 this.updateVolumeDisplay(this.volume);
                 this.setPlayButtonState(this.isPlaying);
+
+                this.updateUIAfterRestore();
                 
-                console.log('✅ 播放器状态已恢复 - 歌曲:', this.songDatabase[this.currentSongIndex].title, '时间:', this.formatTime(this.currentTime));
+                console.log('✅ 从localStorage恢复成功');
                 return true;
             }
+            return false;
+            
         } catch (error) {
             console.error('恢复播放器状态失败:', error);
+            return false;
         }
-        return false;
     }
 
     /**
@@ -1500,39 +1601,149 @@ class MusicPlayerUI {
                 statusElement.className = 'qr-status error';
         }
     }
+
+    /**
+     * 控制音量变化
+     * @param {number} volumeChange - 音量变化值，正数为增加，负数为减少，范围建议 -1 到 1
+     * @param {boolean} isPercentage - 是否按百分比变化，默认为 true
+     * @returns {number} 返回变化后的音量值 (0-1)
+     */
+    adjustVolume(volumeChange, isPercentage = true) {
+        try {
+            // 保存当前音量
+            const originalVolume = this.volume;
+            
+            // 计算新音量
+            let newVolume;
+            
+            if (isPercentage) {
+                // 按百分比变化：volumeChange 为 0.1 表示增加 10%，-0.1 表示减少 10%
+                newVolume = this.volume + volumeChange;
+            } else {
+                // 按绝对值变化：volumeChange 为 10 表示增加 10 个百分点
+                newVolume = this.volume + (volumeChange / 100);
+            }
+            
+            // 限制音量范围在 0-1 之间
+            newVolume = Math.max(0, Math.min(1, newVolume));
+            
+            // 更新音量
+            this.volume = newVolume;
+            
+            // 应用到音频元素
+            if (this.audio) {
+                this.audio.volume = this.volume;
+            }
+            
+            // 更新界面显示
+            this.updateVolumeDisplay(this.volume);
+            
+            // 打印日志
+            const changePercent = Math.round((newVolume - originalVolume) * 100);
+            const currentPercent = Math.round(newVolume * 100);
+            
+            if (changePercent > 0) {
+                console.log(`🔊 音量增加 ${changePercent}%，当前音量: ${currentPercent}%`);
+            } else if (changePercent < 0) {
+                console.log(`🔉 音量减少 ${Math.abs(changePercent)}%，当前音量: ${currentPercent}%`);
+            } else {
+                console.log(`🔊 音量无变化，当前音量: ${currentPercent}%`);
+            }
+            
+            return this.volume;
+            
+        } catch (error) {
+            console.error('调整音量失败:', error);
+            return this.volume;
+        }
+    }
 }
 
-let musicPlayer = null;
+let musicPlayer = new MusicPlayerUI();
 
 // 页面加载完成后初始化播放器
 document.addEventListener('DOMContentLoaded', function() {
-    // 创建播放器实例
-    if(musicPlayer == null){
-        musicPlayer = new MusicPlayerUI();
+    const activeNavBtn = document.querySelector('.nav-btn.active');
+    const isPlayerPage = activeNavBtn && activeNavBtn.textContent.includes('🎵');
+    if (isPlayerPage) {
+        console.log('✅ 通过导航状态确认：这是娱乐页面');
         
-        // 尝试恢复之前的状态
-        musicPlayer.restoreState();
+            musicPlayer.init();
+            // const isInitialized = localStorage.getItem('PlayerInitialized');
+            // if (isInitialized === 'true') {
+                // 尝试恢复之前的状态
+                musicPlayer.restoreState();
 
-        musicPlayer.loadCurrentSong();
-        
-        // 初始化音量显示
-        musicPlayer.updateVolumeDisplay(musicPlayer.volume);
+                // musicPlayer.loadCurrentSong();
+                // // 初始化音量显示
+                // musicPlayer.updateVolumeDisplay(musicPlayer.volume);
+            // }
+
+            console.log('音乐播放器初始化完成');
+            console.log('当前歌曲库包含', musicPlayer.songDatabase.length, '首本地歌曲（扫码登录后可获取更多网易云音乐）');
+            
+            // 每秒保存一次状态
+            setInterval(() => {
+
+                    musicPlayer.saveStateToLocalStorage();
+                
+            }, 3000);
     }
-    
-    console.log('音乐播放器初始化完成');
-    console.log('当前歌曲库包含', musicPlayer.songDatabase.length, '首本地歌曲（扫码登录后可获取更多网易云音乐）');
-    
-    // 每秒保存一次状态
-    setInterval(() => {
-        if (musicPlayer) {
-            musicPlayer.saveState();
-        }
-    }, 1000);
 });
 
 // 页面卸载时保存状态
 window.addEventListener('beforeunload', () => {
     if (musicPlayer) {
-        musicPlayer.saveState();
+        musicPlayer.saveStateToLocalStorage();
     }
 });
+
+// 监听localStorage变化
+window.addEventListener('storage', function(event) {
+    if (event.key === 'crossPageMessage' && event.newValue) {
+        try {
+            const message = JSON.parse(event.newValue);
+            console.log('收到跨页面消息:', message);
+            
+            // 处理消息
+            handleCrossPageMessage(message);
+        } catch (error) {
+            console.error('解析跨页面消息失败:', error);
+        }
+    }
+});
+
+// 页面加载时检查是否有待处理的消息
+document.addEventListener('DOMContentLoaded', function() {
+    const pendingMessage = localStorage.getItem('crossPageMessage');
+    if (pendingMessage) {
+        try {
+            const message = JSON.parse(pendingMessage);
+            handleCrossPageMessage(message);
+            localStorage.removeItem('crossPageMessage');
+        } catch (error) {
+            console.error('处理待处理消息失败:', error);
+        }
+    }
+});
+
+// 处理消息的函数
+function handleCrossPageMessage(data) {
+    if (data.type === 'player') {
+        if (data.content === 'start') {
+            musicPlayer.togglePlayPause();
+        }
+        else if (data.content === 'stop') {
+            musicPlayer.togglePlayPause();
+        }
+        else if (data.content === 'increase') {
+            musicPlayer.adjustVolume(0.1);
+        }
+        else if (data.content === 'decrease') {
+            musicPlayer.adjustVolume(-0.1);
+        }
+        else if (data.content === 'toggle') {
+            musicPlayer.nextSong();
+        }
+    }
+}
