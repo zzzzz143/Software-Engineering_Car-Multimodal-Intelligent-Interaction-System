@@ -321,7 +321,7 @@ class MaintenanceScreen {
         const log = this.logs.find(l => l.id == logId);
         
         if (log) {
-            alert(`维修详情:\n\n标题: ${log.title}\n时间: ${log.time}\n描述: ${log.description}\n状态: ${log.status}`);
+            alert(`维修详情:\n标题: ${log.title}\n时间: ${log.time}\n描述: ${log.description}\n状态: ${log.status}`);
         }
     }
 
@@ -361,7 +361,7 @@ class MaintenanceScreen {
         const partClass = indicator.classList.contains('error') ? '故障' : 
                          indicator.classList.contains('warning') ? '警告' : '正常';
         
-        let detailMessage = `部件: ${partName}\n状态: ${partClass}\n\n`;
+        let detailMessage = `部件: ${partName}\n状态: ${partClass}\n`;
         
         switch(partName) {
             case '发动机':
@@ -384,7 +384,7 @@ class MaintenanceScreen {
         this.showNotification('正在加载历史记录...', 'info');
         // 这里可以实现历史记录查看功能
         setTimeout(() => {
-            alert('历史维修记录:\n\n2024-05-15: 定期保养\n2024-04-20: 更换刹车片\n2024-03-10: 发动机检修');
+            alert('历史维修记录:\n2024-05-15: 定期保养\n2024-04-20: 更换刹车片\n2024-03-10: 发动机检修');
         }, 1000);
     }
 

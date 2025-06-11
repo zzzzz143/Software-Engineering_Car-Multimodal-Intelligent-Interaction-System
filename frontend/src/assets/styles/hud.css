@@ -6,3 +6,15 @@
     background: linear-gradient(135deg, #000046 60%, #000066 100%); /* 深蓝色渐变 */
     border-bottom: 2px solid #ff6699; /* 粉色边框 */
 }
+
+@keyframes neonPulse {
+    0%, 100% { filter: drop-shadow(0 0 5px #ff6699); }
+    50% { filter: drop-shadow(0 0 20px #ff6699); }
+}
+#hudCanvas {
+    animation: neonPulse 2s infinite;
+    border: 1px solid #ff6699;
+    border-radius: 15px;
+    background: rgba(10, 25, 47, 0.8);
+    box-shadow: 0 0 30px rgba(255, 102, 153, 0.2);
+}

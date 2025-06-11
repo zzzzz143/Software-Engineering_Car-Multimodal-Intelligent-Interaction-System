@@ -16,6 +16,22 @@
 │   ├── config.py                               # 配置文件
 │   ├── extensions.py                           # 扩展初始化
 │   ├── models.py                               # 数据库模型
+│   ├── multimodal
+│   │   ├── audio/                              # 语音识别
+│   │   │   ├── SenseVoiceSmall/
+│   │   │   │   └── model.pt                    # 语音识别模型
+│   │   │   ├── audio.py                        # 语音识别
+│   │   │   └── tempAudio
+│   │   │   │   └── temp_audio_{user_id}.wav    # 临时音频文件
+│   │   ├── gesture/                            # 手势识别
+│   │   │   ├── model/                          # 模型文件
+│   │   │   │   └── gesture_recognizer.task     # 手势识别模型
+│   │   │   ├── requirements.txt                # 手势识别依赖库
+│   │   │   └── gesture.py                      # 手势识别
+│   │   ├── video/                              # 语音识别
+│   │   │   └── video.py                        # 视觉识别
+│   │   ├── .env                                # 环境变量配置
+│   │   └── multimodal.py                       # 多模态识别
 │   ├── command_process.py                      # 命令处理
 │   ├── instruction_processor.py                # 指令处理
 │   ├── instrustions.json                       # 指令集
@@ -76,23 +92,6 @@
 │   ├── conda_dev.cmd                           # 启动前端脚本
 │   ├── login.html                              # 登录界面
 │   └── server.js                               # 前端服务器
-├── multimodal
-│   ├── audio/                                  # 语音识别
-│   │   ├── SenseVoiceSmall/
-│   │   │   └── model.pt                        # 语音识别模型
-│   │   ├── audio.py                            # 语音识别
-│   │   └── tempAudio
-│   │   │   └── temp_audio_{user_id}.wav        # 临时音频文件
-│   ├── gesture/                                # 手势识别
-│   │   ├── model/                              # 模型文件
-│   │   │   └── gesture_recognizer.task         # 手势识别模型
-│   │   ├── requirements.txt                    # 手势识别依赖库
-│   │   └── gesture.py                          # 手势识别
-│   ├── video/                                  # 语音识别
-│   │   └── video.py                            # 视觉识别
-│   ├── .env                                    # 环境变量配置
-│   ├── detecte_wakeword.py                     # 检测唤醒词
-│   └── multimodal.py                           # 多模态识别
 ├── conda-environment.yml                       # 环境配置文件
 └── README.md                                   # 项目文档
 ```
@@ -118,7 +117,7 @@ conda activate software
 6. 在backend文件夹下创建.env文件，内容如下：
 ```plaintext
 MODEL_API_URL = your_model_api_url # 大模型API地址
-DASHSCOPE_API_KEY = your_dashscope_api_key # 大模型API密钥
+MODEL_API_KEY = your_MODEL_API_KEY # 大模型API密钥
 SQLALCHEMY_DATABASE_URI = postgresql://username:password@localhost/software_db # 数据库连接字符串
 SECRET_KEY = your_secret_key # 安全密钥(32位随机字符串)
 PERMISSION_CODE = your_permission_code # 权限码
@@ -207,7 +206,7 @@ npm run dev
 2. 用户说出默认唤醒词"hey siri"，后端进行Porcupine唤醒词识别
 3. 后端识别到唤醒词后，会响应"我在"，并在前端设置15秒的超时时间(减去Porcupine唤醒词识别时间4.8s，实际超时时间为10.2s)
 4. 用户继续说出指令，后端进行SenseVoiceSmall语音识别
-5. 后端将识别到的文字和自定义指令集发送给阿里云大模型，生成固定格式的回复
+5. 后端将识别到的文字和自定义指令集发送给大模型，生成固定格式的回复
    - 【instruction_code】：包含符合规范的指令编码
    - 【decision】：车辆系统应执行的具体决策
    - 【feedback】：给用户的友好反馈

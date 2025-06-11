@@ -8,9 +8,8 @@ generate_speech_bp = Blueprint('generate_speech', __name__)
 @generate_speech_bp.route('/api/generate_speech', methods=['POST'])
 @token_required
 def api_generate_speech(current_user):
-    """Flask API端点：处理文本转语音请求"""
     try:
-        print("generating speech...")
+        print("后端语音合成")
         data = request.get_json()
         text = data.get('text', '').strip()
         voice_index = data.get('voice_index', 0)

@@ -1,0 +1,9 @@
+[
+    {
+        "timestamp": "2025-06-11T14:48:27.279403",
+        "source": "system",
+        "system_info": "无手势,驾驶员持续分心或疲劳！",
+        "command": "",
+        "response": "【instruction_code】：03: START - 启动\n【decision】：系统应启动，以帮助驾驶员集中注意力并减少疲劳。\n【feedback】：请启动车辆，以便您能更专注于驾驶。"
+    }
+]

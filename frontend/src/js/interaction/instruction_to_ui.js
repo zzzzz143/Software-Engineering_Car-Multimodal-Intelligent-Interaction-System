@@ -1,4 +1,4 @@
-import {startHUD } from '../hud.js';
+import { startHUD } from '../hud.js';
 // 功能1：获取指令编码并操作对应前端
 // 功能2：警告类
 
@@ -70,6 +70,7 @@ export class WarningSystem {
         if (config.playSound) {
             this.playWarningSound();
             // 调用startHUD函数并传递警告灯参数
+            console.log('show调用startHUD函数并传递警告灯参数');
             startHUD(60, 15, 4000, 4, 90, true, config.warningFrequency);
         }
         
@@ -153,6 +154,7 @@ export class WarningSystem {
             this.audio.pause();
             this.audio.currentTime = 0;
             // 调用startHUD函数并关闭警告灯
+            console.log('hide调用startHUD函数并传递警告灯参数');
             startHUD(60, 15, 4000, 4, 90, false, 30);
         }
         
@@ -209,6 +211,7 @@ export class WarningSystem {
         if (this.textElement && this.isVisible) {
             this.textElement.textContent = message;
             // 调用startHUD函数并更新闪烁频率
+            console.log('updateMessage调用startHUD函数并传递警告灯参数');
             startHUD(60, 15, 4000, 4, 90, true, warningFrequency);
         }
     }

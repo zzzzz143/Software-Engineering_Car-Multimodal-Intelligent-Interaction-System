@@ -1,5 +1,6 @@
-function drawHUD(speed = 49, fuel = 78, rpm = 3500, gear = 3, temp = 85, warningLight = false, warningFrequency = 1000) {
-    const canvas = document.getElementById('hudCanvas');
+export function drawHUD(speed = 49, fuel = 78, rpm = 3500, gear = 3, temp = 85, warningLight = false, warningFrequency = 1000) {
+    const iframe = document.querySelector('iframe[src="./hud.html"]');
+    const canvas = iframe.contentDocument.getElementById('hudCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -113,28 +114,18 @@ function drawHUD(speed = 49, fuel = 78, rpm = 3500, gear = 3, temp = 85, warning
     }
 }
 
-// 添加CSS动画
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes neonPulse {
-        0%, 100% { filter: drop-shadow(0 0 5px #ff6699); }
-        50% { filter: drop-shadow(0 0 20px #ff6699); }
-    }
-    #hudCanvas {
-        animation: neonPulse 2s infinite;
-        border: 1px solid #ff6699;
-        border-radius: 15px;
-        background: rgba(10, 25, 47, 0.8);
-        box-shadow: 0 0 30px rgba(255, 102, 153, 0.2);
-    }
-`;
-document.head.appendChild(style);
+let intervalId = null;
 
 // 定时调用drawHUD函数以实现闪烁效果
 export function startHUD(speed, fuel, rpm, gear, temp, warningLight, warningFrequency) {
-    setInterval(() => {
+    console.log("intervalId:", intervalId);
+    // 先清除之前的定时器
+    if (intervalId) {
+        clearInterval(intervalId);
+    }
+
+    // 创建新的定时器
+    intervalId = setInterval(() => {
         drawHUD(speed, fuel, rpm, gear, temp, warningLight, warningFrequency);
     }, 1000 / 60); // 每秒60帧
 }
-
-startHUD(49, 78, 3500, 3, 85, true, 50); // 初始调用

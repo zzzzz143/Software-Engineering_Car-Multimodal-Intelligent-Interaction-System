@@ -1,4 +1,4 @@
-import * as InstoUi_Utils from './instruction_to_ui.js';
+import { isEmergency, processInstructionCode } from './instruction_to_ui.js';
 
 export function initMultimodalRecognition() {
     const video = document.getElementById('recognitionView');
@@ -6,6 +6,7 @@ export function initMultimodalRecognition() {
     let isAwake = false;
     let wakeWord = "hey siri"; // 默认唤醒词
     let wakeTimeout = null; // 唤醒超时定时器
+    let isSpeaking = false; // 语音合成播放
 
     // 初始化摄像头
     navigator.mediaDevices.getUserMedia({ 
@@ -92,10 +93,9 @@ export function initMultimodalRecognition() {
                             decision = image_info.decision;
                             feedback = image_info.feedback;
                         }
-
                         displayResponse(feedback);
                         speakResponse(feedback);
-                        InstoUi_Utils.processInstructionCode(instruction_code, 'system');
+                        processInstructionCode(instruction_code, 'system');
                         break;
                     case 2: // WAKE_WORD
                         console.log('处理唤醒词');
@@ -113,14 +113,14 @@ export function initMultimodalRecognition() {
                             instruction_code = audio_info.instruction_code;
                             decision = audio_info.decision;
                             feedback = audio_info.feedback;
-                            InstoUi_Utils.processInstructionCode(instruction_code, 'user');
+                            processInstructionCode(instruction_code, 'user');
                             displayResponse(feedback);
                             speakResponse(feedback);
                         } else {
                             instruction_code = image_info.instruction_code;
                             decision = image_info.decision;
                             feedback = image_info.feedback;
-                            InstoUi_Utils.processInstructionCode(instruction_code, 'system');
+                            processInstructionCode(instruction_code, 'system');
                             displayResponse(feedback);
                             speakResponse(feedback);
                         }
@@ -162,7 +162,7 @@ export function initMultimodalRecognition() {
 
                 // 发送多模态请求
                 const payload = {
-                    is_emergency: InstoUi_Utils.isEmergency,
+                    is_emergency: isEmergency,
                     type: 'command',
                     user_id: userId,
                     image: image_info,
@@ -245,6 +245,12 @@ export function initMultimodalRecognition() {
             await new Promise(resolve => setTimeout(resolve, 4800));
         
             const float32Chunk = audioBufferQueue.splice(0, audioBufferQueue.length);
+
+            if (isSpeaking) {
+                console.log('语音合成播放时不发送音频数据');
+                return "";
+            }
+
             const int16Chunk = convertFloat32ToInt16(float32Chunk);
             const uint8Array = new Uint8Array(int16Chunk.buffer);
             const binaryString = Array.from(uint8Array)
@@ -295,6 +301,7 @@ export function initMultimodalRecognition() {
     // 语音合成模块
     async function speakResponse(responseText, voiceIndex = 0) {
         try {
+            isSpeaking = true;
             const response = await fetch('/api/generate_speech', {
                 method: 'POST',
                 headers: {
@@ -318,6 +325,7 @@ export function initMultimodalRecognition() {
             
             audio.onended = () => {
                 console.log('语音播放完成');
+                isSpeaking = false;
                 URL.revokeObjectURL(audioUrl); // 释放内存
             };
             

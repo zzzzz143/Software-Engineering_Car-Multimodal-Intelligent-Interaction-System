@@ -7,7 +7,6 @@ backend/.env
 backend/userConfig/*
 backend/userHistory/*
 backend/generateSpeech/*
-multimodal/.env
-multimodal/gesture/model/gesture_recognizer.task
-multimodal/audio/SenseVoiceSmall/model.pt
-multimodal/audio/tempAudio/*
+backend/multimodal/gesture/model/gesture_recognizer.task
+backend/multimodal/audio/SenseVoiceSmall/model.pt
+backend/multimodal/audio/tempAudio/*

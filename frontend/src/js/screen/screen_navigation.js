@@ -437,7 +437,7 @@ export class NavigationDisplayManager {
                         if (status === 'complete') {
                             this.currentPosition = [result.position.lng, result.position.lat];
                             console.log('当前位置：', this.currentPosition);
-                            const userInfo = JSON.parse(localStorage.getItem('userInfo'));Add commentMore actions
+                            const userInfo = JSON.parse(localStorage.getItem('userInfo'));
                             if (userInfo) {
                                 userInfo.currentPosition = this.currentPosition;
                                 localStorage.setItem('userInfo', JSON.stringify(userInfo));

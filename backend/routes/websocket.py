@@ -1,11 +1,6 @@
 import json
-from pathlib import Path
-import sys
+from ..multimodal.multimodal import MultimodalProcessor
 from ..command_process import process_system_info, process_user_command
-
-multimodal_path = Path(__file__).parent.parent.parent.absolute().joinpath('multimodal')
-sys.path.append(str(multimodal_path))
-from multimodal import MultimodalProcessor
 
 # 初始化多模态处理器
 multimodal_processor = MultimodalProcessor()

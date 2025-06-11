@@ -1,14 +1,13 @@
 import base64
 import cv2
 import numpy as np
-from gesture.gesture import GestureRecognition
-from video.video import VisualRecognition
-from audio.audio import AudioRecognition
+from .gesture.gesture import GestureRecognition
+from .video.video import VisualRecognition
+from .audio.audio import AudioRecognition
 import pvporcupine
 import os
 import wave
-from dotenv import load_dotenv
-load_dotenv()
+from ..config import Config
 
 def create_temp_audio(audio_bytes, user_id):
     """
@@ -124,7 +123,7 @@ class MultimodalProcessor:
         # 初始化唤醒词检测器
         try:
             self.porcupine = pvporcupine.create(
-                access_key = os.getenv('PORCUPINE_ACCESS_KEY'),
+                access_key = Config.PORCUPINE_ACCESS_KEY,
                 keywords=["hey siri"]
             )
         except Exception as e:
@@ -181,6 +180,14 @@ class MultimodalProcessor:
             if not base64_audio:
                 raise ValueError({'error': 'Audio data is missing'})
 
+            # 语音合成播放时不发送音频数据
+            if base64_audio == "":
+                return {
+                    'gesture': gesture_recognized_text,
+                    'video': video_recognized_text,
+                    'audio': "音频数据为空"
+                }
+            
             # 解码 Base64 字符串为 PCM(int16, 16kHz, mono)
             try:
                 audio_bytes = base64.b64decode(base64_audio)

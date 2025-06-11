@@ -161,9 +161,9 @@ def create_instruction_prompt():
     return prompt
 
 def send_to_api(data):
-    """发送请求到阿里云大模型API"""
+    """发送请求到大模型API"""
     headers = {
-        'Authorization': f'Bearer {Config.DASHSCOPE_API_KEY}',
+        'Authorization': f'Bearer {Config.MODEL_API_KEY}',
         'Content-Type': 'application/json'
     }
     try:
@@ -265,7 +265,7 @@ def is_command_meaningful(command):
         return True
     else:
         payload = {
-            "model": "qwen-plus",
+            "model": Config.MODEL_NAME,
             "messages": [
                 {
                     "role": "system",
@@ -286,21 +286,21 @@ def is_command_meaningful(command):
 
 def extract_instruction_code(response_text):
     """从API响应中提取指令编码"""
-    match = re.search(r'【instruction_code】\s*(.*?)(?:\s*【|\s*$)', response_text, re.DOTALL)
+    match = re.search(r'【instruction_code】\s*[:：]?\s*(.*?)(?:\s*【|\s*$)', response_text, re.DOTALL)
     if match:
         return match.group(1).strip()
     return ""
 
 def extract_decision(response_text):
     """从API响应中提取决策信息"""
-    match = re.search(r'【decision】\s*(.*?)(?:\s*【|\s*$)', response_text, re.DOTALL)
+    match = re.search(r'【decision】\s*[:：]?\s*(.*?)(?:\s*【|\s*$)', response_text, re.DOTALL)
     if match:
         return match.group(1).strip()
     return ""
 
 def extract_feedback(response_text):
     """从API响应中提取用户反馈信息"""
-    match = re.search(r'【feedback】\s*(.*?)(?:\s*【|\s*$)', response_text, re.DOTALL)
+    match = re.search(r'【feedback】\s*[:：]?\s*(.*?)(?:\s*【|\s*$)', response_text, re.DOTALL)
     if match:
         return match.group(1).strip()
     return "无法提取feedback"
@@ -331,15 +331,15 @@ def process_command_generic(input_data, user_id, process_type):
     
     # 构建输入字符串
     input_str = (
-        f'你是一个车载智能助手。可以参考的用户个性化配置信息如下：{json.dumps(user_config)}。\n\n'
-        f'{instruction_prompt}\n\n'
+        f'你是一个车载智能助手。可以参考的用户个性化配置信息如下：{json.dumps(user_config)}。\n'
+        f'{instruction_prompt}\n'
         f'请分析以下{"用户指令" if process_type == "user" else "系统信息"}，给出标准指令编码和相应决策与反馈：\n'
         f'【{"用户指令" if process_type == "user" else "系统信息"}】{input_data}'
     )
 
     # 构建请求负载
     payload = {
-        "model": "qwen-plus",
+        "model": Config.MODEL_NAME,
         "messages": [
             {
                 "role": "system",
